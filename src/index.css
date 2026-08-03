@@ -3,7 +3,7 @@
 
 @font-face {
   font-family: 'SacheonHangGong';
-  src: url('/src/assets/fonts/SacheonHangGong.ttf');
+  src: url('./assets/fonts/SacheonHangGong.ttf');
 }
 
 @theme {
