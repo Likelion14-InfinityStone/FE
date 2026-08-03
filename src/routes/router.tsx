@@ -12,23 +12,25 @@ import Emergency from '@/pages/emergency/Emergency';
 import NotFound from '@/pages/notFound/NotFound';
 
 const router = createBrowserRouter([
-  { path: '/', element: <Splash /> },
-  { path: '/onboard', element: <Onboard /> },
-
-  { path: '/login', element: <Login /> },
-  // { path: '/oauth/callback', element: <OAuthCallback /> },
   {
     element: <MainLayout />,
     children: [
+      { path: '/', element: <Splash /> },
+      { path: '/onboard', element: <Onboard /> },
+      { path: '/login', element: <Login /> },
+      // { path: '/oauth/callback', element: <OAuthCallback /> },
+
+      // 프라이빗 루트 설정
       { path: '/home', element: <Home /> },
       { path: '/register', element: <Register /> },
       { path: '/documents', element: <Documents /> },
       { path: '/scan', element: <Scan /> },
       { path: '/emergency', element: <Emergency /> },
       { path: '/account', element: <Account /> },
+
+      { path: '*', element: <NotFound /> },
     ],
   },
-  { path: '*', element: <NotFound /> },
 ]);
 
 export default router;
