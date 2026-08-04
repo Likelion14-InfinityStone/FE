@@ -12,7 +12,7 @@ const Splash = () => {
     }, 1200);
 
     const navigateTimer = setTimeout(() => {
-      navigate('/onboard');
+      navigate('/onboard', { replace: true });
     }, 1400);
 
     return () => {

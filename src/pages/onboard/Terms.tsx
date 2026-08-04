@@ -36,7 +36,7 @@ const Terms = () => {
         onClose={() => navigate(-1)}
         onConfirm={() => {
           agreeToTerm(selectedTerm.id);
-          navigate(-1);
+          navigate('/terms', { replace: true });
         }}
       />
     );
