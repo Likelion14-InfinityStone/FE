@@ -9,14 +9,12 @@ type InputButtonProps = {
   placeholder?: string;
 };
 
-const STATUS_CLASSES: Record<
-  InputButtonStatus,
-  { box: string; text: string }
-> = {
-  default: { box: 'border-[#E2E2E2]', text: 'text-[#191919]' },
-  success: { box: 'border-[#23408F]', text: 'text-[#23408F]' },
-  error: { box: 'border-[#EF5050] bg-[#EF5050]/20', text: 'text-[#EF5050]' },
-};
+const STATUS_CLASSES: Record<InputButtonStatus, { box: string; text: string }> =
+  {
+    default: { box: 'border-[#E2E2E2]', text: 'text-[#191919]' },
+    success: { box: 'border-[#23408F]', text: 'text-[#23408F]' },
+    error: { box: 'border-[#EF5050] bg-[#EF5050]/20', text: 'text-[#EF5050]' },
+  };
 
 const InputButton = ({
   value,

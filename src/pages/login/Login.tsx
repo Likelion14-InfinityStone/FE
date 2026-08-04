@@ -3,7 +3,7 @@ import LogoFIRU from '@/assets/images/login/logoPIRU.svg';
 import KakaoTalk from '@/assets/images/login/KakaoTalk.svg';
 import { useNavigate } from 'react-router-dom';
 
-// TODO: 카카오 소셜 로그인 연동 (백엔드 OAuth 준비 후 연결)
+// TODO: 카카오 소셜 로그인 연동
 // const handleKakaoLogin = () => {
 //   window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth/kakao`;
 // };

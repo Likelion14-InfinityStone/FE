@@ -4,7 +4,8 @@ const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9]{3,10}$/;
 
 type NicknameCheckStatus = 'default' | 'success' | 'error';
 
-const NICKNAME_GUIDE_MESSAGE = '3~10 사이의 한글, 영어, 숫자로만 입력해 주세요.';
+const NICKNAME_GUIDE_MESSAGE =
+  '3~10 사이의 한글, 영어, 숫자로만 입력해 주세요.';
 
 const MESSAGES: Record<NicknameCheckStatus, string> = {
   default: NICKNAME_GUIDE_MESSAGE,
