@@ -49,7 +49,7 @@ const Terms = () => {
       onToggleAgreement={toggleTermAgreement}
       onSelectTerm={(termId) => setSearchParams({ detail: termId })}
       onBack={() => navigate('/onboard')}
-      onConfirm={() => navigate('/login')}
+      onConfirm={() => navigate('/home')}
     />
   );
 };
