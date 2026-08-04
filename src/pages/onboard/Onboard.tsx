@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import BottomButton from '@/components/button/BottomButton';
 import OnboardingFirstIcon from '@/assets/images/onboard/onboardingFirstIcon.svg';
@@ -22,8 +21,16 @@ const ONBOARDING_STEPS = [
 ] as const;
 
 const Onboard = () => {
-  const [step, setStep] = useState(0);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const stepParam = Number(searchParams.get('step') ?? 1);
+  const step =
+    Number.isInteger(stepParam) &&
+    stepParam >= 1 &&
+    stepParam <= ONBOARDING_STEPS.length
+      ? stepParam - 1
+      : 0;
 
   const currentStep = ONBOARDING_STEPS[step];
   const isLastStep = step === ONBOARDING_STEPS.length - 1;
@@ -34,7 +41,7 @@ const Onboard = () => {
       return;
     }
 
-    setStep((previousStep) => previousStep + 1);
+    setSearchParams({ step: String(step + 2) });
   };
 
   return (
@@ -44,7 +51,7 @@ const Onboard = () => {
           <span
             key={index}
             className={`font-Pretendard w-3 h-3 rounded-[100px] ${
-              index == step ? 'bg-[#23408F]' : 'bg-gray-200'
+              index === step ? 'bg-[#23408F]' : 'bg-gray-200'
             }`}
           />
         ))}
