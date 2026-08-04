@@ -38,12 +38,12 @@ const Onboard = () => {
   };
 
   return (
-    <div className="flex min-h-dvh w-full flex-col pb-8">
+    <div className="flex min-h-dvh w-full flex-col pb-10">
       <div className="flex justify-center gap-4.5 mt-13">
         {ONBOARDING_STEPS.map((_, index) => (
           <span
             key={index}
-            className={`w-3 h-3 rounded-[100px] ${
+            className={`font-Pretendard w-3 h-3 rounded-[100px] ${
               index == step ? 'bg-[#23408F]' : 'bg-gray-200'
             }`}
           />
@@ -51,10 +51,10 @@ const Onboard = () => {
       </div>
 
       <div className="flex flex-1 flex-col">
-        <div className="flex flex-1 flex-col items-center justify-center">
+        <div className="flex flex-1 flex-col items-center justify-center gap-10">
           <img src={currentStep.icon} alt="단계별 이미지" />
 
-          <p className="mt-10 text-center text-[#000000] font-[Pretendard] font-semibold text-[1.375rem] leading-[normal] tracking-tighter whitespace-pre-line">
+          <p className="text-center text-[#000000] font-Pretendard font-semibold text-[1.375rem] leading-[normal] tracking-tighter whitespace-pre-line">
             {currentStep.text}
           </p>
         </div>
