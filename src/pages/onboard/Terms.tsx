@@ -33,7 +33,7 @@ const Terms = () => {
         term={selectedTerm}
         checked={agreedTermIds.includes(selectedTerm.id)}
         onToggleAgreement={() => toggleTermAgreement(selectedTerm.id)}
-        onClose={() => navigate(-1)}
+        onClose={() => navigate('/terms', { replace: true })}
         onConfirm={() => {
           agreeToTerm(selectedTerm.id);
           navigate('/terms', { replace: true });
