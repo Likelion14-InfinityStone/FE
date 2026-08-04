@@ -1,6 +1,5 @@
-import BottomButton from '@/components/button/BottomButton';
+import KakaoButton from '@/pages/login/components/KakaoButton';
 import LogoFIRU from '@/assets/images/login/logoPIRU.svg';
-import KakaoTalk from '@/assets/images/login/KakaoTalk.svg';
 import { useNavigate } from 'react-router-dom';
 
 // TODO: 카카오 소셜 로그인 연동
@@ -16,19 +15,16 @@ const Login = () => {
       <div className="flex flex-1 flex-col items-center justify-center">
         <img src={LogoFIRU} alt="MEDI PASS 로고" />
 
-        <p className="font-sacheon text-center text-[33.6px] tracking-[0.024em] leding-[1.4] text-[#23408F]">
+        <p className="font-sacheon font-normal text-center text-[2.1rem] tracking-[0.8064px] leading-[1.4] text-[#23408F]">
           MEDI PASS
         </p>
 
-        <p className="font-Pretendard text-[1rem] leading-[1.4] tracking-[0.384px] text-[#6D6D6D]">
+        <p className="font-pretendard text-[1rem] leading-[1.4] tracking-[0.384px] text-[#6D6D6D]">
           약 때문에, 여행을 망설이지 않도록
         </p>
       </div>
 
-      <BottomButton
-        text="카카오로 시작하기"
-        icon={KakaoTalk}
-        variant="kakao"
+      <KakaoButton
         // onClick={handleKakaoLogin}
         //임시로 /home과 연결함
         onClick={() => navigate('/home')}
