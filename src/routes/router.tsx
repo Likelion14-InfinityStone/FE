@@ -4,7 +4,6 @@ import Splash from '@/components/splash/Splash';
 import Onboard from '@/pages/onboard/Onboard';
 import Terms from '@/pages/onboard/Terms';
 import Login from '@/pages/login/Login';
-import Nickname from '@/pages/login/Nickname';
 import Home from '@/pages/home/Home';
 import Register from '@/pages/register/Register';
 import Documents from '@/pages/documents/Documents';
@@ -22,7 +21,6 @@ const router = createBrowserRouter([
       { path: '/onboard', element: <Onboard /> },
       { path: '/terms', element: <Terms /> },
       { path: '/login', element: <Login /> },
-      { path: '/nickname', element: <Nickname /> },
       // { path: '/oauth/callback', element: <OAuthCallback /> },
 
       // 프라이빗 루트 설정

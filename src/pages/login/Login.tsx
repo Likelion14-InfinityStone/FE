@@ -30,8 +30,8 @@ const Login = () => {
         icon={KakaoTalk}
         variant="kakao"
         // onClick={handleKakaoLogin}
-        //임시로 /nickname과 연결함
-        onClick={() => navigate('/nickname')}
+        //임시로 /home과 연결함
+        onClick={() => navigate('/home')}
       />
     </div>
   );
