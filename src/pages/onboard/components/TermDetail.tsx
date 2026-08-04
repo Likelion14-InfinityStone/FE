@@ -10,6 +10,7 @@ interface TermDetailProps {
   checked: boolean;
   onToggleAgreement: () => void;
   onClose: () => void;
+  onConfirm: () => void;
 }
 
 const TermDetail = ({
@@ -17,6 +18,7 @@ const TermDetail = ({
   checked,
   onToggleAgreement,
   onClose,
+  onConfirm,
 }: TermDetailProps) => {
   return (
     <div className="flex min-h-dvh w-full flex-col pb-10 pt-7 gap-9.5">
@@ -52,7 +54,7 @@ const TermDetail = ({
       </div>
 
       <div className="mt-auto">
-        <BottomButton text="확인" onClick={onClose} />
+        <BottomButton text="확인" onClick={onConfirm} />
       </div>
     </div>
   );

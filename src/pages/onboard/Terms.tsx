@@ -21,6 +21,12 @@ const Terms = () => {
     );
   };
 
+  const agreeToTerm = (termId: TermId) => {
+    setAgreedTermIds((previousIds) =>
+      previousIds.includes(termId) ? previousIds : [...previousIds, termId]
+    );
+  };
+
   if (selectedTerm) {
     return (
       <TermDetail
@@ -28,6 +34,10 @@ const Terms = () => {
         checked={agreedTermIds.includes(selectedTerm.id)}
         onToggleAgreement={() => toggleTermAgreement(selectedTerm.id)}
         onClose={() => navigate(-1)}
+        onConfirm={() => {
+          agreeToTerm(selectedTerm.id);
+          navigate(-1);
+        }}
       />
     );
   }
