@@ -20,7 +20,9 @@ export const useNicknameCheck = () => {
 
   const handleChange = (value: string) => {
     setNickname(value);
-    setStatus('default');
+    if (value.trim() === '') {
+      setStatus('default');
+    }
   };
 
   const checkNickname = () => {
@@ -36,7 +38,7 @@ export const useNicknameCheck = () => {
     nickname,
     status,
     message,
-    isCheckable: isValidFormat,
+    isCheckable: nickname.trim().length > 0,
     isVerified: status === 'success',
     handleChange,
     checkNickname,
