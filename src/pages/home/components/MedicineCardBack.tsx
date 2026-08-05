@@ -56,7 +56,7 @@ const MedicineCardBack = () => {
             className="px-2 py-1.5 border border-[#23408F] rounded-xl"
           >
             <p className="font-Pretendard text-[0.875rem] leading-4.9 tracking-[0.3px] font-semibold text-[#23408F]">
-              {isKorean ? 'EN' : '한국어'}
+              {isKorean ? '한국어' : 'EN'}
             </p>
           </button>
         </div>

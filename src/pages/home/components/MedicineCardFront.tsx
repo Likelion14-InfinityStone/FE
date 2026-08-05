@@ -7,6 +7,7 @@ export interface MedicineCardFrontProps {
   status: MedicineCardStatus;
   label?: string;
   onRegister?: () => void;
+  isCompact?: boolean;
 }
 
 const MedicineCardFront = ({
@@ -14,6 +15,7 @@ const MedicineCardFront = ({
   status,
   label,
   onRegister,
+  isCompact = false,
 }: MedicineCardFrontProps) => {
   const isUnregistered = status === 'unregistered';
   const badge = isUnregistered
@@ -21,7 +23,11 @@ const MedicineCardFront = ({
     : { label, bgClass: 'bg-[#A1ADCC]' };
 
   return (
-    <div className="flex h-full w-full flex-col gap-17.5 rounded-[20px] bg-[#23408F] px-6 pt-6 pb-7 shadow-[0_2px_2px_0_rgba(0,0,0,0.04)]">
+    <div
+      className={`flex h-full w-full flex-col overflow-hidden rounded-[20px] bg-[#23408F] px-6 shadow-[0_2px_2px_0_rgba(0,0,0,0.04)] ${
+        isCompact ? 'gap-6.5 pt-7 pb-8.5' : 'gap-17.5 pt-6 pb-7'
+      }`}
+    >
       <div className={`w-fit rounded-xl px-2 py-1.5 ${badge.bgClass}`}>
         <p className="font-Pretendard text-[0.875rem] leading-4.9 font-semibold tracking-[0.3px] text-[#FAFAF6]">
           {badge.label}
@@ -29,7 +35,7 @@ const MedicineCardFront = ({
       </div>
       <div className="flex flex-col justify-between">
         <div>
-          <div className="flex flex-col gap-2.5">
+          <div className={`flex flex-col ${isCompact ? 'gap-1.5' : 'gap-2.5'}`}>
             <p className="font-Pretendard text-[1.5rem] leading-8.4 font-semibold tracking-[0.6px] whitespace-pre-line text-[#FFFFFF]">
               {`안녕하세요,\n${name} 님`}
             </p>
@@ -38,18 +44,14 @@ const MedicineCardFront = ({
             </p>
           </div>
           <div className="flex flex-col gap-6.75">
-            <img
-              src={HomePiruIcon}
-              alt=""
-              className="-mx-1 w-60 max-w-none"
-            />
+            <img src={HomePiruIcon} alt="" className="-mx-1 w-60 max-w-none" />
             <p className="font-Pretendard text-[0.875rem] leading-4.9 font-regular tracking-[0.3px] text-[#FFFFFF]">
               본 카드는 복약정보 참고용이며, 처방전 · 의사 소견서 · 반입
               허가서를 대체하지 않습니다.
             </p>
           </div>
         </div>
-        {isUnregistered && (
+        {isUnregistered && !isCompact && (
           <button
             type="button"
             onClick={(event) => {

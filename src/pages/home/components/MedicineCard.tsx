@@ -1,23 +1,33 @@
-import { useState } from 'react';
 import MedicineCardBack from './MedicineCardBack';
 import MedicineCardFront, {
   type MedicineCardFrontProps,
 } from './MedicineCardFront';
 
-type MedicineCardProps = MedicineCardFrontProps;
+type MedicineCardProps = MedicineCardFrontProps & {
+  isActive: boolean;
+  isFlipped: boolean;
+  onFlip: () => void;
+};
 
 const MedicineCard = ({
   name,
   status,
   label,
   onRegister,
+  isActive,
+  isFlipped,
+  onFlip,
 }: MedicineCardProps) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-
   return (
     <div
-      onClick={() => setIsFlipped((prev) => !prev)}
-      className="mt-10 mx-auto w-70 h-125 cursor-pointer"
+      onClick={() => {
+        if (isActive) {
+          onFlip();
+        }
+      }}
+      className={`w-70 shrink-0 snap-center cursor-pointer overflow-hidden transition-[height,opacity] duration-300 ${
+        isActive ? 'h-125 opacity-100' : 'h-100 opacity-55'
+      }`}
     >
       {isFlipped ? (
         <MedicineCardBack />
@@ -27,6 +37,7 @@ const MedicineCard = ({
           status={status}
           label={label}
           onRegister={onRegister}
+          isCompact={!isActive}
         />
       )}
     </div>
