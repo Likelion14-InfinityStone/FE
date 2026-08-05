@@ -9,7 +9,11 @@ const Home = () => {
   return (
     <div className="w-full h-full">
       <Header title="복약 카드" />
-      <MedicineCard name="피루피루" status="unregistered" />
+      <MedicineCard
+        name="피루피루"
+        status="unregistered"
+        onRegister={() => navigate('/ready')}
+      />
       <div className="pointer-events-none fixed inset-x-0 bottom-29 z-10 mx-auto w-full max-w-100.5 px-4">
         <button
           type="button"

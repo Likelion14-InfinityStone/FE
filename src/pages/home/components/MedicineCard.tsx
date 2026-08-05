@@ -6,9 +6,15 @@ interface MedicineCardProps {
   name: string;
   status: MedicineCardStatus;
   label?: string;
+  onRegister?: () => void;
 }
 
-const MedicineCard = ({ name, status, label }: MedicineCardProps) => {
+const MedicineCard = ({
+  name,
+  status,
+  label,
+  onRegister,
+}: MedicineCardProps) => {
   const isUnregistered = status === 'unregistered';
   const badge = isUnregistered
     ? { label: '미등록', bgClass: 'bg-[#EF5050]' }
@@ -40,11 +46,15 @@ const MedicineCard = ({ name, status, label }: MedicineCardProps) => {
           </div>
         </div>
         {isUnregistered && (
-          <div className="flex -mx-2.5 mt-5.5 h-11 px-3.5 py-1.5 rounded-xl bg-[#A1ADCC] justify-center items-center">
+          <button
+            type="button"
+            onClick={onRegister}
+            className="flex -mx-2.5 mt-5.5 h-11 px-3.5 py-1.5 rounded-xl bg-[#A1ADCC] justify-center items-center"
+          >
             <p className="font-Pretendard text-[0.875rem] font-semibold text-[#FFFFFF] leading-4.9 tracking-[0.3px]">
               등록하기
             </p>
-          </div>
+          </button>
         )}
       </div>
     </div>
