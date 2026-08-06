@@ -1,7 +1,6 @@
 import MedicineCardBack from './MedicineCardBack';
-import MedicineCardFront, {
-  type MedicineCardFrontProps,
-} from './MedicineCardFront';
+import type { MedicineCardFrontProps } from './MedicineCardFront';
+import MedicineCardFront from './MedicineCardFront';
 
 type MedicineCardProps = MedicineCardFrontProps & {
   isActive: boolean;
