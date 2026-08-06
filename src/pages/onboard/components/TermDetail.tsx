@@ -21,7 +21,7 @@ const TermDetail = ({
   onConfirm,
 }: TermDetailProps) => {
   return (
-    <div className="flex min-h-dvh w-full flex-col pb-10 pt-7 gap-9.5">
+    <div className="flex min-h-full w-full flex-col pb-10 pt-7 gap-9.5">
       <button
         type="button"
         aria-label="약관 목록으로 돌아가기"
