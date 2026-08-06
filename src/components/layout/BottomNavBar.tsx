@@ -57,9 +57,11 @@ const BottomNavBar = () => {
   const getActiveTab = (pathname: string) => {
     if (pathname.startsWith('/ready')) return '/ready';
     if (pathname.startsWith('/documents')) return '/documents';
+    if (pathname.startsWith('/home')) return '/home';
     if (pathname.startsWith('/scan')) return '/scan';
     if (pathname.startsWith('/account')) return '/account';
-    return '/home';
+
+    return null;
   };
 
   const activeTab = getActiveTab(pathname);
