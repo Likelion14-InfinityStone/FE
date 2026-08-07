@@ -1,4 +1,3 @@
-// MedicationPassportCard.tsx
 type MedicationStat = {
   icon: React.ReactNode;
   label: string;
