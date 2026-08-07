@@ -59,7 +59,9 @@ const SosBottomSheet = ({ isOpen, onClose }: SosBottomSheetProps) => {
                 icon={icon}
                 label={label}
                 onClick={() =>
-                  navigate('/emergency', { state: { reason: id } })
+                  navigate(`/emergency?reason=${id}`, {
+                    state: { reason: id },
+                  })
                 }
               />
             ))}
