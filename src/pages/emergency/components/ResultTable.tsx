@@ -12,7 +12,7 @@ const ResultTable = ({ title, children }: ResultTableProps) => {
       <p className="font-Pretendard text-[1rem] leading-5.6 font-medium text-[#000000]">
         {title}
       </p>
-      <div className="relative rounded-[20px] border border-[#23408F] px-4 py-3.5">
+      <div className="relative flex flex-col gap-4 rounded-[20px] border border-[#23408F] px-5.5 py-7.5">
         <img src={InfoPiruIcon} alt="" className="absolute right-0.5 -top-6" />
         {children}
       </div>

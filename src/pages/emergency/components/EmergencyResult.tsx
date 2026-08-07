@@ -1,0 +1,35 @@
+import {
+  EMERGENCY_CONTACTS,
+  type EmergencyConfig,
+} from '@/constants/emergency';
+import ResultRow from './ResultRow';
+import ResultTable from './ResultTable';
+
+interface EmergencyResultProps {
+  config: EmergencyConfig;
+}
+
+const EmergencyResult = ({ config }: EmergencyResultProps) => {
+  return (
+    <div className="flex flex-col gap-6">
+      <p className="font-Pretendard text-[0.875rem] leading-4.9 tracking-[0.3px] text-[#848B9C]">
+        입력하신 정보를 바탕으로 현지어 설명문과 행동 순서를 만들어 드렸어요.
+        서류함에서 관련 서류를 바로 확인할 수 있어요.
+      </p>
+
+      <ResultTable title="대응 순서">
+        {config.steps.map((step, index) => (
+          <ResultRow key={step} index={index + 1} label={step} />
+        ))}
+      </ResultTable>
+
+      <ResultTable title="연락처">
+        {EMERGENCY_CONTACTS.map(({ name, phone }, index) => (
+          <ResultRow key={name} index={index + 1} label={name} value={phone} />
+        ))}
+      </ResultTable>
+    </div>
+  );
+};
+
+export default EmergencyResult;
