@@ -1,12 +1,11 @@
 type Tab = {
   key: string;
   label: string;
-}; //Tab이라는 새로운 자료형을 만든거고 이 자료형의 객체는 key,label이라는 두가지 속성을 가진 객체다.
+};
 
-//DetailTabBar 컴포넌트가 받을 props의 자료형을 정의
 type DetailTabBarProps = {
-  tabs: Tab[]; //Tab객체들이 들어있는 배열
-  activeKey: string; //현재 선택된 탭의 key값
+  tabs: Tab[];
+  activeKey: string;
   onChange: (key: string) => void;
 };
 
