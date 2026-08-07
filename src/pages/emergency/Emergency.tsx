@@ -23,9 +23,7 @@ const Emergency = () => {
         <EmergencyBanner icon={config.icon} title={config.title} />
 
         <div
-          className={`flex flex-1 flex-col gap-8 ${
-            showResult ? '' : 'pb-23'
-          }`}
+          className={`flex flex-1 flex-col gap-8 ${showResult ? '' : 'pb-23'}`}
         >
           {showResult ? (
             <EmergencyResult config={config} />
@@ -34,7 +32,7 @@ const Emergency = () => {
           )}
 
           {!showResult && (
-            <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-100.5 bg-[#FAFAF6] px-6.5 pt-4 pb-5">
+            <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-100.5 overflow-y-auto bg-[#FAFAF6] px-6.5 pt-4 pb-[max(20px,env(safe-area-inset-bottom))]">
               <BottomButton
                 text="확인"
                 onClick={() => {

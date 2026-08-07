@@ -26,7 +26,7 @@ const TermsList = ({
   const hasAgreedToAll = agreedTermIds.length === terms.length;
 
   return (
-    <div className="flex min-h-full w-full flex-col pb-10 pt-7 gap-9.5">
+    <div className="flex min-h-full w-full flex-col pt-7 gap-9.5">
       <button type="button" aria-label="뒤로 가기" onClick={onBack}>
         <img src={BackArrowIcon} alt="" />
       </button>
