@@ -15,10 +15,9 @@ export interface EmergencyConfig {
     type?: SosQuestionType;
   }>;
   steps: string[];
-  contacts: Array<{ name: string; phone: string }>;
 }
 
-const COMMON_CONTACTS = [
+export const EMERGENCY_CONTACTS = [
   { name: '현지 경찰서', phone: '123-7899-4567' },
   { name: '재외공관', phone: '123-1567-1235' },
   { name: '국내 처방 기관', phone: '123-4568-1239' },
@@ -46,7 +45,6 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
       '현지 의료기관 방문하기',
       '약 성분 및 처방 정보 등 서류 제시하기',
     ],
-    contacts: COMMON_CONTACTS,
   },
   police: {
     icon: WSosPoliceIcon,
@@ -63,7 +61,6 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
       '임의 폐기 및 서명 전 내용 필수 확인',
       '재외공관에 도움 요청하기',
     ],
-    contacts: COMMON_CONTACTS,
   },
   shortage: {
     icon: WSosShortageIcon,
@@ -85,11 +82,6 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
       '국내 처방기관에 연락하기',
       '재외공관 의료기관 정보 확인하기',
       '약 성분 및 처방 정보 등 서류 제시하기',
-    ],
-    contacts: [
-      { name: '현지 응급 번호', phone: '123-7899-4567' },
-      { name: '재외공관', phone: '123-1567-1235' },
-      { name: '국내 처방 기관', phone: '123-4568-1239' },
     ],
   },
   symptom: {
@@ -117,7 +109,6 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
       '알레르기 · 기저질환 정보 함께 전달하기',
       '필요 시 재외공관에 연락하기',
     ],
-    contacts: COMMON_CONTACTS,
   },
 };
 
