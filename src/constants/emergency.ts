@@ -35,7 +35,11 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
         placeholder: '현위치 확인',
         type: 'location',
       },
-      { label: '현재 상태는 어떠신가요?', placeholder: '선택해 주세요' },
+      {
+        label: '현재 상태는 어떠신가요?',
+        placeholder: '직접 입력하기',
+        type: 'text',
+      },
     ],
     steps: [
       '현지 경찰에 신고하기',
@@ -52,8 +56,16 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
     questions: [
       { label: '현재 어떤 여행지인가요?', placeholder: '선택해 주세요' },
       { label: '어떤 약을 확인받으시나요?', placeholder: '선택해 주세요' },
-      { label: '어떤 상황인가요?', placeholder: '선택해 주세요' },
-      { label: '무엇을 요구받았나요?', placeholder: '선택해 주세요' },
+      {
+        label: '어떤 상황인가요?',
+        placeholder: '직접 입력하기',
+        type: 'text',
+      },
+      {
+        label: '무엇을 요구받았나요?',
+        placeholder: '직접 입력하기',
+        type: 'text',
+      },
     ],
     steps: [
       '서류함 이동',
@@ -73,7 +85,11 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
         placeholder: '현위치 확인',
         type: 'location',
       },
-      { label: '현재 상태는 어떠신가요?', placeholder: '선택해 주세요' },
+      {
+        label: '현재 상태는 어떠신가요?',
+        placeholder: '직접 입력하기',
+        type: 'text',
+      },
     ],
     steps: [
       '임의로 동일 제품 구매 금지',
@@ -95,7 +111,11 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
         placeholder: '현위치 확인',
         type: 'location',
       },
-      { label: '현재 상태는 어떠신가요?', placeholder: '선택해 주세요' },
+      {
+        label: '현재 상태는 어떠신가요?',
+        placeholder: '직접 입력하기',
+        type: 'text',
+      },
       {
         label: '알레르기나 기저질환이 있으신가요?',
         placeholder: '직접 입력하기',
