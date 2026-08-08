@@ -15,6 +15,7 @@ import {
   SUMMARY_REASON,
   DETAIL_TABS,
   type ChecklistItemKey,
+  type DestinationRuleStatus,
 } from '@/constants/medicine';
 
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
@@ -26,7 +27,6 @@ import check from '@/assets/images/register/medicineDetail/check.svg';
 import discheck from '@/assets/images/register/medicineDetail/discheck.svg';
 import downArrowIcon from '@/assets/images/register/medicineDetail/downArrowIcon.svg';
 import pdfIcon from '@/assets/images/register/medicineDetail/pdfIcon.svg';
-import scanIcon from '@/assets/images/register/medicineDetail/scanIcon.svg';
 import documentIcon from '@/assets/images/register/medicineDetail/documentIcon.svg';
 import trashIcon from '@/assets/images/register/medicineDetail/trashIcon.svg';
 import glassIcon from '@/assets/images/register/medicineDetail/glassIcon.svg';
@@ -38,6 +38,11 @@ const isUploadableKey = (key: ChecklistItemKey): key is UploadableKey =>
   key === 'prescription' || key === 'opinion';
 
 type StoredDocument = { name: string; dataUrl: string };
+
+const DESTINATION_RULE_STATUS_STYLES: Record<DestinationRuleStatus, string> = {
+  warning: 'text-[#EF5050]',
+  safe: 'text-[#23408F]',
+};
 
 // TODO: 지금은 임시로 localStorage에 저장 - 추후 DB(백엔드) 연동되면 API 호출로 교체 예정
 const DOCUMENT_STORAGE_KEYS: Record<UploadableKey, string> = {
@@ -57,22 +62,38 @@ const readStoredDocument = (key: UploadableKey): StoredDocument | null => {
 const writeStoredDocument = (
   key: UploadableKey,
   doc: StoredDocument | null
-) => {
+): boolean => {
   try {
     if (doc) {
       localStorage.setItem(DOCUMENT_STORAGE_KEYS[key], JSON.stringify(doc));
     } else {
       localStorage.removeItem(DOCUMENT_STORAGE_KEYS[key]);
     }
+    return true;
   } catch {
-    // localStorage 용량 초과 등으로 저장에 실패해도 화면 상 업로드 상태는 유지
+    // localStorage 용량 초과 등으로 저장에 실패한 경우 호출부에서 화면 상태를 되돌릴 수 있도록 알림
+    return false;
   }
 };
 
-const dataUrlToBlob = (dataUrl: string): Blob => {
-  const [header, base64] = dataUrl.split(',');
-  const mime =
-    /data:(.*);base64/.exec(header)?.[1] ?? 'application/octet-stream';
+// "%PDF-" 매직 바이트 확인 - accept 속성은 파일 선택기의 필터일 뿐 실제 파일 내용을 보장하지 않음
+const PDF_HEADER_BYTES = [0x25, 0x50, 0x44, 0x46, 0x2d] as const;
+
+const isPdfDataUrl = (dataUrl: string): boolean => {
+  const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
+  try {
+    const headerBytes = atob(base64.slice(0, 8));
+    if (headerBytes.length < PDF_HEADER_BYTES.length) return false;
+    return PDF_HEADER_BYTES.every(
+      (byte, index) => headerBytes.charCodeAt(index) === byte
+    );
+  } catch {
+    return false;
+  }
+};
+
+const dataUrlToBlob = (dataUrl: string, mime: string): Blob => {
+  const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) {
@@ -82,8 +103,12 @@ const dataUrlToBlob = (dataUrl: string): Blob => {
 };
 
 const openFilePreviewWindow = (doc: StoredDocument) => {
-  const blobUrl = URL.createObjectURL(dataUrlToBlob(doc.dataUrl));
-  window.open(blobUrl, '_blank');
+  // 저장 시 PDF 매직 바이트를 검증했더라도, 미리보기 Blob은 항상 application/pdf로 고정해
+  // 브라우저가 이를 HTML 등으로 렌더링(오리진 내 스크립트 실행)하지 않도록 한다
+  const blobUrl = URL.createObjectURL(
+    dataUrlToBlob(doc.dataUrl, 'application/pdf')
+  );
+  window.open(blobUrl, '_blank', 'noopener,noreferrer');
 };
 
 const Register = () => {
@@ -91,9 +116,9 @@ const Register = () => {
   const [activeTab, setActiveTab] = useState<string>(DETAIL_TABS[0].key);
   const [openItems, setOpenItems] = useState<Record<ChecklistItemKey, boolean>>(
     {
-      prescription: true,
-      opinion: true,
-      preApproval: true,
+      prescription: false,
+      opinion: false,
+      preApproval: false,
     }
   );
 
@@ -106,6 +131,10 @@ const Register = () => {
     opinion: readStoredDocument('opinion'),
   }));
 
+  const [uploadErrors, setUploadErrors] = useState<
+    Record<UploadableKey, string | null>
+  >({ prescription: null, opinion: null });
+
   const prescriptionFileInputRef = useRef<HTMLInputElement>(null);
   const opinionFileInputRef = useRef<HTMLInputElement>(null);
   const fileInputRefs: Record<
@@ -115,6 +144,12 @@ const Register = () => {
     prescription: prescriptionFileInputRef,
     opinion: opinionFileInputRef,
   };
+
+  // 키별 요청 버전 - 늦게 끝난 이전 FileReader.onload가 이후의 새 선택/삭제 상태를 덮어쓰지 않도록 막는다
+  const fileRequestVersionRef = useRef<Record<UploadableKey, number>>({
+    prescription: 0,
+    opinion: 0,
+  });
 
   const toggleItem = (key: ChecklistItemKey) => {
     setOpenItems((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -130,11 +165,31 @@ const Register = () => {
       event.target.value = '';
       if (!file) return;
 
+      const requestVersion = (fileRequestVersionRef.current[key] += 1);
+      setUploadErrors((prev) => ({ ...prev, [key]: null }));
+
       const reader = new FileReader();
       reader.onload = () => {
+        // 이 요청이 최신이 아니면(그 사이 새 파일이 선택되었거나 삭제되었으면) 결과를 버린다
+        if (fileRequestVersionRef.current[key] !== requestVersion) return;
         if (typeof reader.result !== 'string') return;
+
+        if (!isPdfDataUrl(reader.result)) {
+          setUploadErrors((prev) => ({
+            ...prev,
+            [key]: 'PDF 파일만 업로드할 수 있습니다.',
+          }));
+          return;
+        }
+
         const doc: StoredDocument = { name: file.name, dataUrl: reader.result };
-        writeStoredDocument(key, doc);
+        if (!writeStoredDocument(key, doc)) {
+          setUploadErrors((prev) => ({
+            ...prev,
+            [key]: '파일 저장에 실패했습니다. 다시 시도해 주세요.',
+          }));
+          return;
+        }
         setUploadedDocuments((prev) => ({ ...prev, [key]: doc }));
       };
       reader.readAsDataURL(file);
@@ -146,7 +201,17 @@ const Register = () => {
   };
 
   const handleDeleteDocument = (key: UploadableKey) => () => {
-    writeStoredDocument(key, null);
+    // 진행 중이던 이전 파일 읽기가 완료돼도 이 삭제 이후에는 무시되도록 버전을 올린다
+    fileRequestVersionRef.current[key] += 1;
+
+    if (!writeStoredDocument(key, null)) {
+      setUploadErrors((prev) => ({
+        ...prev,
+        [key]: '파일 삭제에 실패했습니다. 다시 시도해 주세요.',
+      }));
+      return;
+    }
+    setUploadErrors((prev) => ({ ...prev, [key]: null }));
     setUploadedDocuments((prev) => ({ ...prev, [key]: null }));
   };
 
@@ -223,12 +288,9 @@ const Register = () => {
                   <span className="text-[16px] font-medium tracking-[0.384px] text-[#848B9C]">
                     {rule.label}
                   </span>
-                  {/*
-                    TODO: API 응답 결과에 따라 글자 색이 동적으로 바뀔 예정
-                    (예: 필요/포함 -> #EF5050 경고색, 불필요/미포함 -> 기본 색상)
-                    지금은 #EF5050로 고정
-                  */}
-                  <span className="text-[16px] font-semibold tracking-[0.384px] text-[#EF5050]">
+                  <span
+                    className={`text-[16px] font-semibold tracking-[0.384px] ${DESTINATION_RULE_STATUS_STYLES[rule.status]}`}
+                  >
                     {rule.value}
                   </span>
                 </div>
@@ -281,28 +343,31 @@ const Register = () => {
                     }
                     chevronIcon={<img src={downArrowIcon} alt="" />}
                   >
-                    {uploadKey &&
-                      (uploadedDocuments[uploadKey] ? (
-                        <DocumentConfirmRow
-                          documentIcon={<img src={documentIcon} alt="" />}
-                          trashIcon={<img src={trashIcon} alt="" />}
-                          onConfirmDocument={handleConfirmDocument(uploadKey)}
-                          onDelete={handleDeleteDocument(uploadKey)}
-                        />
-                      ) : (
-                        <div className="flex flex-col gap-[10px]">
-                          <UploadDropButton
-                            label="PDF 업로드"
-                            icon={<img src={pdfIcon} alt="" />}
-                            onClick={() => handleOpenFilePicker(uploadKey)}
+                    {uploadKey && (
+                      <div className="flex flex-col gap-[10px]">
+                        {uploadedDocuments[uploadKey] ? (
+                          <DocumentConfirmRow
+                            documentIcon={<img src={documentIcon} alt="" />}
+                            trashIcon={<img src={trashIcon} alt="" />}
+                            onConfirmDocument={handleConfirmDocument(uploadKey)}
+                            onDelete={handleDeleteDocument(uploadKey)}
                           />
-                          <UploadDropButton
-                            label="스캔하기"
-                            icon={<img src={scanIcon} alt="" />}
-                            onClick={() => {}}
-                          />
-                        </div>
-                      ))}
+                        ) : (
+                          <div className="flex flex-col gap-[10px]">
+                            <UploadDropButton
+                              label="PDF 업로드"
+                              icon={<img src={pdfIcon} alt="" />}
+                              onClick={() => handleOpenFilePicker(uploadKey)}
+                            />
+                          </div>
+                        )}
+                        {uploadErrors[uploadKey] && (
+                          <p className="text-[13px] text-[#EF5050]">
+                            {uploadErrors[uploadKey]}
+                          </p>
+                        )}
+                      </div>
+                    )}
 
                     {item.key === 'preApproval' && (
                       // TODO: 추후 DB 연동 후 실제 사전 허가 신청 상태 페이지로 이동

@@ -18,7 +18,7 @@ const MedicationPassportCard = ({
   stampImage,
 }: MedicationPassportCardProps) => {
   return (
-    <div className="w-[350px] box-border p-5 bg-[#FCFCFC] border-2 border-[#23408F] rounded-[20px] shadow-[0px_2px_2px_0px_rgba(113,112,113,0.2)]">
+    <div className="w-full max-w-[350px] mx-auto box-border p-5 bg-[#FCFCFC] border-2 border-[#23408F] rounded-[20px] shadow-[0px_2px_2px_0px_rgba(113,112,113,0.2)]">
       <div className="flex items-start justify-between">
         <div>
           <p className="font-semibold text-xl tracking-[0.48px] text-[#191919]">

@@ -6,19 +6,26 @@ export const MEDICINE_INFO = {
   destinationCountry: '일본',
 } as const;
 
-export const DESTINATION_RULES = [
-  { label: '통제 성분 여부', value: '포함 (마약류)' },
-  { label: '수량 조건', value: '최대 30일분' },
-  { label: '영문 처방전', value: '필요' },
-  { label: '의사 소견서', value: '필요' },
-  { label: '사전 허가', value: '필요' },
-  { label: '세관 신고', value: '필요' },
-] as const;
+export type DestinationRuleStatus = 'warning' | 'safe';
+
+type DestinationRule = {
+  label: string;
+  value: string;
+  status: DestinationRuleStatus;
+};
+
+export const DESTINATION_RULES: readonly DestinationRule[] = [
+  { label: '통제 성분 여부', value: '포함 (마약류)', status: 'warning' },
+  { label: '수량 조건', value: '최대 30일분', status: 'warning' },
+  { label: '영문 처방전', value: '필요', status: 'warning' },
+  { label: '의사 소견서', value: '필요', status: 'warning' },
+  { label: '사전 허가', value: '필요', status: 'warning' },
+  { label: '세관 신고', value: '필요', status: 'warning' },
+];
 
 export const CHECKLIST_ITEMS = [
   { key: 'prescription', title: '영문 처방전', checked: false },
   { key: 'opinion', title: '의사 소견서', checked: false },
-  // TODO: API 응답 결과(승인 여부)에 따라 동적으로 바뀔 예정 - 지금은 항상 false로 시작
   { key: 'preApproval', title: '사전 허가 신청', checked: false },
 ] as const;
 

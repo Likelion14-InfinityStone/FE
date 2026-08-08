@@ -22,15 +22,14 @@ const router = createBrowserRouter([
     children: [
       { path: '/register', element: <Register /> },
       { path: '/login', element: <Login /> },
+      { path: '/onboard', element: <Onboard /> },
+      { path: '/terms', element: <Terms /> },
     ],
   },
 
   {
     element: <MainLayout />,
     children: [
-      { path: '/onboard', element: <Onboard /> },
-      { path: '/terms', element: <Terms /> },
-
       // { path: '/oauth/callback', element: <OAuthCallback /> },
 
       // 프라이빗 루트 설정
