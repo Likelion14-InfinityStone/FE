@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import DetailTabBar from '@/pages/register/components/medicineDetailPage/components/DetailTabBar';
 import MedicationPassportCard from '@/pages/register/components/medicineDetailPage/components/MedicinePassportCard';
 import ChecklistBox from '@/pages/register/components/medicineDetailPage/components/button/ChecklistBox';
@@ -37,75 +38,11 @@ type UploadableKey = Extract<ChecklistItemKey, 'prescription' | 'opinion'>;
 const isUploadableKey = (key: ChecklistItemKey): key is UploadableKey =>
   key === 'prescription' || key === 'opinion';
 
-type StoredDocument = { name: string; dataUrl: string };
+const UPLOADABLE_KEYS = ['prescription', 'opinion'] as const;
 
 const DESTINATION_RULE_STATUS_STYLES: Record<DestinationRuleStatus, string> = {
   warning: 'text-[#EF5050]',
   safe: 'text-[#23408F]',
-};
-
-// TODO: 지금은 임시로 localStorage에 저장 - 추후 DB(백엔드) 연동되면 API 호출로 교체 예정
-const DOCUMENT_STORAGE_KEYS: Record<UploadableKey, string> = {
-  prescription: 'medicineDetail:document:prescription',
-  opinion: 'medicineDetail:document:opinion',
-};
-
-const readStoredDocument = (key: UploadableKey): StoredDocument | null => {
-  try {
-    const raw = localStorage.getItem(DOCUMENT_STORAGE_KEYS[key]);
-    return raw ? (JSON.parse(raw) as StoredDocument) : null;
-  } catch {
-    return null;
-  }
-};
-
-const writeStoredDocument = (
-  key: UploadableKey,
-  doc: StoredDocument | null
-): boolean => {
-  try {
-    if (doc) {
-      localStorage.setItem(DOCUMENT_STORAGE_KEYS[key], JSON.stringify(doc));
-    } else {
-      localStorage.removeItem(DOCUMENT_STORAGE_KEYS[key]);
-    }
-    return true;
-  } catch {
-    // localStorage 용량 초과 등으로 저장에 실패한 경우 호출부에서 화면 상태를 되돌릴 수 있도록 알림
-    return false;
-  }
-};
-
-const PDF_HEADER_BYTES = [0x25, 0x50, 0x44, 0x46, 0x2d] as const;
-
-const isPdfDataUrl = (dataUrl: string): boolean => {
-  const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
-  try {
-    const headerBytes = atob(base64.slice(0, 8));
-    if (headerBytes.length < PDF_HEADER_BYTES.length) return false;
-    return PDF_HEADER_BYTES.every(
-      (byte, index) => headerBytes.charCodeAt(index) === byte
-    );
-  } catch {
-    return false;
-  }
-};
-
-const dataUrlToBlob = (dataUrl: string, mime: string): Blob => {
-  const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new Blob([bytes], { type: mime });
-};
-
-const openFilePreviewWindow = (doc: StoredDocument) => {
-  const blobUrl = URL.createObjectURL(
-    dataUrlToBlob(doc.dataUrl, 'application/pdf')
-  );
-  window.open(blobUrl, '_blank', 'noopener,noreferrer');
 };
 
 const MedicineDetailPage = () => {
@@ -119,94 +56,18 @@ const MedicineDetailPage = () => {
     }
   );
 
-  // 임시
-  const [uploadedDocuments, setUploadedDocuments] = useState<
-    Record<UploadableKey, StoredDocument | null>
-  >(() => ({
-    prescription: readStoredDocument('prescription'),
-    opinion: readStoredDocument('opinion'),
-  }));
-
-  const [uploadErrors, setUploadErrors] = useState<
-    Record<UploadableKey, string | null>
-  >({ prescription: null, opinion: null });
-
-  const prescriptionFileInputRef = useRef<HTMLInputElement>(null);
-  const opinionFileInputRef = useRef<HTMLInputElement>(null);
-  const fileInputRefs: Record<
-    UploadableKey,
-    React.RefObject<HTMLInputElement | null>
-  > = {
-    prescription: prescriptionFileInputRef,
-    opinion: opinionFileInputRef,
-  };
-
-  const fileRequestVersionRef = useRef<Record<UploadableKey, number>>({
-    prescription: 0,
-    opinion: 0,
-  });
+  const {
+    documents: uploadedDocuments,
+    errors: uploadErrors,
+    registerInput,
+    openFilePicker: handleOpenFilePicker,
+    handleFileSelected,
+    confirmDocument: handleConfirmDocument,
+    deleteDocument: handleDeleteDocument,
+  } = useDocumentUpload(UPLOADABLE_KEYS);
 
   const toggleItem = (key: ChecklistItemKey) => {
     setOpenItems((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const handleOpenFilePicker = (key: UploadableKey) => {
-    fileInputRefs[key].current?.click();
-  };
-
-  const handleFileSelected =
-    (key: UploadableKey) => (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0] ?? null;
-      event.target.value = '';
-      if (!file) return;
-
-      const requestVersion = (fileRequestVersionRef.current[key] += 1);
-      setUploadErrors((prev) => ({ ...prev, [key]: null }));
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        // 이 요청이 최신이 아니면(그 사이 새 파일이 선택되었거나 삭제되었으면) 결과를 버린다
-        if (fileRequestVersionRef.current[key] !== requestVersion) return;
-        if (typeof reader.result !== 'string') return;
-
-        if (!isPdfDataUrl(reader.result)) {
-          setUploadErrors((prev) => ({
-            ...prev,
-            [key]: 'PDF 파일만 업로드할 수 있습니다.',
-          }));
-          return;
-        }
-
-        const doc: StoredDocument = { name: file.name, dataUrl: reader.result };
-        if (!writeStoredDocument(key, doc)) {
-          setUploadErrors((prev) => ({
-            ...prev,
-            [key]: '파일 저장에 실패했습니다. 다시 시도해 주세요.',
-          }));
-          return;
-        }
-        setUploadedDocuments((prev) => ({ ...prev, [key]: doc }));
-      };
-      reader.readAsDataURL(file);
-    };
-
-  const handleConfirmDocument = (key: UploadableKey) => () => {
-    const doc = uploadedDocuments[key];
-    if (doc) openFilePreviewWindow(doc);
-  };
-
-  const handleDeleteDocument = (key: UploadableKey) => () => {
-    fileRequestVersionRef.current[key] += 1;
-
-    if (!writeStoredDocument(key, null)) {
-      setUploadErrors((prev) => ({
-        ...prev,
-        [key]: '파일 삭제에 실패했습니다. 다시 시도해 주세요.',
-      }));
-      return;
-    }
-    setUploadErrors((prev) => ({ ...prev, [key]: null }));
-    setUploadedDocuments((prev) => ({ ...prev, [key]: null }));
   };
 
   return (
@@ -298,14 +159,14 @@ const MedicineDetailPage = () => {
             </h2>
 
             <input
-              ref={prescriptionFileInputRef}
+              ref={registerInput('prescription')}
               type="file"
               accept=".pdf,application/pdf"
               className="hidden"
               onChange={handleFileSelected('prescription')}
             />
             <input
-              ref={opinionFileInputRef}
+              ref={registerInput('opinion')}
               type="file"
               accept=".pdf,application/pdf"
               className="hidden"
