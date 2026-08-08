@@ -76,7 +76,6 @@ const writeStoredDocument = (
   }
 };
 
-// "%PDF-" 매직 바이트 확인 - accept 속성은 파일 선택기의 필터일 뿐 실제 파일 내용을 보장하지 않음
 const PDF_HEADER_BYTES = [0x25, 0x50, 0x44, 0x46, 0x2d] as const;
 
 const isPdfDataUrl = (dataUrl: string): boolean => {
@@ -103,8 +102,6 @@ const dataUrlToBlob = (dataUrl: string, mime: string): Blob => {
 };
 
 const openFilePreviewWindow = (doc: StoredDocument) => {
-  // 저장 시 PDF 매직 바이트를 검증했더라도, 미리보기 Blob은 항상 application/pdf로 고정해
-  // 브라우저가 이를 HTML 등으로 렌더링(오리진 내 스크립트 실행)하지 않도록 한다
   const blobUrl = URL.createObjectURL(
     dataUrlToBlob(doc.dataUrl, 'application/pdf')
   );
@@ -144,7 +141,6 @@ const MedicineDetailPage = () => {
     opinion: opinionFileInputRef,
   };
 
-  // 키별 요청 버전 - 늦게 끝난 이전 FileReader.onload가 이후의 새 선택/삭제 상태를 덮어쓰지 않도록 막는다
   const fileRequestVersionRef = useRef<Record<UploadableKey, number>>({
     prescription: 0,
     opinion: 0,
@@ -200,7 +196,6 @@ const MedicineDetailPage = () => {
   };
 
   const handleDeleteDocument = (key: UploadableKey) => () => {
-    // 진행 중이던 이전 파일 읽기가 완료돼도 이 삭제 이후에는 무시되도록 버전을 올린다
     fileRequestVersionRef.current[key] += 1;
 
     if (!writeStoredDocument(key, null)) {
@@ -216,7 +211,7 @@ const MedicineDetailPage = () => {
 
   return (
     <div className="min-h-dvh w-full bg-[#FAFAF6] pb-10">
-      <div className="relative flex h-[30px] items-center pt-5">
+      <div className="relative flex items-center pt-5">
         <button
           type="button"
           aria-label="뒤로가기"
@@ -252,7 +247,6 @@ const MedicineDetailPage = () => {
             },
           ]}
           // TODO: API 응답 결과에 따라 스탬프 아이콘 바뀔 예정
-          // 지금은 stopStemp로 고정
           stampImage={
             <img
               src={stopStemp}

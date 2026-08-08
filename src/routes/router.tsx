@@ -13,6 +13,7 @@ import Emergency from '@/pages/emergency/Emergency';
 import NotFound from '@/pages/notFound/NotFound';
 import Register from '@/pages/register/Register';
 import MedicineDetailPage from '@/pages/register/components/medicineDetailPage/MedicineDetailPage';
+import Medicine from '@/pages/register/components/tripRegistPage/Medicine';
 
 const router = createBrowserRouter([
   { path: '/', element: <Splash /> },
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
       // 프라이빗 루트 설정
       { path: '/home', element: <Home /> },
       { path: '/register', element: <Register /> },
+      { path: '/medicine', element: <Medicine /> },
       { path: '/documents', element: <Documents /> },
       { path: '/scan', element: <Scan /> },
       { path: '/emergency', element: <Emergency /> },

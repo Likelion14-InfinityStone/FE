@@ -55,7 +55,8 @@ const BottomNavBar = () => {
   // 비로그인 시 및 홈만 접근 가능
 
   const getActiveTab = (pathname: string) => {
-    if (pathname.startsWith('/register')) return '/register';
+    if (pathname.startsWith('/register') || pathname.startsWith('/medicine'))
+      return '/register';
     if (pathname.startsWith('/documents')) return '/documents';
     if (pathname.startsWith('/home')) return '/home';
     if (pathname.startsWith('/scan')) return '/scan';
