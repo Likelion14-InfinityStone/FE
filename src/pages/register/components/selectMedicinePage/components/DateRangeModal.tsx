@@ -173,9 +173,13 @@ const DateRangeModal = ({
                 >
                   {(isEdge || isInRange) && range.start && range.end && (
                     <span
-                      className={`absolute inset-y-1.5 bg-[#23408F]/20 ${
-                        isStart ? 'left-1/2 rounded-l-full' : 'left-0'
-                      } ${isEnd ? 'right-1/2 rounded-r-full' : 'right-0'}`}
+                      className={`absolute top-1/2 h-11 -translate-y-1/2 bg-[#23408F]/20 ${
+                        isStart
+                          ? 'left-[calc(50%-22px)] rounded-l-full'
+                          : 'left-0'
+                      } ${
+                        isEnd ? 'right-[calc(50%-22px)] rounded-r-full' : 'right-0'
+                      }`}
                     />
                   )}
 
