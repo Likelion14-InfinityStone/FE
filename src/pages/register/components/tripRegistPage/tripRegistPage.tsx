@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import BottomButton from '@/components/button/BottomButton';
@@ -10,6 +11,7 @@ const TripRegister = () => {
   const [activeCountry, setActiveCountry] = useState<Country>('일본');
 
   const filteredTrips = TRIPS.filter((trip) => trip.country === activeCountry);
+  const navigate = useNavigate();
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -44,7 +46,10 @@ const TripRegister = () => {
       </div>
 
       <div className="pt-10">
-        <BottomButton text="반입 여부 체크 시작" onClick={() => {}} />
+        <BottomButton
+          text="반입 여부 체크 시작"
+          onClick={() => navigate('/selectMedicine')}
+        />
       </div>
     </div>
   );
