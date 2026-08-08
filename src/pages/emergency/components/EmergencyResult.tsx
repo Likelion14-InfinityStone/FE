@@ -19,7 +19,14 @@ const EmergencyResult = ({ config }: EmergencyResultProps) => {
 
       <ResultTable title="대응 순서">
         {config.steps.map((step, index) => (
-          <ResultRow key={step} index={index + 1} label={step} />
+          <ResultRow
+            key={step}
+            index={index + 1}
+            label={step}
+            actionLabel={
+              step === '현지 의료기관 방문하기' ? '기관 찾기' : undefined
+            }
+          />
         ))}
       </ResultTable>
 

@@ -59,13 +59,13 @@ const SosQuestion = ({
           </button>
 
           {type !== 'location' && isOpen && (
-            <div className="flex flex-col gap-1 rounded-[18px] border border-[#23408F] p-3.5">
+            <div className="flex flex-col gap-1 rounded-[20px] border border-[#23408F] p-3.5 bg-[#FCFCFC]">
               {options.map((option, index) => (
                 <button
                   key={option}
                   type="button"
                   onClick={() => onSelect(option)}
-                  className={`h-10.5 rounded-xl px-3 text-left font-Pretendard text-[0.875rem] ${
+                  className={`rounded-[10px] p-2.5 text-left font-Pretendard text-[0.875rem] ${
                     index === 0
                       ? 'bg-[#EAF0FF] text-[#23408F]'
                       : 'text-[#191919]'

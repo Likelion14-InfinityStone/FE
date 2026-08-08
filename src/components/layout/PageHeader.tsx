@@ -3,16 +3,17 @@ import { useNavigate } from 'react-router-dom';
 
 type PageHeaderProps = {
   title: string;
+  onBack?: () => void;
 };
 
-const PageHeader = ({ title }: PageHeaderProps) => {
+const PageHeader = ({ title, onBack }: PageHeaderProps) => {
   const navigate = useNavigate();
 
   return (
     <div className="flex relative pt-5.5 pb-5 items-center justify-center">
       <button
         type="button"
-        onClick={() => navigate(-1)}
+        onClick={onBack ?? (() => navigate(-1))}
         className="absolute left-0 items-center"
       >
         <img src={BackArrowIcon} alt="뒤로 가기" />
