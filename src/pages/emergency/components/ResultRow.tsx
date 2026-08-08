@@ -34,7 +34,7 @@ const ResultRow = ({
         <button
           type="button"
           onClick={onAction}
-          className="flex h-7.5 w-22.5 shrink-0 items-center justify-center gap-2.5 rounded-[12px] bg-[#A1ADCC] px-3 py-1 font-Pretendard text-[0.8125rem] leading-4.5 font-medium whitespace-nowrap text-white"
+          className="flex h-7.5 w-22.5 shrink-0 items-center justify-center gap-2.5 rounded-xl bg-[#A1ADCC] px-3 py-1 font-Pretendard text-[0.8125rem] leading-4.5 font-medium whitespace-nowrap text-white"
         >
           {actionLabel}
           <span aria-hidden="true" className="text-[1.25rem] leading-none">
