@@ -6,13 +6,13 @@ import Onboard from '@/pages/onboard/Onboard';
 import Terms from '@/pages/onboard/Terms';
 import Login from '@/pages/login/Login';
 import Home from '@/pages/home/Home';
-import Ready from '@/pages/ready/Ready';
 import Documents from '@/pages/documents/Documents';
 import Scan from '@/pages/scan/Scan';
 import Account from '@/pages/account/Account';
 import Emergency from '@/pages/emergency/Emergency';
 import NotFound from '@/pages/notFound/NotFound';
 import Register from '@/pages/register/Register';
+import MedicineDetailPage from '@/pages/register/components/medicineDetailPage/MedicineDetailPage';
 
 const router = createBrowserRouter([
   { path: '/', element: <Splash /> },
@@ -20,10 +20,10 @@ const router = createBrowserRouter([
   {
     element: <SubLayout />,
     children: [
-      { path: '/register', element: <Register /> },
       { path: '/login', element: <Login /> },
       { path: '/onboard', element: <Onboard /> },
       { path: '/terms', element: <Terms /> },
+      { path: '/medicineDetail', element: <MedicineDetailPage /> },
     ],
   },
 
@@ -34,7 +34,7 @@ const router = createBrowserRouter([
 
       // 프라이빗 루트 설정
       { path: '/home', element: <Home /> },
-      { path: '/ready', element: <Ready /> },
+      { path: '/register', element: <Register /> },
       { path: '/documents', element: <Documents /> },
       { path: '/scan', element: <Scan /> },
       { path: '/emergency', element: <Emergency /> },

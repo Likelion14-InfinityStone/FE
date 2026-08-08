@@ -1,5 +1,6 @@
-import AirplaneIcon from '@/assets/images/register/airplane.svg';
-import ExampleJapan from '@/assets/images/register/Example-Japan.svg';
+import AirplaneIcon from '@/assets/images/register/tripTicket/airplane.svg';
+import ExampleJapan from '@/assets/images/register/tripTicket/Example-Japan.svg';
+import CalenderIcon from '@/assets/images/register/tripTicket/calenderIcon.svg';
 
 type TicketProps = {
   dDay: string;
@@ -12,6 +13,7 @@ type TicketProps = {
   arrivalCountry: string;
   arrivalLocation: string;
   departureDate: string;
+  calenderIcon?: React.ReactNode;
 };
 
 const Ticket = ({
@@ -80,9 +82,7 @@ const Ticket = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="font-Pretendard text-[0.75rem] leading-[1.4] tracking-[0.288px] text-[#6D6D6D]">
-            출국 일자
-          </span>
+          <img src={CalenderIcon} alt="" className="size-3.5" />
           <span className="font-Pretendard text-[0.75rem] leading-[1.4] font-medium tracking-[0.288px] text-[#191919]">
             {departureDate}
           </span>
