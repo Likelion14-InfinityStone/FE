@@ -15,7 +15,7 @@ const Scan = () => {
 
   return (
     <div className="flex h-full w-[350px] flex-col pt-[66px]">
-      <div className="flex w-[350px] h-[78px] flex-col gap-[4px] ">
+      <div className="flex w-[330px] h-[78px] flex-col gap-[4px] ">
         <h1 className="text-[24px] font-semibold leading-[140%] tracking-[0.024em] text-left text-[#191919]">
           스캔할 약 봉투를 준비해 주세요
         </h1>
@@ -60,7 +60,10 @@ const Scan = () => {
       {isGalleryModalOpen && (
         <GalleryModal
           onClose={() => setIsGalleryModalOpen(false)}
-          onConfirm={() => setIsGalleryModalOpen(false)}
+          onConfirm={() => {
+            setIsGalleryModalOpen(false);
+            navigate('/scanResult');
+          }}
         />
       )}
     </div>

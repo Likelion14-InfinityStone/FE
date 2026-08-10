@@ -2,12 +2,19 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
+import failStopStemp from '@/assets/images/scan/failStopStemp.svg';
+import sameStopStemp from '@/assets/images/scan/sameStopStemp.svg';
+import termStopStemp from '@/assets/images/scan/termStopStemp.svg';
 import BottomButton from '@/components/button/BottomButton';
 import { useSavedMedicines } from '@/hooks/useSavedMedicines';
+import { findDuplicateMedicine, isMedicineExpired } from '@/utils/medicineChecks';
+import MedicineExceptionPage from './components/MedicineExceptionPage';
 import MedicineInputCard, {
   type MedicineFormFields,
 } from './components/MedicineInputCard';
 import SavePage from './SavePage';
+
+type SaveException = 'duplicate' | 'expired' | null;
 
 const SCAN_RESULT_FIELDS: (keyof MedicineFormFields)[] = [
   'name',
@@ -32,14 +39,19 @@ const EMPTY_FORM: MedicineFormFields = {
 const ScanResultPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { addMedicine } = useSavedMedicines();
+  const { savedMedicines, addMedicine } = useSavedMedicines();
 
   const recognized = (location.state as Partial<MedicineFormFields>) ?? {};
+  const nothingRecognized = Object.values(recognized).every(
+    (value) => !value || value.trim() === ''
+  );
+
   const [form, setForm] = useState<MedicineFormFields>({
     ...EMPTY_FORM,
     ...recognized,
   });
   const [isSaved, setIsSaved] = useState(false);
+  const [exception, setException] = useState<SaveException>(null);
 
   const handleChange = (field: keyof MedicineFormFields, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -51,9 +63,71 @@ const ScanResultPage = () => {
 
   const handleSave = () => {
     if (!isComplete) return;
+
+    if (findDuplicateMedicine(savedMedicines, form.productInfo)) {
+      setException('duplicate');
+      return;
+    }
+    if (isMedicineExpired(form.dispensedDate, form.duration)) {
+      setException('expired');
+      return;
+    }
+
     addMedicine(form);
     setIsSaved(true);
   };
+
+  if (nothingRecognized) {
+    return (
+      <MedicineExceptionPage
+        stamp={failStopStemp}
+        title="AI가 약 봉투를 인식하지 못했어요"
+        subtitleLines={['촬영을 다시 시도하거나,', '직접 입력해주세요.']}
+        onBack={() => navigate(-1)}
+        buttons={[
+          { text: '촬영 재시도', onClick: () => navigate('/scanCapture') },
+          {
+            text: '직접 입력하기',
+            onClick: () => navigate('/manualInput'),
+            primary: true,
+          },
+        ]}
+      />
+    );
+  }
+
+  if (exception === 'duplicate') {
+    return (
+      <MedicineExceptionPage
+        stamp={sameStopStemp}
+        title={form.productInfo}
+        subtitleLines={['이미 등록된 약이에요.', '복약 카드에서 확인할 수 있어요.']}
+        onBack={() => setException(null)}
+        buttons={[
+          { text: '홈으로', onClick: () => navigate('/home') },
+          {
+            text: '복약카드로 이동',
+            onClick: () => navigate('/home'),
+            primary: true,
+          },
+        ]}
+      />
+    );
+  }
+
+  if (exception === 'expired') {
+    return (
+      <MedicineExceptionPage
+        stamp={termStopStemp}
+        title={form.productInfo}
+        subtitleLines={['유효기간이 지난 약이에요.', '반입 금지로 처리돼요.']}
+        onBack={() => setException(null)}
+        buttons={[
+          { text: '홈으로', onClick: () => navigate('/home'), primary: true },
+        ]}
+      />
+    );
+  }
 
   if (isSaved) {
     return <SavePage medicineName={form.productInfo} />;
