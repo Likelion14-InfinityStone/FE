@@ -4,14 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import BottomButton from '@/components/button/BottomButton';
 import { useSavedTrips } from '@/hooks/useSavedTrips';
-import { TRIPS } from '@/constants/trip';
 import { computeDDay } from '@/utils/dDay';
 import CheckNaion from './components/CheckNaion';
 import Ticket from './components/Ticket';
 
 const TripRegister = () => {
-  const { savedTrips } = useSavedTrips();
-  const allTrips = [...TRIPS, ...savedTrips];
+  const { trips: allTrips } = useSavedTrips();
 
   const countries = Array.from(new Set(allTrips.map((trip) => trip.country)));
 
@@ -41,6 +39,7 @@ const TripRegister = () => {
         {filteredTrips.map((trip) => (
           <Ticket
             key={trip.id}
+            id={trip.id}
             dDay={computeDDay(trip.departureDate)}
             title={trip.title}
             departureCode={trip.departureCode}
@@ -50,6 +49,7 @@ const TripRegister = () => {
             arrivalCountry={trip.arrivalCountry}
             arrivalLocation={trip.arrivalLocation}
             departureDate={trip.departureDate}
+            medicines={trip.medicines}
           />
         ))}
       </div>

@@ -1,33 +1,57 @@
 import { useCallback, useState } from 'react';
-import type { Trip } from '@/constants/trip';
+import { TRIPS, type Trip } from '@/constants/trip';
 
-const STORAGE_KEY = 'savedTrips';
+const SAVED_KEY = 'savedTrips';
+const DELETED_KEY = 'deletedTripIds';
 
-const readSavedTrips = (): Trip[] => {
+const readJSON = <T,>(key: string, fallback: T): T => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Trip[]) : [];
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
-    return [];
+    return fallback;
   }
 };
 
-const writeSavedTrips = (trips: Trip[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(trips));
+const writeJSON = (key: string, value: unknown) => {
+  localStorage.setItem(key, JSON.stringify(value));
 };
 
 // TODO: API 연동 후 서버에 저장된 여행 목록으로 교체 (현재는 localStorage 임시 저장)
 export const useSavedTrips = () => {
-  const [savedTrips, setSavedTrips] = useState<Trip[]>(readSavedTrips);
+  const [savedTrips, setSavedTrips] = useState<Trip[]>(() =>
+    readJSON(SAVED_KEY, [])
+  );
+  const [deletedTripIds, setDeletedTripIds] = useState<number[]>(() =>
+    readJSON(DELETED_KEY, [])
+  );
 
   const addTrip = useCallback((trip: Trip) => {
     setSavedTrips((prev) => {
       if (prev.some((existing) => existing.id === trip.id)) return prev;
       const next = [...prev, trip];
-      writeSavedTrips(next);
+      writeJSON(SAVED_KEY, next);
       return next;
     });
   }, []);
 
-  return { savedTrips, addTrip };
+  const removeTrip = useCallback((id: number) => {
+    setSavedTrips((prev) => {
+      const next = prev.filter((trip) => trip.id !== id);
+      writeJSON(SAVED_KEY, next);
+      return next;
+    });
+    setDeletedTripIds((prev) => {
+      if (prev.includes(id)) return prev;
+      const next = [...prev, id];
+      writeJSON(DELETED_KEY, next);
+      return next;
+    });
+  }, []);
+
+  const trips = [...TRIPS, ...savedTrips].filter(
+    (trip) => !deletedTripIds.includes(trip.id)
+  );
+
+  return { trips, addTrip, removeTrip };
 };

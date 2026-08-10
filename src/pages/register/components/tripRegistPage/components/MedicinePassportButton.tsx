@@ -1,10 +1,17 @@
 import { useNavigate } from 'react-router-dom';
 
-import { MEDICINE_INFO } from '@/constants/medicine';
 import stopStemp from '@/assets/images/register/medicineDetail/stopStemp.svg';
 import rightButtonIcon from '@/assets/images/register/tripTicket/rightbuttonIcon.svg';
 
-const MedicinePassportButton = () => {
+type MedicinePassportButtonProps = {
+  name: string;
+  quantity: number;
+};
+
+const MedicinePassportButton = ({
+  name,
+  quantity,
+}: MedicinePassportButtonProps) => {
   const navigate = useNavigate();
 
   return (
@@ -16,10 +23,10 @@ const MedicinePassportButton = () => {
       <img src={stopStemp} alt="" className="size-[46px] shrink-0" />
       <div className="flex flex-1 flex-col items-start gap-1">
         <p className="font-Pretendard text-[1rem] leading-[1.4] font-medium tracking-[0.384px] text-[#191919]">
-          {MEDICINE_INFO.name}
+          {name}
         </p>
         <p className="font-Pretendard text-[0.875rem] leading-[1.4] tracking-[0.336px] text-[#191919]">
-          소지 {MEDICINE_INFO.possessionQuantity}
+          소지 {quantity}정
         </p>
       </div>
       <img src={rightButtonIcon} alt="" className="h-[17px] w-[9px] shrink-0" />

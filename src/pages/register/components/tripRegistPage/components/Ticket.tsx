@@ -5,6 +5,7 @@ import ExampleJapan from '@/assets/images/register/tripTicket/Example-Japan.svg'
 import CalenderIcon from '@/assets/images/register/tripTicket/calenderIcon.svg';
 
 type TicketProps = {
+  id: number;
   dDay: string;
   title: string;
   flagImage?: string;
@@ -15,6 +16,7 @@ type TicketProps = {
   arrivalCountry: string;
   arrivalLocation: string;
   departureDate: string;
+  medicines?: Record<string, number>;
   calenderIcon?: React.ReactNode;
   interactive?: boolean;
 };
@@ -22,6 +24,7 @@ type TicketProps = {
 export type TicketData = Omit<TicketProps, 'calenderIcon' | 'interactive'>;
 
 const Ticket = ({
+  id,
   dDay,
   title,
   flagImage = ExampleJapan,
@@ -32,6 +35,7 @@ const Ticket = ({
   arrivalCountry,
   arrivalLocation,
   departureDate,
+  medicines,
   interactive = true,
 }: TicketProps) => {
   const navigate = useNavigate();
@@ -40,6 +44,7 @@ const Ticket = ({
     if (!interactive) return;
 
     const trip: TicketData = {
+      id,
       dDay,
       title,
       flagImage,
@@ -50,6 +55,7 @@ const Ticket = ({
       arrivalCountry,
       arrivalLocation,
       departureDate,
+      medicines,
     };
 
     navigate('/medicine', { state: { trip } });

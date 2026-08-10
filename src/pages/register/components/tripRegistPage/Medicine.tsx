@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { TRIPS } from '@/constants/trip';
 import { computeDDay } from '@/utils/dDay';
+import { useSavedTrips } from '@/hooks/useSavedTrips';
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
 import Ticket, { type TicketData } from './components/Ticket';
 import EditButton from './components/EditButton';
@@ -19,6 +20,7 @@ const Medicine = () => {
 
   const [trip, setTrip] = useState<TicketData>(initialTrip);
   const [isRenameOpen, setIsRenameOpen] = useState(false);
+  const { removeTrip } = useSavedTrips();
 
   const tripCountry = TRIPS.find(
     (t) =>
@@ -31,6 +33,7 @@ const Medicine = () => {
 
   const handleDelete = () => {
     if (!window.confirm('이 여행을 삭제하시겠어요?')) return;
+    removeTrip(trip.id);
     navigate('/register');
   };
 
@@ -63,8 +66,10 @@ const Medicine = () => {
         <Ticket {...trip} interactive={false} />
       </div>
 
-      <div className="mt-[26px]">
-        <MedicinePassportButton />
+      <div className="mt-[26px] flex flex-col gap-3">
+        {Object.entries(trip.medicines ?? {}).map(([name, quantity]) => (
+          <MedicinePassportButton key={name} name={name} quantity={quantity} />
+        ))}
       </div>
 
       {isRenameOpen && (

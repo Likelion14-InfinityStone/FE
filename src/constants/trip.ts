@@ -9,6 +9,7 @@ export type Trip = {
   arrivalCountry: string;
   arrivalLocation: string;
   departureDate: string;
+  medicines?: Record<string, number>;
 };
 
 export const TRIPS: Trip[] = [

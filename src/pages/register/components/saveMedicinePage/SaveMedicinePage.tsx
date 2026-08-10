@@ -42,6 +42,13 @@ const SaveMedicinePage = () => {
     const departureCountry = extractCountry(navState?.departure?.location);
     const arrivalCountry = extractCountry(navState?.arrival?.location);
 
+    const medicines = Object.fromEntries(
+      (navState?.selectedMedicines ?? []).map((name) => [
+        name,
+        navState?.medicineQuantities?.[name] ?? 1,
+      ])
+    );
+
     const trip: Trip = {
       id: Date.now(),
       country: arrivalCountry || '기타',
@@ -53,6 +60,7 @@ const SaveMedicinePage = () => {
       arrivalCountry,
       arrivalLocation: navState?.arrival?.location ?? '',
       departureDate: navState?.travelPeriod ?? '',
+      medicines,
     };
 
     addTrip(trip);
