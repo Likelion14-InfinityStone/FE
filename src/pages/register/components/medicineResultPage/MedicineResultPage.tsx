@@ -120,7 +120,16 @@ const MedicineResultPage = () => {
           text="저장하기"
           variant="primary"
           disabled={!hasSelection}
-          onClick={() => {}}
+          onClick={() =>
+            navigate('/saveMedicine', {
+              state: {
+                ...navState,
+                selectedMedicines: Object.keys(selectedItems).filter(
+                  (name) => selectedItems[name]
+                ),
+              },
+            })
+          }
         />
       </div>
 
