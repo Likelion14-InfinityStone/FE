@@ -19,12 +19,18 @@ type MedicineCardBackProps = {
   medicine?: SavedMedicine;
 };
 
-const MedicineCardBack = ({ medicine = MOCK_MEDICINE }: MedicineCardBackProps) => {
+const MedicineCardBack = ({
+  medicine = MOCK_MEDICINE,
+}: MedicineCardBackProps) => {
   const [isKorean, setIsKorean] = useState(true);
 
   const fields = [
     { labelKo: '성명', labelEn: 'Name', value: medicine.name },
-    { labelKo: '조제 일자', labelEn: 'Dispensed on', value: medicine.dispensedDate },
+    {
+      labelKo: '조제 일자',
+      labelEn: 'Dispensed on',
+      value: medicine.dispensedDate,
+    },
     { labelKo: '발행 기관', labelEn: 'Issuer', value: medicine.issuer },
     {
       labelKo: '제품명 및 함량',

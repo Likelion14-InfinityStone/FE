@@ -43,7 +43,10 @@ const SavePage = ({ medicineName }: SavePageProps) => {
       </div>
 
       <div className="px-[26px] pb-[40px]">
-        <BottomButton text="복약 카드로 이동" onClick={() => navigate('/home')} />
+        <BottomButton
+          text="복약 카드로 이동"
+          onClick={() => navigate('/home')}
+        />
       </div>
     </div>
   );

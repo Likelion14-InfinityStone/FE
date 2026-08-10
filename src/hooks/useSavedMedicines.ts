@@ -13,7 +13,7 @@ export type SavedMedicine = {
 
 const SAVED_KEY = 'savedMedicines';
 
-const readJSON = <T,>(key: string, fallback: T): T => {
+const readJSON = <T>(key: string, fallback: T): T => {
   try {
     const raw = localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as T) : fallback;
@@ -32,18 +32,15 @@ export const useSavedMedicines = () => {
     readJSON(SAVED_KEY, [])
   );
 
-  const addMedicine = useCallback(
-    (medicine: Omit<SavedMedicine, 'id'>) => {
-      const newMedicine: SavedMedicine = { ...medicine, id: Date.now() };
-      setSavedMedicines((prev) => {
-        const next = [...prev, newMedicine];
-        writeJSON(SAVED_KEY, next);
-        return next;
-      });
-      return newMedicine;
-    },
-    []
-  );
+  const addMedicine = useCallback((medicine: Omit<SavedMedicine, 'id'>) => {
+    const newMedicine: SavedMedicine = { ...medicine, id: Date.now() };
+    setSavedMedicines((prev) => {
+      const next = [...prev, newMedicine];
+      writeJSON(SAVED_KEY, next);
+      return next;
+    });
+    return newMedicine;
+  }, []);
 
   return { savedMedicines, addMedicine };
 };

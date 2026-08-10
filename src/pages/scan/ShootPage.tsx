@@ -36,7 +36,9 @@ const ShootPage = () => {
         }
       } catch {
         if (!cancelled) {
-          setCameraError('카메라를 사용할 수 없어요. 카메라 권한을 확인해 주세요.');
+          setCameraError(
+            '카메라를 사용할 수 없어요. 카메라 권한을 확인해 주세요.'
+          );
         }
       }
     };

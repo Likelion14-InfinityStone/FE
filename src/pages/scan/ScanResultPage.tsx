@@ -7,7 +7,10 @@ import sameStopStemp from '@/assets/images/scan/sameStopStemp.svg';
 import termStopStemp from '@/assets/images/scan/termStopStemp.svg';
 import BottomButton from '@/components/button/BottomButton';
 import { useSavedMedicines } from '@/hooks/useSavedMedicines';
-import { findDuplicateMedicine, isMedicineExpired } from '@/utils/medicineChecks';
+import {
+  findDuplicateMedicine,
+  isMedicineExpired,
+} from '@/utils/medicineChecks';
 import MedicineExceptionPage from './components/MedicineExceptionPage';
 import MedicineInputCard, {
   type MedicineFormFields,
@@ -101,7 +104,10 @@ const ScanResultPage = () => {
       <MedicineExceptionPage
         stamp={sameStopStemp}
         title={form.productInfo}
-        subtitleLines={['이미 등록된 약이에요.', '복약 카드에서 확인할 수 있어요.']}
+        subtitleLines={[
+          '이미 등록된 약이에요.',
+          '복약 카드에서 확인할 수 있어요.',
+        ]}
         onBack={() => setException(null)}
         buttons={[
           { text: '홈으로', onClick: () => navigate('/home') },

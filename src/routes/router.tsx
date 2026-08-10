@@ -23,6 +23,10 @@ import AirportSearchPage from '@/pages/register/components/selectMedicinePage/Ai
 import LodingPage from '@/pages/register/components/lodingPage/LodingPage';
 import MedicineResultPage from '@/pages/register/components/medicineResultPage/MedicineResultPage';
 import SaveMedicinePage from '@/pages/register/components/saveMedicinePage/SaveMedicinePage';
+import TermsPage from '@/pages/account/TermsPage';
+import PrivacyPolicyPage from '@/pages/account/PrivacyPolicyPage';
+import OpenSourceLicensePage from '@/pages/account/OpenSourceLicensePage';
+import FaqPage from '@/pages/account/FaqPage';
 
 const router = createBrowserRouter([
   { path: '/', element: <Splash /> },
@@ -43,6 +47,10 @@ const router = createBrowserRouter([
       { path: '/registerResult', element: <MedicineResultPage /> },
       { path: '/saveMedicine', element: <SaveMedicinePage /> },
       { path: '/airportSearch', element: <AirportSearchPage /> },
+      { path: '/account/terms', element: <TermsPage /> },
+      { path: '/account/privacy', element: <PrivacyPolicyPage /> },
+      { path: '/account/license', element: <OpenSourceLicensePage /> },
+      { path: '/account/faq', element: <FaqPage /> },
     ],
   },
 

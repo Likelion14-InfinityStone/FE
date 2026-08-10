@@ -4,7 +4,7 @@ import { TRIPS, type Trip } from '@/constants/trip';
 const SAVED_KEY = 'savedTrips';
 const DELETED_KEY = 'deletedTripIds';
 
-const readJSON = <T,>(key: string, fallback: T): T => {
+const readJSON = <T>(key: string, fallback: T): T => {
   try {
     const raw = localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as T) : fallback;

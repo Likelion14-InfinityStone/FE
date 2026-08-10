@@ -24,7 +24,11 @@ const ALL_FIELD_ROWS: { key: keyof MedicineFormFields; label: string }[] = [
   { key: 'dosePerTime', label: '1회 복용량' },
 ];
 
-const MedicineInputCard = ({ form, onChange, fields }: MedicineInputCardProps) => {
+const MedicineInputCard = ({
+  form,
+  onChange,
+  fields,
+}: MedicineInputCardProps) => {
   const rows = fields
     ? ALL_FIELD_ROWS.filter((row) => fields.includes(row.key))
     : ALL_FIELD_ROWS;
