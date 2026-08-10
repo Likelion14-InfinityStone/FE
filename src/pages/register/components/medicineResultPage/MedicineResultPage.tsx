@@ -8,6 +8,7 @@ import readyIcon from '@/assets/images/register/medicineDetail/readyStemp.svg';
 import downArrowIcon from '@/assets/images/register/medicineDetail/downArrowIcon.svg';
 import ChecklistBox from '@/pages/register/components/medicineDetailPage/components/button/ChecklistBox';
 import SmallButton from '@/pages/register/components/selectMedicinePage/components/SmallButton';
+import MedicineExplanationModal from './components/MedicineExplanationModal';
 
 type AirportSelection = {
   code: string;
@@ -37,6 +38,10 @@ const MedicineResultPage = () => {
   const toggleSelected = (name: string) => {
     setSelectedItems((prev) => ({ ...prev, [name]: !prev[name] }));
   };
+
+  const [explanationTarget, setExplanationTarget] = useState<string | null>(
+    null
+  );
 
   const destinationLabel = navState?.arrival
     ? `${navState.arrival.code}(${navState.arrival.location})`
@@ -85,10 +90,9 @@ const MedicineResultPage = () => {
                 </span>
               }
               checked={isSelected}
-              isOpen={false}
+              isOpen={explanationTarget !== name}
               onToggle={() => toggleSelected(name)}
-              // TODO: 약 설명 모달 연결 (다음 프롬프트에서 구현, medicineDetailPage/components/button 재사용)
-              onChevronClick={() => {}}
+              onChevronClick={() => setExplanationTarget(name)}
               checkIcon={
                 <img
                   src={isSelected ? checkIcon : nonCheckIcon}
@@ -119,6 +123,13 @@ const MedicineResultPage = () => {
           onClick={() => {}}
         />
       </div>
+
+      {explanationTarget && (
+        <MedicineExplanationModal
+          medicineName={explanationTarget}
+          onClose={() => setExplanationTarget(null)}
+        />
+      )}
     </div>
   );
 };
