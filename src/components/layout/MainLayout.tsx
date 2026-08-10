@@ -4,7 +4,7 @@ import BottomNavBar from './BottomNavBar';
 
 const MainLayout = () => {
   return (
-    <ScreenContainer>
+    <ScreenContainer withBottomNav>
       <Outlet />
       <BottomNavBar />
     </ScreenContainer>
