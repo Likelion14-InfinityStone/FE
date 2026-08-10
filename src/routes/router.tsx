@@ -18,6 +18,7 @@ import SelectMedicinePage from '@/pages/register/components/selectMedicinePage/S
 import ChoiceMedicinePage from '@/pages/register/components/selectMedicinePage/ChoiceMedicinePage';
 import AirportSearchPage from '@/pages/register/components/selectMedicinePage/AirportSearchPage';
 import LodingPage from '@/pages/register/components/lodingPage/LodingPage';
+import MedicineResultPage from '@/pages/register/components/medicineResultPage/MedicineResultPage';
 import DateSelectCard from '@/pages/register/components/selectMedicinePage/components/DateSelectCard';
 const router = createBrowserRouter([
   { path: '/', element: <Splash /> },
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { path: '/selectMedicine', element: <SelectMedicinePage /> },
       { path: '/choiceMedicine', element: <ChoiceMedicinePage /> },
       { path: '/loding', element: <LodingPage /> },
+      { path: '/registerResult', element: <MedicineResultPage /> },
       { path: '/airportSearch', element: <AirportSearchPage /> },
       { path: '/dateSelectCard', element: <DateSelectCard /> },
     ],

@@ -9,7 +9,6 @@ import PageDots from './components/PageDots';
 const TOTAL_STEPS = 3;
 const CURRENT_STEP = 2;
 const NAVIGATE_DELAY_MS = 2000;
-// TODO: 규정 확인 결과 페이지가 만들어지면 실제 경로로 교체
 const NEXT_PATH = '/registerResult';
 
 type AirportSelection = {
