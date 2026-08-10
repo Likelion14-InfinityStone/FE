@@ -11,9 +11,10 @@ type MedicineFormFields = {
 type MedicineInputCardProps = {
   form: MedicineFormFields;
   onChange: (field: keyof MedicineFormFields, value: string) => void;
+  fields?: (keyof MedicineFormFields)[];
 };
 
-const FIELD_ROWS: { key: keyof MedicineFormFields; label: string }[] = [
+const ALL_FIELD_ROWS: { key: keyof MedicineFormFields; label: string }[] = [
   { key: 'name', label: '이름' },
   { key: 'dispensedDate', label: '조제일자' },
   { key: 'issuer', label: '발행 기관' },
@@ -23,11 +24,15 @@ const FIELD_ROWS: { key: keyof MedicineFormFields; label: string }[] = [
   { key: 'dosePerTime', label: '1회 복용량' },
 ];
 
-const MedicineInputCard = ({ form, onChange }: MedicineInputCardProps) => {
+const MedicineInputCard = ({ form, onChange, fields }: MedicineInputCardProps) => {
+  const rows = fields
+    ? ALL_FIELD_ROWS.filter((row) => fields.includes(row.key))
+    : ALL_FIELD_ROWS;
+
   return (
     <div className="mx-auto w-full max-w-[350px] rounded-[20px] border border-[#23408F] bg-[#FCFCFC] px-[30px] py-[43px] shadow-[0px_2px_2px_0px_rgba(113,112,113,0.2)]">
       <div className="flex flex-col gap-[30px]">
-        {FIELD_ROWS.map((row) => (
+        {rows.map((row) => (
           <div
             key={row.key}
             className="flex items-center justify-between gap-[12px] border-b border-[#E2E2E2] pb-[4px]"

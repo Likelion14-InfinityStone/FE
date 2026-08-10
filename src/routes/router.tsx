@@ -9,6 +9,8 @@ import Home from '@/pages/home/Home';
 import Documents from '@/pages/documents/Documents';
 import Scan from '@/pages/scan/Scan';
 import DirectInputPage from '@/pages/scan/DirectInputPage';
+import ShootPage from '@/pages/scan/ShootPage';
+import ScanResultPage from '@/pages/scan/ScanResultPage';
 import Account from '@/pages/account/Account';
 import Emergency from '@/pages/emergency/Emergency';
 import NotFound from '@/pages/notFound/NotFound';
@@ -24,6 +26,9 @@ import SaveMedicinePage from '@/pages/register/components/saveMedicinePage/SaveM
 
 const router = createBrowserRouter([
   { path: '/', element: <Splash /> },
+  { path: '/scanCapture', element: <ShootPage /> },
+  { path: '/manualInput', element: <DirectInputPage /> },
+  { path: '/scanResult', element: <ScanResultPage /> },
 
   {
     element: <SubLayout />,
@@ -38,7 +43,6 @@ const router = createBrowserRouter([
       { path: '/registerResult', element: <MedicineResultPage /> },
       { path: '/saveMedicine', element: <SaveMedicinePage /> },
       { path: '/airportSearch', element: <AirportSearchPage /> },
-      { path: '/manualInput', element: <DirectInputPage /> },
     ],
   },
 
