@@ -19,6 +19,8 @@ type AirportSelectionState = {
   field?: 'departure' | 'arrival';
   departure?: AirportSelection;
   arrival?: AirportSelection;
+  travelPeriod?: string;
+  medicineQuantities?: Record<string, number>;
 };
 
 const formatDate = (date: Date) => {
@@ -36,7 +38,8 @@ const SelectMedicinePage = () => {
 
   const [departure, setDeparture] = useState(navState?.departure);
   const [arrival, setArrival] = useState(navState?.arrival);
-  const [travelPeriod, setTravelPeriod] = useState<string>();
+  const [travelPeriod, setTravelPeriod] = useState(navState?.travelPeriod);
+  const [medicineQuantities] = useState(navState?.medicineQuantities);
   const [flipped, setflipped] = useState(false);
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
 
@@ -59,13 +62,25 @@ const SelectMedicinePage = () => {
 
   const handleSelectDeparture = () => {
     navigate('/airportSearch', {
-      state: { field: 'departure', departure, arrival },
+      state: {
+        field: 'departure',
+        departure,
+        arrival,
+        travelPeriod,
+        medicineQuantities,
+      },
     });
   };
 
   const handleSelectArrival = () => {
     navigate('/airportSearch', {
-      state: { field: 'arrival', departure, arrival },
+      state: {
+        field: 'arrival',
+        departure,
+        arrival,
+        travelPeriod,
+        medicineQuantities,
+      },
     });
   };
 
@@ -119,7 +134,11 @@ const SelectMedicinePage = () => {
 
       <BottomButton
         text="다음"
-        onClick={() => {}}
+        onClick={() =>
+          navigate('/choiceMedicine', {
+            state: { departure, arrival, travelPeriod, medicineQuantities },
+          })
+        }
         disabled={!departure || !arrival || !travelPeriod}
       />
 

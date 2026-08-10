@@ -15,6 +15,8 @@ type AirportSelectionState = {
   field?: 'departure' | 'arrival';
   departure?: AirportSelection;
   arrival?: AirportSelection;
+  travelPeriod?: string;
+  medicineQuantities?: Record<string, number>;
 };
 
 const AirportSearchPage = () => {
@@ -52,6 +54,8 @@ const AirportSearchPage = () => {
       state: {
         departure: field === 'departure' ? selection : navState?.departure,
         arrival: field === 'arrival' ? selection : navState?.arrival,
+        travelPeriod: navState?.travelPeriod,
+        medicineQuantities: navState?.medicineQuantities,
       },
     });
   };

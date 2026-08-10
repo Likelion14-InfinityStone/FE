@@ -1,4 +1,5 @@
-import PlusIcon from '@/assets/images/travelRegister/plusIcon.svg';
+import PlusIcon from '@/assets/images/register/tripTicket/plusIcon.svg';
+import MinusIcon from '@/assets/images/register/tripTicket/minusIcon.svg';
 
 type MedicineQuantityCardProps = {
   label: string;
@@ -16,7 +17,7 @@ const MedicineQuantityCard = ({
   const canDecrease = quantity > 1;
 
   return (
-    <div className="flex w-full items-center justify-between rounded-[20px] border-2 border-[#E2E2E2] px-6 py-5.5">
+    <div className="flex w-full items-center justify-between rounded-[20px] border border-[#E2E2E2] bg-[#FCFCFC] px-6 py-5.5">
       <p className="font-Pretendard text-[1.125rem] font-medium tracking-[0.432px] text-[#6D6D6D]">
         {label}
       </p>
@@ -29,7 +30,7 @@ const MedicineQuantityCard = ({
           disabled={!canDecrease}
           className="flex size-4 items-center justify-center disabled:opacity-40"
         >
-          <span className="h-0.5 w-full rounded-full bg-[#D9D9D9]" />
+          <img src={MinusIcon} alt="" />
         </button>
 
         <span className="w-6.5 text-center font-Pretendard text-xl font-medium tracking-[0.48px] text-[#6D6D6D]">

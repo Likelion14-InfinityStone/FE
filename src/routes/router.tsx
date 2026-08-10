@@ -15,6 +15,7 @@ import Register from '@/pages/register/Register';
 import MedicineDetailPage from '@/pages/register/components/medicineDetailPage/MedicineDetailPage';
 import Medicine from '@/pages/register/components/tripRegistPage/Medicine';
 import SelectMedicinePage from '@/pages/register/components/selectMedicinePage/SelectMedicinePage';
+import ChoiceMedicinePage from '@/pages/register/components/selectMedicinePage/ChoiceMedicinePage';
 import AirportSearchPage from '@/pages/register/components/selectMedicinePage/AirportSearchPage';
 import DateSelectCard from '@/pages/register/components/selectMedicinePage/components/DateSelectCard';
 const router = createBrowserRouter([
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
       { path: '/terms', element: <Terms /> },
       { path: '/medicineDetail', element: <MedicineDetailPage /> },
       { path: '/selectMedicine', element: <SelectMedicinePage /> },
+      { path: '/choiceMedicine', element: <ChoiceMedicinePage /> },
       { path: '/airportSearch', element: <AirportSearchPage /> },
       { path: '/dateSelectCard', element: <DateSelectCard /> },
     ],
