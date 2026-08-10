@@ -5,6 +5,7 @@ import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.s
 import { MY_MEDICINES } from '@/constants/medicine';
 import MedicineChip from '@/pages/register/components/lodingPage/components/MedicineChip';
 import MedicineQuantityCard from '@/pages/register/components/lodingPage/components/MedicineQuantityCard';
+import PageDots from '@/pages/register/components/lodingPage/components/PageDots';
 import SmallButton from './components/SmallButton';
 
 const TOTAL_STEPS = 3;
@@ -74,15 +75,8 @@ const ChoiceMedicinePage = () => {
           <img src={backButtonIcon} alt="" className="h-5 w-[10px]" />
         </button>
 
-        <div className="flex flex-1 items-center justify-center gap-4.5">
-          {Array.from({ length: TOTAL_STEPS }).map((_, index) => (
-            <span
-              key={index}
-              className={`h-3 rounded-full ${
-                index === CURRENT_STEP ? 'w-6 bg-[#23408F]' : 'w-3 bg-[#D9D9D9]'
-              }`}
-            />
-          ))}
+        <div className="flex flex-1 items-center justify-center">
+          <PageDots total={TOTAL_STEPS} activeIndex={CURRENT_STEP} />
         </div>
       </div>
 

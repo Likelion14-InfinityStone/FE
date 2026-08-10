@@ -90,7 +90,7 @@ const MedicineResultPage = () => {
                 </span>
               }
               checked={isSelected}
-              isOpen={explanationTarget !== name}
+              isOpen={explanationTarget === name}
               onToggle={() => toggleSelected(name)}
               onChevronClick={() => setExplanationTarget(name)}
               checkIcon={
