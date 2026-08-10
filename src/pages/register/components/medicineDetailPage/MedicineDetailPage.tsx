@@ -7,7 +7,6 @@ import MedicationPassportCard from '@/pages/register/components/medicineDetailPa
 import ChecklistBox from '@/pages/register/components/medicineDetailPage/components/button/ChecklistBox';
 import ActionButton from '@/pages/register/components/medicineDetailPage/components/button/ActionButton';
 import DocumentConfirmRow from '@/pages/register/components/medicineDetailPage/components/button/DocumentConfirmRow';
-import UploadDropButton from '@/pages/register/components/medicineDetailPage/components/button/UploadDropButton';
 
 import {
   MEDICINE_INFO,
@@ -207,7 +206,8 @@ const MedicineDetailPage = () => {
                           />
                         ) : (
                           <div className="flex flex-col gap-[10px]">
-                            <UploadDropButton
+                            <ActionButton
+                              variant="dashed"
                               label="PDF 업로드"
                               icon={<img src={pdfIcon} alt="" />}
                               onClick={() => handleOpenFilePicker(uploadKey)}

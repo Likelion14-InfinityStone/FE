@@ -52,8 +52,9 @@ const DateRangeModal = ({
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const leadingBlankDays = firstDayOfMonth.getDay();
 
-  const days = Array.from({ length: daysInMonth }, (_, index) =>
-    new Date(viewYear, viewMonth, index + 1)
+  const days = Array.from(
+    { length: daysInMonth },
+    (_, index) => new Date(viewYear, viewMonth, index + 1)
   );
 
   const handlePrevMonth = () => {
@@ -159,11 +160,16 @@ const DateRangeModal = ({
 
             {days.map((date) => {
               const weekday = date.getDay();
-              const isStart = Boolean(range.start && isSameDay(date, range.start));
+              const isStart = Boolean(
+                range.start && isSameDay(date, range.start)
+              );
               const isEnd = Boolean(range.end && isSameDay(date, range.end));
               const isEdge = isStart || isEnd;
               const isInRange = Boolean(
-                range.start && range.end && date > range.start && date < range.end
+                range.start &&
+                range.end &&
+                date > range.start &&
+                date < range.end
               );
 
               return (
@@ -178,7 +184,9 @@ const DateRangeModal = ({
                           ? 'left-[calc(50%-22px)] rounded-l-full'
                           : 'left-0'
                       } ${
-                        isEnd ? 'right-[calc(50%-22px)] rounded-r-full' : 'right-0'
+                        isEnd
+                          ? 'right-[calc(50%-22px)] rounded-r-full'
+                          : 'right-0'
                       }`}
                     />
                   )}

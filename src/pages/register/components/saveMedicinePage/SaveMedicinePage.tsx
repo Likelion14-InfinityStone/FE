@@ -1,8 +1,11 @@
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import savePUFIIcon from '@/assets/images/register/tripTicket/savePUFIIcon.svg';
 import BottomButton from '@/components/button/BottomButton';
+import { useSavedTrips } from '@/hooks/useSavedTrips';
+import type { Trip } from '@/constants/trip';
 
 type AirportSelection = {
   code: string;
@@ -17,16 +20,67 @@ type SaveMedicineState = {
   selectedMedicines?: string[];
 };
 
+const extractCountry = (location?: string) => location?.split(' / ')[0] ?? '';
+
+const parseTripDate = (value: string) => {
+  const [year, month, day] = value.split('.').map(Number);
+  if (!year || !month || !day) return null;
+
+  return new Date(2000 + year, month - 1, day);
+};
+
+const computeDDay = (travelPeriod?: string) => {
+  const startDate = parseTripDate(travelPeriod?.split(' - ')[0]?.trim() ?? '');
+  if (!startDate) return 'D-DAY';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  startDate.setHours(0, 0, 0, 0);
+
+  const diffDays = Math.round(
+    (startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  return diffDays > 0 ? `D-${diffDays}` : 'D-DAY';
+};
+
 const SaveMedicinePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navState = location.state as SaveMedicineState | null;
+  const { addTrip } = useSavedTrips();
+  const hasSavedRef = useRef(false);
 
   const destinationLabel = navState?.arrival
     ? `${navState.arrival.code}(${navState.arrival.location})`
     : '';
 
   const savedMedicines = navState?.selectedMedicines ?? [];
+
+  useEffect(() => {
+    if (hasSavedRef.current) return;
+    hasSavedRef.current = true;
+
+    const departureCountry = extractCountry(navState?.departure?.location);
+    const arrivalCountry = extractCountry(navState?.arrival?.location);
+
+    const trip: Trip = {
+      id: Date.now(),
+      country: arrivalCountry || '기타',
+      dDay: computeDDay(navState?.travelPeriod),
+      title: `${arrivalCountry || '여행지'} 여행`,
+      departureCode: navState?.departure?.code ?? '',
+      departureCountry,
+      departureLocation: navState?.departure?.location ?? '',
+      arrivalCode: navState?.arrival?.code ?? '',
+      arrivalCountry,
+      arrivalLocation: navState?.arrival?.location ?? '',
+      departureDate: navState?.travelPeriod ?? '',
+    };
+
+    addTrip(trip);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleBack = () => {
     const remainingQuantities = Object.fromEntries(

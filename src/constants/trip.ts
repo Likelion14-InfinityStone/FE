@@ -1,9 +1,6 @@
-export const COUNTRIES = ['일본', '중국', '태국', '일단 넣음'] as const;
-export type Country = (typeof COUNTRIES)[number];
-
 export type Trip = {
   id: number;
-  country: Country;
+  country: string;
   dDay: string;
   title: string;
   departureCode: string;

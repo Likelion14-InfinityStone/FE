@@ -3,14 +3,22 @@ import { useNavigate } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import BottomButton from '@/components/button/BottomButton';
-import { COUNTRIES, TRIPS, type Country } from '@/constants/trip';
+import { useSavedTrips } from '@/hooks/useSavedTrips';
+import { TRIPS } from '@/constants/trip';
 import CheckNaion from './components/CheckNaion';
 import Ticket from './components/Ticket';
 
 const TripRegister = () => {
-  const [activeCountry, setActiveCountry] = useState<Country>('일본');
+  const { savedTrips } = useSavedTrips();
+  const allTrips = [...TRIPS, ...savedTrips];
 
-  const filteredTrips = TRIPS.filter((trip) => trip.country === activeCountry);
+  const countries = Array.from(new Set(allTrips.map((trip) => trip.country)));
+
+  const [activeCountry, setActiveCountry] = useState(countries[0] ?? '');
+
+  const filteredTrips = allTrips.filter(
+    (trip) => trip.country === activeCountry
+  );
   const navigate = useNavigate();
 
   return (
@@ -18,7 +26,7 @@ const TripRegister = () => {
       <Header title="여행 체크로그함" />
 
       <div className="mt-12 flex flex-wrap items-center gap-2.5">
-        {COUNTRIES.map((country) => (
+        {countries.map((country) => (
           <CheckNaion
             key={country}
             label={country}
