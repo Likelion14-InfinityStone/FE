@@ -128,7 +128,11 @@ const ChoiceMedicinePage = () => {
           text="다음"
           variant="primary"
           disabled={selectedMedicines.length === 0}
-          onClick={() => {}}
+          onClick={() =>
+            navigate('/loding', {
+              state: { ...navState, medicineQuantities: quantities },
+            })
+          }
         />
       </div>
     </div>
