@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import BottomButton from '@/components/button/BottomButton';
 import { useSavedTrips } from '@/hooks/useSavedTrips';
 import { TRIPS } from '@/constants/trip';
+import { computeDDay } from '@/utils/dDay';
 import CheckNaion from './components/CheckNaion';
 import Ticket from './components/Ticket';
 
@@ -40,7 +41,7 @@ const TripRegister = () => {
         {filteredTrips.map((trip) => (
           <Ticket
             key={trip.id}
-            dDay={trip.dDay}
+            dDay={computeDDay(trip.departureDate)}
             title={trip.title}
             departureCode={trip.departureCode}
             departureCountry={trip.departureCountry}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { TRIPS } from '@/constants/trip';
+import { computeDDay } from '@/utils/dDay';
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
 import Ticket, { type TicketData } from './components/Ticket';
 import EditButton from './components/EditButton';
@@ -13,8 +14,8 @@ const Medicine = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const initialTrip =
-    (location.state as { trip?: TicketData } | null)?.trip ?? TRIPS[0];
+  const initialTrip = (location.state as { trip?: TicketData } | null)
+    ?.trip ?? { ...TRIPS[0], dDay: computeDDay(TRIPS[0].departureDate) };
 
   const [trip, setTrip] = useState<TicketData>(initialTrip);
   const [isRenameOpen, setIsRenameOpen] = useState(false);
@@ -22,7 +23,6 @@ const Medicine = () => {
   const tripCountry = TRIPS.find(
     (t) =>
       t.title === initialTrip.title &&
-      t.dDay === initialTrip.dDay &&
       t.departureDate === initialTrip.departureDate
   )?.country;
 

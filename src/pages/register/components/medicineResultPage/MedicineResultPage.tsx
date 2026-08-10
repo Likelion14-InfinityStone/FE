@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import checkIcon from '@/assets/images/register/tripTicket/checkIcon.svg';
@@ -27,23 +27,26 @@ const MedicineResultPage = () => {
   const location = useLocation();
   const navState = location.state as MedicineResultState | null;
 
-  const medicines = Object.entries(navState?.medicineQuantities ?? {});
-
   // 약별 선택 여부: 처음에는 아무것도 선택되지 않은 상태로 시작
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(
     {}
   );
+  const [explanationTarget, setExplanationTarget] = useState<string | null>(
+    null
+  );
+
+  if (!navState || !navState.arrival || !navState.medicineQuantities) {
+    return <Navigate to="/register" replace />;
+  }
+
+  const medicines = Object.entries(navState.medicineQuantities);
   const hasSelection = Object.values(selectedItems).some(Boolean);
 
   const toggleSelected = (name: string) => {
     setSelectedItems((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
-  const [explanationTarget, setExplanationTarget] = useState<string | null>(
-    null
-  );
-
-  const destinationLabel = navState?.arrival
+  const destinationLabel = navState.arrival
     ? `${navState.arrival.code}(${navState.arrival.location})`
     : '';
 

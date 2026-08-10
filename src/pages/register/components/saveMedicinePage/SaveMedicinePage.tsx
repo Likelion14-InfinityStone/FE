@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import savePUFIIcon from '@/assets/images/register/tripTicket/savePUFIIcon.svg';
@@ -22,28 +22,6 @@ type SaveMedicineState = {
 
 const extractCountry = (location?: string) => location?.split(' / ')[0] ?? '';
 
-const parseTripDate = (value: string) => {
-  const [year, month, day] = value.split('.').map(Number);
-  if (!year || !month || !day) return null;
-
-  return new Date(2000 + year, month - 1, day);
-};
-
-const computeDDay = (travelPeriod?: string) => {
-  const startDate = parseTripDate(travelPeriod?.split(' - ')[0]?.trim() ?? '');
-  if (!startDate) return 'D-DAY';
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  startDate.setHours(0, 0, 0, 0);
-
-  const diffDays = Math.round(
-    (startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
-
-  return diffDays > 0 ? `D-${diffDays}` : 'D-DAY';
-};
-
 const SaveMedicinePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,7 +36,7 @@ const SaveMedicinePage = () => {
   const savedMedicines = navState?.selectedMedicines ?? [];
 
   useEffect(() => {
-    if (hasSavedRef.current) return;
+    if (hasSavedRef.current || !navState?.arrival) return;
     hasSavedRef.current = true;
 
     const departureCountry = extractCountry(navState?.departure?.location);
@@ -67,7 +45,6 @@ const SaveMedicinePage = () => {
     const trip: Trip = {
       id: Date.now(),
       country: arrivalCountry || '기타',
-      dDay: computeDDay(navState?.travelPeriod),
       title: `${arrivalCountry || '여행지'} 여행`,
       departureCode: navState?.departure?.code ?? '',
       departureCountry,
@@ -81,6 +58,10 @@ const SaveMedicinePage = () => {
     addTrip(trip);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!navState || !navState.arrival) {
+    return <Navigate to="/register" replace />;
+  }
 
   const handleBack = () => {
     const remainingQuantities = Object.fromEntries(

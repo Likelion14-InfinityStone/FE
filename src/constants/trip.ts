@@ -1,7 +1,6 @@
 export type Trip = {
   id: number;
   country: string;
-  dDay: string;
   title: string;
   departureCode: string;
   departureCountry: string;
@@ -16,7 +15,6 @@ export const TRIPS: Trip[] = [
   {
     id: 1,
     country: '일본',
-    dDay: 'D-20',
     title: '인스톤 단체 여행',
     departureCode: 'ICN',
     departureCountry: 'KOR',
@@ -29,7 +27,6 @@ export const TRIPS: Trip[] = [
   {
     id: 2,
     country: '일본',
-    dDay: 'D-40',
     title: '도쿄 여행!',
     departureCode: 'ICN',
     departureCountry: 'KOR',
