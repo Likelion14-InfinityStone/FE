@@ -3,21 +3,39 @@ import { useNavigate } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import SosButton from '@/components/button/SosButton';
+import { useSavedMedicines } from '@/hooks/useSavedMedicines';
+import type { SavedMedicine } from '@/hooks/useSavedMedicines';
 import MedicineCard from './components/MedicineCard';
 
 const CARD_STEP = 298;
 
 // 임시 카드 목록
-const medicineCards = [
-  { id: 1, name: '피루피루', status: 'unregistered' as const },
-  { id: 2, name: '피루피루', status: 'unregistered' as const },
-  { id: 3, name: '피루피루', status: 'unregistered' as const },
+const MOCK_MEDICINE_CARDS: {
+  id: number;
+  name: string;
+  status: 'unregistered';
+  medicine?: SavedMedicine;
+}[] = [
+  { id: 1, name: '피루피루', status: 'unregistered' },
+  { id: 2, name: '피루피루', status: 'unregistered' },
+  { id: 3, name: '피루피루', status: 'unregistered' },
 ];
 
 const Home = () => {
   const navigate = useNavigate();
+  const { savedMedicines } = useSavedMedicines();
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [flippedCardId, setFlippedCardId] = useState<number | null>(null);
+
+  const medicineCards = [
+    ...MOCK_MEDICINE_CARDS,
+    ...savedMedicines.map((medicine) => ({
+      id: medicine.id,
+      name: medicine.name,
+      status: 'unregistered' as const,
+      medicine,
+    })),
+  ];
 
   return (
     <div className="w-full h-full">
@@ -44,6 +62,7 @@ const Home = () => {
             key={card.id}
             name={card.name}
             status={card.status}
+            medicine={card.medicine}
             isActive={activeCardIndex === index}
             isFlipped={flippedCardId === card.id}
             onFlip={() =>

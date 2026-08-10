@@ -1,51 +1,47 @@
 import { useState } from 'react';
+
+import type { SavedMedicine } from '@/hooks/useSavedMedicines';
 import MedicineInfo from './MedicineInfo';
 
-const medicineInfoFields = [
-  { key: 'patientName', label: { ko: '성명', en: 'Name' } },
-  { key: 'dispensedAt', label: { ko: '조제 일자', en: 'Dispensed on' } },
-  { key: 'issuer', label: { ko: '발행 기관', en: 'Issuer' } },
-  {
-    key: 'ingredientName',
-    label: { ko: '국제 성분명', en: 'Generic name' },
-  },
-  { key: 'strength', label: { ko: '함량', en: 'Strength' } },
-  { key: 'frequency', label: { ko: '복용 횟수', en: 'Frequency' } },
-  { key: 'duration', label: { ko: '복용 일수', en: 'Duration' } },
-  { key: 'dose', label: { ko: '1회 복용량', en: 'Dose' } },
-  { key: 'prescribedAt', label: { ko: '처방일', en: 'Prescribed on' } },
-] as const;
-
-type MedicineInfoKey = (typeof medicineInfoFields)[number]['key'];
-type MedicineValues = Record<MedicineInfoKey, string>;
-
 // 교체 예정
-const medicineValues: MedicineValues & {
-  medicineName: string;
-  connectedTrip: string;
-} = {
-  medicineName: '로라타딘 10mg',
-  patientName: '김피루',
-  dispensedAt: '2026. 07. 20.',
+const MOCK_MEDICINE: SavedMedicine = {
+  id: 0,
+  name: '김피루',
+  dispensedDate: '2026. 07. 20.',
   issuer: '서울메디컬의원',
-  ingredientName: 'Loratadine',
-  strength: '10mg',
+  productInfo: '로라타딘 10mg',
   frequency: '1일 1회',
   duration: '14일',
-  dose: '1정',
-  prescribedAt: '2026. 07. 20.',
-  connectedTrip: '일본',
+  dosePerTime: '1정',
 };
 
-const MedicineCardBack = () => {
+type MedicineCardBackProps = {
+  medicine?: SavedMedicine;
+};
+
+const MedicineCardBack = ({ medicine = MOCK_MEDICINE }: MedicineCardBackProps) => {
   const [isKorean, setIsKorean] = useState(true);
+
+  const fields = [
+    { labelKo: '성명', labelEn: 'Name', value: medicine.name },
+    { labelKo: '조제 일자', labelEn: 'Dispensed on', value: medicine.dispensedDate },
+    { labelKo: '발행 기관', labelEn: 'Issuer', value: medicine.issuer },
+    {
+      labelKo: '제품명 및 함량',
+      labelEn: 'Product & strength',
+      value: medicine.productInfo,
+    },
+    { labelKo: '복용 횟수', labelEn: 'Frequency', value: medicine.frequency },
+    { labelKo: '복용 일수', labelEn: 'Duration', value: medicine.duration },
+    { labelKo: '1회 복용량', labelEn: 'Dose', value: medicine.dosePerTime },
+  ];
 
   return (
     <div className="h-full w-full pt-6 pb-5 px-5.5 rounded-[20px] shadow-[0_2px_2px_0_rgba(0,0,0,0.04)] bg-[#FCFCFC] border-2 border-[#23408F]">
       <div className="flex flex-col gap-6">
         <div className="flex justify-between">
           <p className="font-Pretendard text-[1rem] leading-5.6 tracking-[0.4px] font-semibold text-[#000000]">
-            {medicineValues.medicineName}
+            {medicine.productInfo}
           </p>
           <button
             type="button"
@@ -61,23 +57,13 @@ const MedicineCardBack = () => {
           </button>
         </div>
         <div className="flex flex-col gap-3.5">
-          {medicineInfoFields.map(({ key, label }) => (
+          {fields.map((field) => (
             <MedicineInfo
-              key={key}
-              label={isKorean ? label.ko : label.en}
-              value={medicineValues[key]}
+              key={field.labelKo}
+              label={isKorean ? field.labelKo : field.labelEn}
+              value={field.value}
             />
           ))}
-          <div className="flex flex-col gap-1.25">
-            <p className="font-Pretendard text-[0.875rem] leading-4.9 tracking-[0.3px] font-medium text-[#767676]">
-              {isKorean ? '연결된 여행' : 'Connected trip'}
-            </p>
-            <div className="w-fit py-2 px-4 bg-[#EAF0FF] rounded-3xl">
-              <p className="font-Pretendard text-[0.75rem] leading-4.2 tracking-[0.3px] font-semibold text-[#23408F]">
-                {medicineValues.connectedTrip}
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

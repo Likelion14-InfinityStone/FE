@@ -8,6 +8,7 @@ import Login from '@/pages/login/Login';
 import Home from '@/pages/home/Home';
 import Documents from '@/pages/documents/Documents';
 import Scan from '@/pages/scan/Scan';
+import DirectInputPage from '@/pages/scan/DirectInputPage';
 import Account from '@/pages/account/Account';
 import Emergency from '@/pages/emergency/Emergency';
 import NotFound from '@/pages/notFound/NotFound';
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
       { path: '/registerResult', element: <MedicineResultPage /> },
       { path: '/saveMedicine', element: <SaveMedicinePage /> },
       { path: '/airportSearch', element: <AirportSearchPage /> },
+      { path: '/manualInput', element: <DirectInputPage /> },
     ],
   },
 

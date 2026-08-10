@@ -1,3 +1,4 @@
+import type { SavedMedicine } from '@/hooks/useSavedMedicines';
 import MedicineCardBack from './MedicineCardBack';
 import type { MedicineCardFrontProps } from './MedicineCardFront';
 import MedicineCardFront from './MedicineCardFront';
@@ -6,6 +7,7 @@ type MedicineCardProps = MedicineCardFrontProps & {
   isActive: boolean;
   isFlipped: boolean;
   onFlip: () => void;
+  medicine?: SavedMedicine;
 };
 
 const MedicineCard = ({
@@ -16,6 +18,7 @@ const MedicineCard = ({
   isActive,
   isFlipped,
   onFlip,
+  medicine,
 }: MedicineCardProps) => {
   return (
     <div
@@ -29,7 +32,7 @@ const MedicineCard = ({
       }`}
     >
       {isFlipped ? (
-        <MedicineCardBack />
+        <MedicineCardBack medicine={medicine} />
       ) : (
         <MedicineCardFront
           name={name}
