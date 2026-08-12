@@ -1,4 +1,3 @@
-import DropdownIcon from '@/assets/images/sos/dropdownIcon.svg';
 import TransitionIcon from '@/assets/images/sos/transitionIcon.svg';
 
 const JAPANESE_TEXT = `こんにちは。私は韓国から来た旅行者です。旅行中に服用していた薬を紛失しました。現在の体調は「問題ありません」。 この薬は健康管理のために服用しているものです。 同じ成分の薬を入手したいので、必要な対応についてご案内いただけますでしょうか。 この後、薬に関する書類と詳しい情報をお見せします。`;
@@ -17,12 +16,9 @@ const EmergencyTranslation = () => {
             한국어
           </p>
           <img src={TransitionIcon} alt="" />
-          <div className="flex items-center gap-2">
-            <p className="px-5 py-2 font-Pretendard text-[1rem] font-semibold">
-              일본어
-            </p>
-            <img src={DropdownIcon} alt="" className="h-1.875 w-3.75" />
-          </div>
+          <p className="px-5 py-2 font-Pretendard text-[1rem] font-semibold">
+            일본어
+          </p>
         </div>
 
         <div className="flex flex-col gap-3">
