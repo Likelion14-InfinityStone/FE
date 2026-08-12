@@ -4,10 +4,11 @@ import BottomNavBar from './BottomNavBar';
 
 const MainLayout = () => {
   const { pathname } = useLocation();
-  const bottomNavPaths = ['/ready', '/documents', '/home', '/scan', '/account'];
-  const hasBottomNav = bottomNavPaths.some((path) =>
-    pathname.startsWith(path)
-  );
+  const bottomNavPaths = ['/ready', '/home', '/scan', '/account'];
+  const documentPathDepth = pathname.split('/').filter(Boolean).length;
+  const hasBottomNav =
+    bottomNavPaths.includes(pathname) ||
+    (pathname.startsWith('/documents') && documentPathDepth <= 2);
 
   return (
     <ScreenContainer hasBottomNav={hasBottomNav}>
