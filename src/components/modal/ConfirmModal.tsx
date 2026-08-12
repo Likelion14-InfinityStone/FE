@@ -46,16 +46,20 @@ const ConfirmModal = ({
             <button
               type="button"
               onClick={onCancel}
-              className="py-4 flex-1 rounded-xl border border-[#E2E2E2] font-Pretendard text-[1rem] font-semibold text-[#848B9C]"
+              className="py-3.75 flex-1 rounded-xl border border-[#E2E2E2]"
             >
-              {cancelText}
+              <p className="font-Pretendard text-[1rem] font-semibold text-[#848B9C]">
+                {cancelText}
+              </p>
             </button>
             <button
               type="button"
               onClick={onConfirm}
-              className="py-4 flex-1 rounded-xl bg-[#23408F] font-Pretendard text-[1rem] font-semibold text-[#FAFAF6]"
+              className="py-3.75 flex-1 rounded-xl bg-[#23408F]"
             >
-              {confirmText}
+              <p className="font-Pretendard text-[1rem] font-semibold text-[#FAFAF6]">
+                {confirmText}
+              </p>
             </button>
           </div>
         </div>
