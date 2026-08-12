@@ -2,20 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import BottomButton from '@/components/button/BottomButton';
 import PageHeader from '@/components/layout/PageHeader';
 import MedicineDocumentItem from './components/MedicineDocumentItem';
-
-const MEDICINE_DOCUMENTS = [
-  {
-    title: '영문처방전',
-    issuedAt: '2026.07.11',
-    status: '등록완료' as const,
-  },
-  {
-    title: '의사 소견서',
-    issuedAt: '2023.02.17',
-    status: '갱신필요' as const,
-  },
-  { title: '영문처방전', status: '미발급' as const },
-];
+import { MEDICINE_DOCUMENTS } from './constants';
 
 const MedicineDocuments = () => {
   const navigate = useNavigate();
@@ -38,6 +25,11 @@ const MedicineDocuments = () => {
             <MedicineDocumentItem
               key={`${document.title}-${index}`}
               {...document}
+              onClick={() =>
+                navigate(
+                  `/documents/${encodeURIComponent(decodedMedicineName)}/${index}`
+                )
+              }
             />
           ))}
         </div>
