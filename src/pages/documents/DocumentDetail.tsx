@@ -23,7 +23,7 @@ const DocumentDetail = () => {
     <div className="flex min-h-full w-full flex-col">
       <PageHeader title={document.title} />
 
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-1 flex-col gap-2.5">
         <div className="flex flex-col">
           <p className="font-Pretendard text-[1.5rem] leading-8.4 font-semibold text-[#191919]">
             {medicine}
@@ -33,14 +33,14 @@ const DocumentDetail = () => {
           </p>
         </div>
 
-        <div className="flex flex-col gap-6">
-          <div className="flex h-95 w-87.5 shrink-0 items-center justify-center self-center rounded-lg bg-[#E1E1E1]">
+        <div className="flex flex-1 flex-col gap-6">
+          <div className="flex h-95 w-full shrink-0 items-center justify-center self-center rounded-lg bg-[#E1E1E1]">
             <p className="font-Pretendard text-[1rem] font-semibold text-[#191919]">
               사진 미리 보기
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5">
+          <div className="mt-auto flex flex-col gap-2.5 pb-4">
             <DocumentActionButton
               label="다운로드"
               icon={DocumentsDownloadIcon}
