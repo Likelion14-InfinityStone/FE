@@ -8,7 +8,8 @@ const MainLayout = () => {
   const documentPathDepth = pathname.split('/').filter(Boolean).length;
   const hasBottomNav =
     bottomNavPaths.includes(pathname) ||
-    (pathname.startsWith('/documents') && documentPathDepth <= 2);
+    ((pathname === '/documents' || pathname.startsWith('/documents/')) &&
+      documentPathDepth <= 2);
 
   return (
     <ScreenContainer hasBottomNav={hasBottomNav}>
