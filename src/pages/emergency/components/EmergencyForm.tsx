@@ -1,13 +1,14 @@
 import { useState } from 'react';
 
-import type { EmergencyConfig } from '@/constants/emergency';
+import {
+  EMERGENCY_MOCK_OPTIONS,
+  type EmergencyConfig,
+} from '@/constants/emergency';
 import SosQuestion from './SosQuestion';
 
 interface EmergencyFormProps {
   questions: EmergencyConfig['questions'];
 }
-
-const OPTIONS = ['선택지 1', '선택지 2', '선택지 3', '선택지 4'] as const;
 
 interface ReverseGeocodeResponse {
   countryName?: string;
@@ -89,7 +90,7 @@ const EmergencyForm = ({ questions }: EmergencyFormProps) => {
           type={type}
           isOpen={openQuestionIndex === index}
           selectedValue={selectedValues[index]}
-          options={OPTIONS}
+          options={EMERGENCY_MOCK_OPTIONS}
           onToggle={() =>
             setOpenQuestionIndex((current) =>
               current === index ? null : index

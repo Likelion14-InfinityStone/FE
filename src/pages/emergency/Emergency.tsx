@@ -10,7 +10,11 @@ import EmergencyBanner from './components/EmergencyBanner';
 import EmergencyForm from './components/EmergencyForm';
 import EmergencyResult from './components/EmergencyResult';
 import EmergencyTranslation from './components/EmergencyTranslation';
-import { EMERGENCY_CONFIG, isEmergencyReason } from '@/constants/emergency';
+import {
+  EMERGENCY_CONFIG,
+  EMERGENCY_TRANSLATION_MOCK,
+  isEmergencyReason,
+} from '@/constants/emergency';
 
 const Emergency = () => {
   const navigate = useNavigate();
@@ -34,7 +38,7 @@ const Emergency = () => {
           {view === 'result' ? (
             <EmergencyResult config={config} />
           ) : view === 'translation' ? (
-            <EmergencyTranslation />
+            <EmergencyTranslation data={EMERGENCY_TRANSLATION_MOCK} />
           ) : (
             <EmergencyForm questions={config.questions} />
           )}
