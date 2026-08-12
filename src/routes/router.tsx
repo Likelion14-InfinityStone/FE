@@ -8,6 +8,7 @@ import Login from '@/pages/login/Login';
 import Home from '@/pages/home/Home';
 import Ready from '@/pages/ready/Ready';
 import Documents from '@/pages/documents/Documents';
+import MedicineDocuments from '@/pages/documents/MedicineDocuments';
 import Scan from '@/pages/scan/Scan';
 import Account from '@/pages/account/Account';
 import Emergency from '@/pages/emergency/Emergency';
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
       { path: '/home', element: <Home /> },
       { path: '/ready', element: <Ready /> },
       { path: '/documents', element: <Documents /> },
+      {
+        path: '/documents/:medicineName',
+        element: <MedicineDocuments />,
+      },
       { path: '/scan', element: <Scan /> },
       { path: '/emergency', element: <Emergency /> },
       { path: '/account', element: <Account /> },

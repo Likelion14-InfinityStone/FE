@@ -1,4 +1,5 @@
 import Header from '@/components/layout/Header';
+import { useNavigate } from 'react-router-dom';
 import DocumentSummaryCard from './components/DocumentSummaryCard';
 import MedicineDocumentRow from './components/MedicineDocumentRow';
 
@@ -11,6 +12,8 @@ const DOCUMENT_SUMMARY = [
 const MEDICINES = ['슈다페드정', '로라타딘'];
 
 const Documents = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex h-full w-full flex-col gap-2">
       <Header title="서류함" />
@@ -33,7 +36,13 @@ const Documents = () => {
           </p>
           <div className="flex flex-col gap-5">
             {MEDICINES.map((medicine) => (
-              <MedicineDocumentRow key={medicine} name={medicine} />
+              <MedicineDocumentRow
+                key={medicine}
+                name={medicine}
+                onClick={() =>
+                  navigate(`/documents/${encodeURIComponent(medicine)}`)
+                }
+              />
             ))}
           </div>
         </div>
