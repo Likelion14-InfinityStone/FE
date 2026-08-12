@@ -3,6 +3,7 @@ import type { MedicineCardFrontProps } from './MedicineCardFront';
 import MedicineCardFront from './MedicineCardFront';
 
 type MedicineCardProps = MedicineCardFrontProps & {
+  medicineName: string;
   isActive: boolean;
   isFlipped: boolean;
   onFlip: () => void;
@@ -10,6 +11,7 @@ type MedicineCardProps = MedicineCardFrontProps & {
 
 const MedicineCard = ({
   name,
+  medicineName,
   status,
   label,
   onRegister,
@@ -29,12 +31,12 @@ const MedicineCard = ({
       }`}
     >
       {isFlipped ? (
-        <MedicineCardBack />
+        <MedicineCardBack medicineName={medicineName} />
       ) : (
         <MedicineCardFront
           name={name}
           status={status}
-          label={label}
+          label={label ?? medicineName}
           onRegister={onRegister}
           isCompact={!isActive}
         />

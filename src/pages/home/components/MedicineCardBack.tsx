@@ -37,7 +37,11 @@ const medicineValues: MedicineValues & {
   connectedTrip: '일본',
 };
 
-const MedicineCardBack = () => {
+type MedicineCardBackProps = {
+  medicineName: string;
+};
+
+const MedicineCardBack = ({ medicineName }: MedicineCardBackProps) => {
   const [isKorean, setIsKorean] = useState(true);
 
   return (
@@ -45,7 +49,7 @@ const MedicineCardBack = () => {
       <div className="flex flex-col gap-6">
         <div className="flex justify-between">
           <p className="font-Pretendard text-[1rem] leading-5.6 tracking-[0.4px] font-semibold text-[#000000]">
-            {medicineValues.medicineName}
+            {medicineName}
           </p>
           <button
             type="button"

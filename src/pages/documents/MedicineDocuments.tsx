@@ -45,7 +45,14 @@ const MedicineDocuments = () => {
         <div className="mt-auto pb-4">
           <BottomButton
             text="복약 카드 보기"
-            onClick={() => navigate('/home', { state: { medicineName } })}
+            onClick={() =>
+              navigate('/home', {
+                state: {
+                  medicineName: decodedMedicineName,
+                  showBack: true,
+                },
+              })
+            }
           />
         </div>
       </div>

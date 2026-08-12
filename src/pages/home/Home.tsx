@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import SosButton from '@/components/button/SosButton';
@@ -9,20 +9,59 @@ const CARD_STEP = 298;
 
 // 임시 카드 목록
 const medicineCards = [
-  { id: 1, name: '피루피루', status: 'unregistered' as const },
-  { id: 2, name: '피루피루', status: 'unregistered' as const },
-  { id: 3, name: '피루피루', status: 'unregistered' as const },
+  {
+    id: 1,
+    name: '피루피루',
+    medicineName: '로라타딘',
+    status: 'registered' as const,
+  },
+  {
+    id: 2,
+    name: '피루피루',
+    medicineName: '슈다페드정',
+    status: 'registered' as const,
+  },
+  {
+    id: 3,
+    name: '피루피루',
+    medicineName: '콘서타 27mg',
+    status: 'registered' as const,
+  },
 ];
+
+type HomeLocationState = {
+  medicineName?: string;
+  showBack?: boolean;
+};
 
 const Home = () => {
   const navigate = useNavigate();
-  const [activeCardIndex, setActiveCardIndex] = useState(0);
-  const [flippedCardId, setFlippedCardId] = useState<number | null>(null);
+  const { state } = useLocation();
+  const locationState = state as HomeLocationState | null;
+  const requestedCardIndex = Math.max(
+    medicineCards.findIndex(
+      (card) => card.medicineName === locationState?.medicineName
+    ),
+    0
+  );
+  const cardListRef = useRef<HTMLDivElement>(null);
+  const [activeCardIndex, setActiveCardIndex] = useState(requestedCardIndex);
+  const [flippedCardId, setFlippedCardId] = useState<number | null>(() =>
+    locationState?.showBack ? medicineCards[requestedCardIndex].id : null
+  );
+
+  useEffect(() => {
+    cardListRef.current?.scrollTo({
+      left: requestedCardIndex * CARD_STEP,
+      behavior: 'instant',
+    });
+  }, [requestedCardIndex]);
 
   return (
     <div className="w-full h-full">
       <Header title="복약 카드" />
       <div
+        ref={cardListRef}
         onScroll={(event) => {
           const nextIndex = Math.round(
             event.currentTarget.scrollLeft / CARD_STEP
@@ -43,6 +82,7 @@ const Home = () => {
           <MedicineCard
             key={card.id}
             name={card.name}
+            medicineName={card.medicineName}
             status={card.status}
             isActive={activeCardIndex === index}
             isFlipped={flippedCardId === card.id}
