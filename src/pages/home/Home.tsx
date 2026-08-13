@@ -4,6 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import SosButton from '@/components/button/SosButton';
 import MedicineCard from './components/MedicineCard';
+import MedicineCardDrawer from './components/MedicineCardDrawer';
+import MoreCardIcon from '@/assets/images/home/moreCardIcon.svg';
 
 const CARD_STEP = 298;
 
@@ -49,6 +51,20 @@ const Home = () => {
   const [flippedCardId, setFlippedCardId] = useState<number | null>(() =>
     locationState?.showBack ? medicineCards[requestedCardIndex].id : null
   );
+  const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
+
+  const selectCard = (cardId: number) => {
+    const selectedIndex = medicineCards.findIndex((card) => card.id === cardId);
+    if (selectedIndex < 0) return;
+
+    setActiveCardIndex(selectedIndex);
+    setFlippedCardId(cardId);
+    setIsCardDrawerOpen(false);
+    cardListRef.current?.scrollTo({
+      left: selectedIndex * CARD_STEP,
+      behavior: 'instant',
+    });
+  };
 
   useEffect(() => {
     cardListRef.current?.scrollTo({
@@ -59,7 +75,12 @@ const Home = () => {
 
   return (
     <div className="w-full h-full">
-      <Header title="복약 카드" />
+      <Header
+        title="복약 카드"
+        actionIcon={MoreCardIcon}
+        actionLabel="복약 카드 모아 보기"
+        onAction={() => setIsCardDrawerOpen(true)}
+      />
       <div
         ref={cardListRef}
         onScroll={(event) => {
@@ -96,6 +117,14 @@ const Home = () => {
         ))}
       </div>
       <SosButton />
+      {isCardDrawerOpen && (
+        <MedicineCardDrawer
+          medicines={medicineCards}
+          onClose={() => setIsCardDrawerOpen(false)}
+          onRegister={() => navigate('/ready')}
+          onSelect={selectCard}
+        />
+      )}
     </div>
   );
 };

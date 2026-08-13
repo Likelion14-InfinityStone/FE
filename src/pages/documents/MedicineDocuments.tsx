@@ -7,9 +7,7 @@ import { MEDICINE_DOCUMENTS } from './constants';
 const MedicineDocuments = () => {
   const navigate = useNavigate();
   const { medicineName } = useParams();
-  const decodedMedicineName = medicineName
-    ? decodeURIComponent(medicineName)
-    : '콘서타 27mg';
+  const decodedMedicineName = medicineName ?? '콘서타 27mg';
 
   return (
     <div className="flex h-full w-full flex-col">

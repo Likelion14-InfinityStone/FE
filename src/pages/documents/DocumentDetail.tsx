@@ -13,9 +13,7 @@ const DocumentDetail = () => {
   const navigate = useNavigate();
   const { medicineName, documentIndex } = useParams();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const medicine = medicineName
-    ? decodeURIComponent(medicineName)
-    : '콘서타 27mg';
+  const medicine = medicineName ?? '콘서타 27mg';
   const document =
     MEDICINE_DOCUMENTS[Number(documentIndex)] ?? MEDICINE_DOCUMENTS[0];
 
