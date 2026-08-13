@@ -7,6 +7,7 @@ import BottomButton from '@/components/button/BottomButton';
 import BottomButton2 from './components/BottomButton2';
 import LoadMethodModal from './components/LoadMethodModal';
 import GalleryModal from './components/GalleryModal';
+import { MOCK_RECOGNIZED_MEDICINE } from './mockRecognizedMedicine';
 
 const Scan = () => {
   const navigate = useNavigate();
@@ -62,7 +63,8 @@ const Scan = () => {
           onClose={() => setIsGalleryModalOpen(false)}
           onConfirm={() => {
             setIsGalleryModalOpen(false);
-            navigate('/scanResult');
+            // TODO: OCR API 연동 후 선택한 갤러리 파일을 전달하고 실제 인식 결과로 교체
+            navigate('/scanResult', { state: MOCK_RECOGNIZED_MEDICINE });
           }}
         />
       )}

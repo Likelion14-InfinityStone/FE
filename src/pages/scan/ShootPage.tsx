@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
+import { MOCK_RECOGNIZED_MEDICINE } from './mockRecognizedMedicine';
 import RecognitionHelpModal from './components/RecognitionHelpModal';
 
 const HINT_DELAY_MS = 5000;
@@ -82,7 +83,8 @@ const ShootPage = () => {
       canvas.getContext('2d')?.drawImage(video, 0, 0);
     }
 
-    navigate('/scanResult');
+    // TODO: OCR API 연동 후 촬영 이미지를 전달하고 실제 인식 결과로 교체
+    navigate('/scanResult', { state: MOCK_RECOGNIZED_MEDICINE });
   };
 
   return (

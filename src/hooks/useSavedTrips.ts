@@ -33,6 +33,12 @@ export const useSavedTrips = () => {
       writeJSON(SAVED_KEY, next);
       return next;
     });
+    setDeletedTripIds((prev) => {
+      if (!prev.includes(trip.id)) return prev;
+      const next = prev.filter((id) => id !== trip.id);
+      writeJSON(DELETED_KEY, next);
+      return next;
+    });
   }, []);
 
   const updateTrip = useCallback((id: number, updates: Partial<Trip>) => {

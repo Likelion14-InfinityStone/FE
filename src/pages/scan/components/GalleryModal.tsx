@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import BottomButton from '@/components/button/BottomButton';
 
@@ -15,15 +15,24 @@ type SelectedImage = {
 const GalleryModal = ({ onClose, onConfirm }: GalleryModalProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<SelectedImage[]>([]);
+  const createdUrlsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- reads the accumulated URL list at unmount time, not a DOM node ref
+      createdUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
 
   const handleFilesSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
 
-    const newImages = Array.from(files).map((file) => ({
-      file,
-      previewUrl: URL.createObjectURL(file),
-    }));
+    const newImages = Array.from(files).map((file) => {
+      const previewUrl = URL.createObjectURL(file);
+      createdUrlsRef.current.push(previewUrl);
+      return { file, previewUrl };
+    });
     setImages((prev) => [...prev, ...newImages]);
     event.target.value = '';
   };
