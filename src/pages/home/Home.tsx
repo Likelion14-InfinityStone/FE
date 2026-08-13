@@ -70,7 +70,7 @@ const Home = () => {
                 currentId === card.id ? null : card.id
               )
             }
-            onRegister={() => navigate('/ready')}
+            onRegister={() => navigate('/register')}
           />
         ))}
       </div>

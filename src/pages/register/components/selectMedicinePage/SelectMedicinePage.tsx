@@ -3,17 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import BottomButton from '@/components/button/BottomButton';
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
+import type { AirportSelection } from '@/types/register';
 import AirportSelectCard from './components/AirportSelectCard';
 import DateSelectCard from './components/DateSelectCard';
 import DateRangeModal from './components/DateRangeModal';
 
 const TOTAL_STEPS = 3;
 const CURRENT_STEP = 0;
-
-type AirportSelection = {
-  code: string;
-  location: string;
-};
 
 type AirportSelectionState = {
   field?: 'departure' | 'arrival';

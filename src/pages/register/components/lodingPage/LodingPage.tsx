@@ -4,17 +4,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import loadingRing from '@/assets/images/register/lodingpage/loadingRing.svg';
 import pufiLogo from '@/assets/images/register/lodingpage/lodingPUFI.svg';
+import type { AirportSelection } from '@/types/register';
 import PageDots from './components/PageDots';
 
 const TOTAL_STEPS = 3;
 const CURRENT_STEP = 2;
 const NAVIGATE_DELAY_MS = 2000;
 const NEXT_PATH = '/registerResult';
-
-type AirportSelection = {
-  code: string;
-  location: string;
-};
 
 type LodingPageState = {
   departure?: AirportSelection;

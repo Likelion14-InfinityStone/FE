@@ -8,12 +8,8 @@ import readyIcon from '@/assets/images/register/medicineDetail/readyStemp.svg';
 import downArrowIcon from '@/assets/images/register/medicineDetail/downArrowIcon.svg';
 import ChecklistBox from '@/pages/register/components/medicineDetailPage/components/button/ChecklistBox';
 import SmallButton from '@/pages/register/components/selectMedicinePage/components/SmallButton';
+import type { AirportSelection } from '@/types/register';
 import MedicineExplanationModal from './components/MedicineExplanationModal';
-
-type AirportSelection = {
-  code: string;
-  location: string;
-};
 
 type MedicineResultState = {
   departure?: AirportSelection;

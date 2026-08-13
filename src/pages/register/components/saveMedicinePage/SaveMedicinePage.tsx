@@ -6,11 +6,7 @@ import savePUFIIcon from '@/assets/images/register/tripTicket/savePUFIIcon.svg';
 import BottomButton from '@/components/button/BottomButton';
 import { useSavedTrips } from '@/hooks/useSavedTrips';
 import type { Trip } from '@/constants/trip';
-
-type AirportSelection = {
-  code: string;
-  location: string;
-};
+import type { AirportSelection } from '@/types/register';
 
 type SaveMedicineState = {
   departure?: AirportSelection;
@@ -19,8 +15,6 @@ type SaveMedicineState = {
   medicineQuantities?: Record<string, number>;
   selectedMedicines?: string[];
 };
-
-const extractCountry = (location?: string) => location?.split(' / ')[0] ?? '';
 
 const SaveMedicinePage = () => {
   const navigate = useNavigate();
@@ -39,8 +33,8 @@ const SaveMedicinePage = () => {
     if (hasSavedRef.current || !navState?.arrival) return;
     hasSavedRef.current = true;
 
-    const departureCountry = extractCountry(navState?.departure?.location);
-    const arrivalCountry = extractCountry(navState?.arrival?.location);
+    const departureCountry = navState?.departure?.country ?? '';
+    const arrivalCountry = navState?.arrival?.country ?? '';
 
     const medicines = Object.fromEntries(
       (navState?.selectedMedicines ?? []).map((name) => [

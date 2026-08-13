@@ -20,16 +20,14 @@ const Medicine = () => {
 
   const [trip, setTrip] = useState<TicketData>(initialTrip);
   const [isRenameOpen, setIsRenameOpen] = useState(false);
-  const { removeTrip } = useSavedTrips();
+  const { trips, updateTrip, removeTrip } = useSavedTrips();
 
-  const tripCountry = TRIPS.find(
-    (t) =>
-      t.title === initialTrip.title &&
-      t.departureDate === initialTrip.departureDate
-  )?.country;
+  const tripCountry = trips.find((t) => t.id === trip.id)?.country;
 
   const isDuplicateName = (name: string) =>
-    TRIPS.some((t) => t.country === tripCountry && t.title === name);
+    trips.some(
+      (t) => t.id !== trip.id && t.country === tripCountry && t.title === name
+    );
 
   const handleDelete = () => {
     if (!window.confirm('이 여행을 삭제하시겠어요?')) return;
@@ -39,6 +37,7 @@ const Medicine = () => {
 
   const handleSaveRename = (name: string) => {
     setTrip((prev) => ({ ...prev, title: name }));
+    updateTrip(trip.id, { title: name });
     setIsRenameOpen(false);
   };
 

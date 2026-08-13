@@ -1,9 +1,5 @@
 import switchIcon from '@/assets/images/register/tripTicket/switchIcon.svg';
-
-type AirportSelection = {
-  code: string;
-  location: string;
-};
+import type { AirportSelection } from '@/types/register';
 
 type AirportSelectCardProps = {
   departure?: AirportSelection;

@@ -35,6 +35,22 @@ export const useSavedTrips = () => {
     });
   }, []);
 
+  const updateTrip = useCallback((id: number, updates: Partial<Trip>) => {
+    setSavedTrips((prev) => {
+      const exists = prev.some((trip) => trip.id === id);
+      const next = exists
+        ? prev.map((trip) =>
+            trip.id === id ? { ...trip, ...updates } : trip
+          )
+        : (() => {
+            const base = TRIPS.find((trip) => trip.id === id);
+            return base ? [...prev, { ...base, ...updates }] : prev;
+          })();
+      writeJSON(SAVED_KEY, next);
+      return next;
+    });
+  }, []);
+
   const removeTrip = useCallback((id: number) => {
     setSavedTrips((prev) => {
       const next = prev.filter((trip) => trip.id !== id);
@@ -49,9 +65,13 @@ export const useSavedTrips = () => {
     });
   }, []);
 
-  const trips = [...TRIPS, ...savedTrips].filter(
+  const mergedTrips = new Map<number, Trip>();
+  TRIPS.forEach((trip) => mergedTrips.set(trip.id, trip));
+  savedTrips.forEach((trip) => mergedTrips.set(trip.id, trip));
+
+  const trips = Array.from(mergedTrips.values()).filter(
     (trip) => !deletedTripIds.includes(trip.id)
   );
 
-  return { trips, addTrip, removeTrip };
+  return { trips, addTrip, updateTrip, removeTrip };
 };
