@@ -26,7 +26,7 @@ const TermsList = ({
   const hasAgreedToAll = agreedTermIds.length === terms.length;
 
   return (
-    <div className="flex min-h-full w-full flex-col pt-7 gap-9.5">
+    <div className="flex min-h-full w-full flex-col gap-9.5 pt-7 pb-24">
       <button type="button" aria-label="뒤로 가기" onClick={onBack}>
         <img src={BackArrowIcon} alt="" />
       </button>
@@ -75,13 +75,12 @@ const TermsList = ({
         })}
       </ul>
 
-      <div className="mt-auto">
-        <BottomButton
-          text="동의하고 시작하기"
-          disabled={!hasAgreedToAll}
-          onClick={onConfirm}
-        />
-      </div>
+      <BottomButton
+        text="동의하고 시작하기"
+        disabled={!hasAgreedToAll}
+        onClick={onConfirm}
+        fixed
+      />
     </div>
   );
 };

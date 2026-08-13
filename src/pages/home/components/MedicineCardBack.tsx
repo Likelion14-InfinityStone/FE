@@ -16,10 +16,10 @@ const MOCK_MEDICINE: SavedMedicine = {
 };
 
 type MedicineCardBackProps = {
-  medicine?: SavedMedicine;
+  medicineName: string;
 };
 
-const MedicineCardBack = ({ medicine = MOCK_MEDICINE }: MedicineCardBackProps) => {
+const MedicineCardBack = ({ medicineName }: MedicineCardBackProps) => {
   const [isKorean, setIsKorean] = useState(true);
 
   const fields = [
@@ -41,7 +41,7 @@ const MedicineCardBack = ({ medicine = MOCK_MEDICINE }: MedicineCardBackProps) =
       <div className="flex flex-col gap-6">
         <div className="flex justify-between">
           <p className="font-Pretendard text-[1rem] leading-5.6 tracking-[0.4px] font-semibold text-[#000000]">
-            {medicine.productInfo}
+            {medicineName}
           </p>
           <button
             type="button"
