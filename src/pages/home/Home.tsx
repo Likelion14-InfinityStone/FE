@@ -58,7 +58,7 @@ const Home = () => {
     if (selectedIndex < 0) return;
 
     setActiveCardIndex(selectedIndex);
-    setFlippedCardId(null);
+    setFlippedCardId(cardId);
     setIsCardDrawerOpen(false);
     cardListRef.current?.scrollTo({
       left: selectedIndex * CARD_STEP,
