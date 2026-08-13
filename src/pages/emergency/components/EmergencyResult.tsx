@@ -10,6 +10,14 @@ interface EmergencyResultProps {
 }
 
 const EmergencyResult = ({ config }: EmergencyResultProps) => {
+  const handleFindHospital = () => {
+    window.open(
+      'https://www.google.com/maps/search/?api=1&query=hospitals+near+me',
+      '_blank',
+      'noopener,noreferrer'
+    );
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <p className="font-Pretendard text-[0.875rem] leading-4.9 tracking-[0.3px] text-[#848B9C]">
@@ -25,6 +33,11 @@ const EmergencyResult = ({ config }: EmergencyResultProps) => {
             label={step}
             actionLabel={
               step === '현지 의료기관 방문하기' ? '기관 찾기' : undefined
+            }
+            onAction={
+              step === '현지 의료기관 방문하기'
+                ? handleFindHospital
+                : undefined
             }
           />
         ))}
