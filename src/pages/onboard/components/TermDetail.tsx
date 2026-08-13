@@ -21,7 +21,7 @@ const TermDetail = ({
   onConfirm,
 }: TermDetailProps) => {
   return (
-    <div className="flex min-h-full w-full flex-col  pt-7 gap-9.5">
+    <div className="flex min-h-full w-full flex-col gap-9.5 pt-7 pb-24">
       <button
         type="button"
         aria-label="약관 목록으로 돌아가기"
@@ -61,9 +61,7 @@ const TermDetail = ({
         </div>
       </div>
 
-      <div className="mt-auto">
-        <BottomButton text="확인" onClick={onConfirm} />
-      </div>
+      <BottomButton text="확인" onClick={onConfirm} fixed />
     </div>
   );
 };
