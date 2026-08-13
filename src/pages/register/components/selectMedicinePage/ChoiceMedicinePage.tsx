@@ -93,7 +93,11 @@ const ChoiceMedicinePage = () => {
             onClick={() => toggleMedicine(name)}
           />
         ))}
-        <MedicineChip label="+ 약 추가" variant="add" />
+        <MedicineChip
+          label="+ 약 추가"
+          variant="add"
+          onClick={() => navigate('/scan')}
+        />
       </div>
 
       {selectedMedicines.length > 0 && (
