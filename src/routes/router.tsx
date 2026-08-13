@@ -5,6 +5,7 @@ import Splash from '@/components/splash/Splash';
 import Onboard from '@/pages/onboard/Onboard';
 import Terms from '@/pages/onboard/Terms';
 import Login from '@/pages/login/Login';
+import OAuthCallback from '@/pages/oauth/OAuthCallback';
 import Home from '@/pages/home/Home';
 import Documents from '@/pages/documents/Documents';
 import MedicineDocuments from '@/pages/documents/MedicineDocuments';
@@ -59,7 +60,7 @@ const router = createBrowserRouter([
   {
     element: <MainLayout />,
     children: [
-      // { path: '/oauth/callback', element: <OAuthCallback /> },
+      { path: '/oauth/callback', element: <OAuthCallback /> },
 
       // 프라이빗 루트 설정
       { path: '/home', element: <Home /> },

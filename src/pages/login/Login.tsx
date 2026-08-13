@@ -1,15 +1,11 @@
 import KakaoButton from '@/pages/login/components/KakaoButton';
 import LogoFIRU from '@/assets/images/login/logoPIRU.svg';
-import { useNavigate } from 'react-router-dom';
 
-// TODO: 카카오 소셜 로그인 연동
-// const handleKakaoLogin = () => {
-//   window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth/kakao`;
-// };
+const handleKakaoLogin = () => {
+  window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/kakao`;
+};
 
 const Login = () => {
-  const navigate = useNavigate();
-
   return (
     <div className="flex min-h-dvh w-full flex-col pb-10">
       <div className="flex flex-1 flex-col items-center justify-center">
@@ -24,11 +20,7 @@ const Login = () => {
         </p>
       </div>
 
-      <KakaoButton
-        // onClick={handleKakaoLogin}
-        //임시로 /home과 연결함
-        onClick={() => navigate('/home')}
-      />
+      <KakaoButton onClick={handleKakaoLogin} />
     </div>
   );
 };
