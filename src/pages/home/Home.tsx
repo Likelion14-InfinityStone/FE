@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import SosButton from '@/components/button/SosButton';
+import { useSavedMedicines } from '@/hooks/useSavedMedicines';
+import type { SavedMedicine } from '@/hooks/useSavedMedicines';
 import MedicineCard from './components/MedicineCard';
 import MedicineCardDrawer from './components/MedicineCardDrawer';
 import MoreCardIcon from '@/assets/images/home/moreCardIcon.svg';
@@ -10,25 +12,16 @@ import MoreCardIcon from '@/assets/images/home/moreCardIcon.svg';
 const CARD_STEP = 298;
 
 // 임시 카드 목록
-const medicineCards = [
-  {
-    id: 1,
-    name: '피루피루',
-    medicineName: '로라타딘',
-    status: 'registered' as const,
-  },
-  {
-    id: 2,
-    name: '피루피루',
-    medicineName: '슈다페드정',
-    status: 'registered' as const,
-  },
-  {
-    id: 3,
-    name: '피루피루',
-    medicineName: '콘서타 27mg',
-    status: 'registered' as const,
-  },
+const MOCK_MEDICINE_CARDS: {
+  id: number;
+  name: string;
+  medicineName: string;
+  status: 'unregistered';
+  medicine?: SavedMedicine;
+}[] = [
+  { id: 1, name: '피루피루', medicineName: '', status: 'unregistered' },
+  { id: 2, name: '피루피루', medicineName: '', status: 'unregistered' },
+  { id: 3, name: '피루피루', medicineName: '', status: 'unregistered' },
 ];
 
 type HomeLocationState = {
@@ -38,8 +31,21 @@ type HomeLocationState = {
 
 const Home = () => {
   const navigate = useNavigate();
+  const { savedMedicines } = useSavedMedicines();
   const { state } = useLocation();
   const locationState = state as HomeLocationState | null;
+
+  const medicineCards = [
+    ...MOCK_MEDICINE_CARDS,
+    ...savedMedicines.map((medicine) => ({
+      id: medicine.id,
+      name: medicine.name,
+      medicineName: medicine.productInfo,
+      status: 'unregistered' as const,
+      medicine,
+    })),
+  ];
+
   const requestedCardIndex = Math.max(
     medicineCards.findIndex(
       (card) => card.medicineName === locationState?.medicineName
@@ -105,6 +111,7 @@ const Home = () => {
             name={card.name}
             medicineName={card.medicineName}
             status={card.status}
+            medicine={card.medicine}
             isActive={activeCardIndex === index}
             isFlipped={flippedCardId === card.id}
             onFlip={() =>
@@ -112,7 +119,7 @@ const Home = () => {
                 currentId === card.id ? null : card.id
               )
             }
-            onRegister={() => navigate('/ready')}
+            onRegister={() => navigate('/register')}
           />
         ))}
       </div>
@@ -121,7 +128,7 @@ const Home = () => {
         <MedicineCardDrawer
           medicines={medicineCards}
           onClose={() => setIsCardDrawerOpen(false)}
-          onRegister={() => navigate('/ready')}
+          onRegister={() => navigate('/register')}
           onSelect={selectCard}
         />
       )}

@@ -4,7 +4,7 @@ import BottomNavBar from './BottomNavBar';
 
 const MainLayout = () => {
   const { pathname } = useLocation();
-  const bottomNavPaths = ['/ready', '/home', '/scan', '/account'];
+  const bottomNavPaths = ['/register', '/home', '/scan', '/account'];
   const documentPathDepth = pathname.split('/').filter(Boolean).length;
   const hasBottomNav =
     bottomNavPaths.includes(pathname) ||

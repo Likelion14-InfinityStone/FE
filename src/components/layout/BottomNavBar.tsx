@@ -13,7 +13,7 @@ import InactiveAccountIcon from '@/assets/images/layout/inactiveAccountIcon.svg'
 
 const tabs = [
   {
-    path: '/ready',
+    path: '/register',
     label: '여행 준비',
     defaultIcon: InactiveReadyIcon,
     activeIcon: ActiveReadyIcon,
@@ -55,7 +55,8 @@ const BottomNavBar = () => {
   // 비로그인 시 및 홈만 접근 가능
 
   const getActiveTab = (pathname: string) => {
-    if (pathname.startsWith('/ready')) return '/ready';
+    if (pathname.startsWith('/register') || pathname.startsWith('/medicine'))
+      return '/register';
     if (pathname.startsWith('/documents')) return '/documents';
     if (pathname.startsWith('/home')) return '/home';
     if (pathname.startsWith('/scan')) return '/scan';

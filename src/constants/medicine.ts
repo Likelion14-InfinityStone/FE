@@ -1,3 +1,10 @@
+export const MY_MEDICINES = [
+  '콘서타 27mg',
+  '슈다페드정',
+  '나노텍정',
+  '로라타딘 10mg',
+] as const;
+
 export const MEDICINE_INFO = {
   name: '콘서타 27mg',
   ingredient: 'Methylphenidate · 27mg',
