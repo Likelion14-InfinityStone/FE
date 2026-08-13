@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import SosButton from '@/components/button/SosButton';
 import { useSavedMedicines } from '@/hooks/useSavedMedicines';
 import type { SavedMedicine } from '@/hooks/useSavedMedicines';
 import MedicineCard from './components/MedicineCard';
+import MedicineCardDrawer from './components/MedicineCardDrawer';
+import MoreCardIcon from '@/assets/images/home/moreCardIcon.svg';
 
 const CARD_STEP = 298;
 
@@ -13,34 +15,80 @@ const CARD_STEP = 298;
 const MOCK_MEDICINE_CARDS: {
   id: number;
   name: string;
+  medicineName: string;
   status: 'unregistered';
   medicine?: SavedMedicine;
 }[] = [
-  { id: 1, name: '피루피루', status: 'unregistered' },
-  { id: 2, name: '피루피루', status: 'unregistered' },
-  { id: 3, name: '피루피루', status: 'unregistered' },
+  { id: 1, name: '피루피루', medicineName: '', status: 'unregistered' },
+  { id: 2, name: '피루피루', medicineName: '', status: 'unregistered' },
+  { id: 3, name: '피루피루', medicineName: '', status: 'unregistered' },
 ];
+
+type HomeLocationState = {
+  medicineName?: string;
+  showBack?: boolean;
+};
 
 const Home = () => {
   const navigate = useNavigate();
   const { savedMedicines } = useSavedMedicines();
-  const [activeCardIndex, setActiveCardIndex] = useState(0);
-  const [flippedCardId, setFlippedCardId] = useState<number | null>(null);
+  const { state } = useLocation();
+  const locationState = state as HomeLocationState | null;
 
   const medicineCards = [
     ...MOCK_MEDICINE_CARDS,
     ...savedMedicines.map((medicine) => ({
       id: medicine.id,
       name: medicine.name,
+      medicineName: medicine.productInfo,
       status: 'unregistered' as const,
       medicine,
     })),
   ];
 
+  const requestedCardIndex = Math.max(
+    medicineCards.findIndex(
+      (card) => card.medicineName === locationState?.medicineName
+    ),
+    0
+  );
+  const cardListRef = useRef<HTMLDivElement>(null);
+  const [activeCardIndex, setActiveCardIndex] = useState(requestedCardIndex);
+  const [flippedCardId, setFlippedCardId] = useState<number | null>(() =>
+    locationState?.showBack ? medicineCards[requestedCardIndex].id : null
+  );
+  const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
+
+  const selectCard = (cardId: number) => {
+    const selectedIndex = medicineCards.findIndex((card) => card.id === cardId);
+    if (selectedIndex < 0) return;
+
+    setActiveCardIndex(selectedIndex);
+    setFlippedCardId(cardId);
+    setIsCardDrawerOpen(false);
+    cardListRef.current?.scrollTo({
+      left: selectedIndex * CARD_STEP,
+      behavior: 'instant',
+    });
+  };
+
+  useEffect(() => {
+    cardListRef.current?.scrollTo({
+      left: requestedCardIndex * CARD_STEP,
+      behavior: 'instant',
+    });
+  }, [requestedCardIndex]);
+
   return (
     <div className="w-full h-full">
-      <Header title="복약 카드" />
+      <Header
+        title="복약 카드"
+        actionIcon={MoreCardIcon}
+        actionLabel="복약 카드 모아 보기"
+        onAction={() => setIsCardDrawerOpen(true)}
+      />
       <div
+        ref={cardListRef}
         onScroll={(event) => {
           const nextIndex = Math.round(
             event.currentTarget.scrollLeft / CARD_STEP
@@ -61,6 +109,7 @@ const Home = () => {
           <MedicineCard
             key={card.id}
             name={card.name}
+            medicineName={card.medicineName}
             status={card.status}
             medicine={card.medicine}
             isActive={activeCardIndex === index}
@@ -75,6 +124,14 @@ const Home = () => {
         ))}
       </div>
       <SosButton />
+      {isCardDrawerOpen && (
+        <MedicineCardDrawer
+          medicines={medicineCards}
+          onClose={() => setIsCardDrawerOpen(false)}
+          onRegister={() => navigate('/register')}
+          onSelect={selectCard}
+        />
+      )}
     </div>
   );
 };

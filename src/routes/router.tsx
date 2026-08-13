@@ -7,6 +7,8 @@ import Terms from '@/pages/onboard/Terms';
 import Login from '@/pages/login/Login';
 import Home from '@/pages/home/Home';
 import Documents from '@/pages/documents/Documents';
+import MedicineDocuments from '@/pages/documents/MedicineDocuments';
+import DocumentDetail from '@/pages/documents/DocumentDetail';
 import Scan from '@/pages/scan/Scan';
 import DirectInputPage from '@/pages/scan/DirectInputPage';
 import ShootPage from '@/pages/scan/ShootPage';
@@ -64,6 +66,14 @@ const router = createBrowserRouter([
       { path: '/register', element: <Register /> },
       { path: '/medicine', element: <Medicine /> },
       { path: '/documents', element: <Documents /> },
+      {
+        path: '/documents/:medicineName',
+        element: <MedicineDocuments />,
+      },
+      {
+        path: '/documents/:medicineName/:documentIndex',
+        element: <DocumentDetail />,
+      },
       { path: '/scan', element: <Scan /> },
       { path: '/emergency', element: <Emergency /> },
       { path: '/account', element: <Account /> },
