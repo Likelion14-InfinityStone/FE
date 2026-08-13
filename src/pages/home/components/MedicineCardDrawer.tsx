@@ -41,7 +41,7 @@ const MedicineCardDrawer = ({
             복약 카드 모아 보기
           </p>
 
-          <div className="flex p-4 items-center gap-2 rounded-xl border border-[#23408F]">
+          <div className="flex p-4 items-center gap-2 rounded-xl border border-[#23408F] bg-[#FCFCFC]">
             <img src={MoreCardIcon} alt="" />
             <input
               type="search"
