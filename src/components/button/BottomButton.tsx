@@ -1,11 +1,13 @@
 type BottomButtonProps = {
   text: string;
+  icon?: string;
   onClick?: () => void;
   disabled?: boolean;
 };
 
 const BottomButton = ({
   text,
+  icon,
   onClick,
   disabled = false,
 }: BottomButtonProps) => {
@@ -16,7 +18,8 @@ const BottomButton = ({
       onClick={onClick}
       disabled={disabled}
     >
-      <span className="font-Pretendard text-[1.125rem] leading-6.3 font-semibold tracking-[0.4px] text-[#FAFAF6]">
+      <span className="flex items-center justify-center gap-2 font-Pretendard text-[1.125rem] leading-6.3 font-semibold tracking-[0.4px] text-[#FAFAF6]">
+        {icon && <img src={icon} alt="" />}
         {text}
       </span>
     </button>
