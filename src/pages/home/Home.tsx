@@ -62,7 +62,7 @@ const Home = () => {
     setIsCardDrawerOpen(false);
     cardListRef.current?.scrollTo({
       left: selectedIndex * CARD_STEP,
-      behavior: 'smooth',
+      behavior: 'instant',
     });
   };
 
