@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
+import ConfirmModal from '@/components/modal/ConfirmModal';
+import LogoutIcon from '@/assets/images/account/logoutIcon.svg';
 import { contents } from '@/constants/more';
 import MoreMenuGroup from './components/MoreMenuGroup';
 import ProfileCard from './components/ProfileCard';
 
 const Account = () => {
   const navigate = useNavigate();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   return (
     <div className="w-full h-full">
@@ -47,7 +51,7 @@ const Account = () => {
             {
               label: '로그아웃',
               showChevron: false,
-              onClick: () => navigate('/login'),
+              onClick: () => setIsLogoutModalOpen(true),
             },
           ]}
         />
@@ -56,6 +60,16 @@ const Account = () => {
       <p className="mt-9 text-center font-Pretendard text-xs tracking-[0.288px] text-[#848B9C]">
         {contents.version}
       </p>
+
+      {isLogoutModalOpen && (
+        <ConfirmModal
+          icon={LogoutIcon}
+          title="로그아웃"
+          description="로그아웃 하시겠습니까?"
+          onCancel={() => setIsLogoutModalOpen(false)}
+          onConfirm={() => navigate('/login')}
+        />
+      )}
     </div>
   );
 };

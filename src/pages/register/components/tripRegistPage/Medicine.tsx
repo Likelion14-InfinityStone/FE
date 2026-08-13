@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
-import { TRIPS } from '@/constants/trip';
-import { computeDDay } from '@/utils/dDay';
 import { useSavedTrips } from '@/hooks/useSavedTrips';
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
 import Ticket, { type TicketData } from './components/Ticket';
@@ -14,13 +12,15 @@ import RenameTripSheet from './components/RenameTripSheet';
 const Medicine = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const stateTrip = (location.state as { trip?: TicketData } | null)?.trip;
 
-  const initialTrip = (location.state as { trip?: TicketData } | null)
-    ?.trip ?? { ...TRIPS[0], dDay: computeDDay(TRIPS[0].departureDate) };
-
-  const [trip, setTrip] = useState<TicketData>(initialTrip);
+  const [trip, setTrip] = useState<TicketData | undefined>(stateTrip);
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const { trips, updateTrip, removeTrip } = useSavedTrips();
+
+  if (!trip) {
+    return <Navigate to="/register" replace />;
+  }
 
   const tripCountry = trips.find((t) => t.id === trip.id)?.country;
 
@@ -36,7 +36,7 @@ const Medicine = () => {
   };
 
   const handleSaveRename = (name: string) => {
-    setTrip((prev) => ({ ...prev, title: name }));
+    setTrip({ ...trip, title: name });
     updateTrip(trip.id, { title: name });
     setIsRenameOpen(false);
   };
