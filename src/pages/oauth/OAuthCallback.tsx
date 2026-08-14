@@ -1,21 +1,22 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { setAccessToken } from '@/utils/authStorage';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const OAuthCallback = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { login } = useAuthStore();
 
   useEffect(() => {
     const accessToken = searchParams.get('accessToken');
 
     if (accessToken) {
-      setAccessToken(accessToken);
+      login(accessToken);
       navigate('/home', { replace: true });
     } else {
       navigate('/login', { replace: true });
     }
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, login]);
 
   return null;
 };
