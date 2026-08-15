@@ -1,18 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
+import { fetchMedicationCardDetail } from '@/apis/home/medicationCard.api';
 import Header from '@/components/layout/Header';
 import SosButton from '@/components/button/SosButton';
 import type { SavedMedicine } from '@/hooks/useSavedMedicines';
 import type {
   DoseUnit,
   MedicationCard as MedicationCardData,
+  MedicationCardDetailResult,
 } from '@/types/home/medicationCard.type';
 import MedicineCard from './components/MedicineCard';
 import MedicineCardDrawer from './components/MedicineCardDrawer';
 import {
-  useMedicationCardDetail,
+  medicationCardKeys,
   useMedicationCards,
+  useMedicationList,
 } from './services/useMedicationCards';
 import MoreCardIcon from '@/assets/images/home/moreCardIcon.svg';
 
@@ -64,22 +68,26 @@ const toHomeMedicineCard = (
 
 const Home = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { state } = useLocation();
   const locationState = state as HomeLocationState | null;
+  const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
   const {
     data: medicationCardPage,
     isLoading,
     isError,
     refetch,
   } = useMedicationCards();
-  const [selectedDetailId, setSelectedDetailId] = useState<number | null>(null);
-  const { data: selectedCardDetail } = useMedicationCardDetail(
-    selectedDetailId ?? 0,
-    'ko',
-    selectedDetailId !== null
-  );
+  const [selectedCardDetail, setSelectedCardDetail] =
+    useState<MedicationCardDetailResult | null>(null);
+  const {
+    data: sidebarMedications = [],
+    isLoading: isSidebarLoading,
+    isError: isSidebarError,
+    refetch: refetchSidebarMedications,
+  } = useMedicationList(isCardDrawerOpen);
 
-  const medicineCards: HomeMedicineCard[] = medicationCardPage
+  const baseMedicineCards: HomeMedicineCard[] = medicationCardPage
     ? medicationCardPage.cards.length > 0
       ? medicationCardPage.cards.map((card) =>
           selectedCardDetail?.medicationId === card.medicationId
@@ -98,6 +106,19 @@ const Home = () => {
           },
         ]
     : [];
+  const selectedHomeCard = selectedCardDetail
+    ? toHomeMedicineCard(selectedCardDetail, selectedCardDetail.nickname)
+    : null;
+  const medicineCards = selectedHomeCard
+    ? baseMedicineCards.some((card) => card.id === selectedHomeCard.id)
+      ? baseMedicineCards.map((card) =>
+          card.id === selectedHomeCard.id ? selectedHomeCard : card
+        )
+      : [
+          ...baseMedicineCards.filter((card) => card.status === 'registered'),
+          selectedHomeCard,
+        ]
+    : baseMedicineCards;
 
   const requestedCardIndex = Math.max(
     medicineCards.findIndex(
@@ -112,20 +133,46 @@ const Home = () => {
       ? (medicineCards[requestedCardIndex]?.id ?? null)
       : null
   );
-  const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
 
-  const selectCard = (cardId: number) => {
+  const selectCard = async (cardId: number) => {
     const selectedIndex = medicineCards.findIndex((card) => card.id === cardId);
-    if (selectedIndex < 0) return;
 
-    setSelectedDetailId(cardId);
-    setActiveCardIndex(selectedIndex);
     setFlippedCardId(cardId);
     setIsCardDrawerOpen(false);
-    cardListRef.current?.scrollTo({
-      left: selectedIndex * CARD_STEP,
-      behavior: 'instant',
-    });
+
+    if (selectedIndex >= 0) {
+      setActiveCardIndex(selectedIndex);
+      cardListRef.current?.scrollTo({
+        left: selectedIndex * CARD_STEP,
+        behavior: 'instant',
+      });
+    }
+
+    try {
+      const response = await queryClient.fetchQuery({
+        queryKey: medicationCardKeys.detail(cardId, 'ko'),
+        queryFn: () => fetchMedicationCardDetail(cardId, 'ko'),
+      });
+      const detail = response.result;
+      const homeCardIndex =
+        medicationCardPage?.cards.findIndex(
+          (card) => card.medicationId === detail.medicationId
+        ) ?? -1;
+      const detailIndex =
+        homeCardIndex >= 0
+          ? homeCardIndex
+          : (medicationCardPage?.cards.length ?? 0);
+
+      setSelectedCardDetail(detail);
+      setActiveCardIndex(detailIndex);
+      setFlippedCardId(detail.medicationId);
+      cardListRef.current?.scrollTo({
+        left: detailIndex * CARD_STEP,
+        behavior: 'instant',
+      });
+    } catch {
+      setFlippedCardId(null);
+    }
   };
 
   useEffect(() => {
@@ -141,10 +188,7 @@ const Home = () => {
         title="복약 카드"
         actionIcon={MoreCardIcon}
         actionLabel="복약 카드 모아 보기"
-        onAction={() => {
-          setSelectedDetailId(null);
-          setIsCardDrawerOpen(true);
-        }}
+        onAction={() => setIsCardDrawerOpen(true)}
       />
       <div
         ref={cardListRef}
@@ -202,9 +246,13 @@ const Home = () => {
       <SosButton />
       {isCardDrawerOpen && medicationCardPage && (
         <MedicineCardDrawer
-          medicines={medicineCards.filter(
-            (card) => card.status === 'registered'
-          )}
+          medicines={sidebarMedications.map((medicine) => ({
+            id: medicine.medicationId,
+            medicineName: medicine.productKoName,
+          }))}
+          isLoading={isSidebarLoading}
+          isError={isSidebarError}
+          onRetry={() => void refetchSidebarMedications()}
           onClose={() => setIsCardDrawerOpen(false)}
           onRegister={() => navigate('/register')}
           onSelect={selectCard}

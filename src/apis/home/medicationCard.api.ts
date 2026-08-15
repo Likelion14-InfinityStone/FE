@@ -5,6 +5,7 @@ import type {
   MedicationCardLanguage,
   MedicationCardPageParams,
   MedicationCardPageResult,
+  MedicationListResult,
 } from '@/types/home/medicationCard.type';
 
 export const fetchMedicationCards = async (
@@ -13,6 +14,17 @@ export const fetchMedicationCards = async (
   const response = await instance.get<
     ApiResultEnvelope<MedicationCardPageResult>
   >('/api/medications/cards', { params });
+
+  return response.data;
+};
+
+export const fetchMedicationList = async (): Promise<
+  ApiResultEnvelope<MedicationListResult>
+> => {
+  const response =
+    await instance.get<ApiResultEnvelope<MedicationListResult>>(
+      '/api/medications'
+    );
 
   return response.data;
 };

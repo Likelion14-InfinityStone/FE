@@ -47,3 +47,12 @@ export interface MedicationCardPageParams {
 }
 
 export type MedicationCardLanguage = 'ko' | 'en';
+
+export interface MedicationListItem {
+  medicationId: number;
+  productKoName: string;
+}
+
+export interface MedicationListResult {
+  medications: MedicationListItem[];
+}
