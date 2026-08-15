@@ -37,7 +37,13 @@ export interface MedicationCardPageResult {
   totalElements: number;
 }
 
+export interface MedicationCardDetailResult extends MedicationCard {
+  nickname: string;
+}
+
 export interface MedicationCardPageParams {
   page?: number;
   size?: number;
 }
+
+export type MedicationCardLanguage = 'ko' | 'en';

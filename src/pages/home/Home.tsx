@@ -4,10 +4,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import SosButton from '@/components/button/SosButton';
 import type { SavedMedicine } from '@/hooks/useSavedMedicines';
-import type { DoseUnit } from '@/types/home/medicationCard.type';
+import type {
+  DoseUnit,
+  MedicationCard as MedicationCardData,
+} from '@/types/home/medicationCard.type';
 import MedicineCard from './components/MedicineCard';
 import MedicineCardDrawer from './components/MedicineCardDrawer';
-import { useMedicationCards } from './services/useMedicationCards';
+import {
+  useMedicationCardDetail,
+  useMedicationCards,
+} from './services/useMedicationCards';
 import MoreCardIcon from '@/assets/images/home/moreCardIcon.svg';
 
 const CARD_STEP = 298;
@@ -34,6 +40,28 @@ type HomeLocationState = {
   showBack?: boolean;
 };
 
+const toHomeMedicineCard = (
+  card: MedicationCardData,
+  nickname: string
+): HomeMedicineCard => ({
+  id: card.medicationId,
+  name: nickname,
+  medicineName: card.front.productName,
+  status: 'registered',
+  medicine: {
+    id: card.medicationId,
+    name: nickname,
+    dispensedDate: card.back.dispensedAt,
+    issuer: card.back.issuer,
+    productInfo: `${card.back.productName}${
+      card.back.contentMg === null ? '' : ` / ${card.back.contentMg}mg`
+    }`,
+    frequency: `1일 ${card.back.intakesPerDay}회`,
+    duration: `${card.back.totalDays}일`,
+    dosePerTime: `${card.back.dosePerIntake}${DOSE_UNIT_LABEL[card.back.doseUnit]}`,
+  },
+});
+
 const Home = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -44,27 +72,23 @@ const Home = () => {
     isError,
     refetch,
   } = useMedicationCards();
+  const [selectedDetailId, setSelectedDetailId] = useState<number | null>(null);
+  const { data: selectedCardDetail } = useMedicationCardDetail(
+    selectedDetailId ?? 0,
+    'ko',
+    selectedDetailId !== null
+  );
 
   const medicineCards: HomeMedicineCard[] = medicationCardPage
     ? medicationCardPage.cards.length > 0
-      ? medicationCardPage.cards.map((card) => ({
-          id: card.medicationId,
-          name: medicationCardPage.nickname,
-          medicineName: card.front.productName,
-          status: 'registered' as const,
-          medicine: {
-            id: card.medicationId,
-            name: medicationCardPage.nickname,
-            dispensedDate: card.back.dispensedAt,
-            issuer: card.back.issuer,
-            productInfo: `${card.back.productName}${
-              card.back.contentMg === null ? '' : ` / ${card.back.contentMg}mg`
-            }`,
-            frequency: `1일 ${card.back.intakesPerDay}회`,
-            duration: `${card.back.totalDays}일`,
-            dosePerTime: `${card.back.dosePerIntake}${DOSE_UNIT_LABEL[card.back.doseUnit]}`,
-          },
-        }))
+      ? medicationCardPage.cards.map((card) =>
+          selectedCardDetail?.medicationId === card.medicationId
+            ? toHomeMedicineCard(
+                selectedCardDetail,
+                selectedCardDetail.nickname
+              )
+            : toHomeMedicineCard(card, medicationCardPage.nickname)
+        )
       : [
           {
             id: -1,
@@ -94,6 +118,7 @@ const Home = () => {
     const selectedIndex = medicineCards.findIndex((card) => card.id === cardId);
     if (selectedIndex < 0) return;
 
+    setSelectedDetailId(cardId);
     setActiveCardIndex(selectedIndex);
     setFlippedCardId(cardId);
     setIsCardDrawerOpen(false);
@@ -116,7 +141,10 @@ const Home = () => {
         title="복약 카드"
         actionIcon={MoreCardIcon}
         actionLabel="복약 카드 모아 보기"
-        onAction={() => setIsCardDrawerOpen(true)}
+        onAction={() => {
+          setSelectedDetailId(null);
+          setIsCardDrawerOpen(true);
+        }}
       />
       <div
         ref={cardListRef}
@@ -158,6 +186,7 @@ const Home = () => {
             name={card.name}
             medicineName={card.medicineName}
             status={card.status}
+            medicationId={card.id}
             medicine={card.medicine}
             isActive={activeCardIndex === index}
             isFlipped={flippedCardId === card.id}
@@ -173,7 +202,9 @@ const Home = () => {
       <SosButton />
       {isCardDrawerOpen && medicationCardPage && (
         <MedicineCardDrawer
-          medicines={medicineCards}
+          medicines={medicineCards.filter(
+            (card) => card.status === 'registered'
+          )}
           onClose={() => setIsCardDrawerOpen(false)}
           onRegister={() => navigate('/register')}
           onSelect={selectCard}

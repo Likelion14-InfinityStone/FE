@@ -8,6 +8,7 @@ type MedicineCardProps = MedicineCardFrontProps & {
   isActive: boolean;
   isFlipped: boolean;
   onFlip: () => void;
+  medicationId: number;
   medicine?: SavedMedicine;
 };
 
@@ -20,6 +21,7 @@ const MedicineCard = ({
   isActive,
   isFlipped,
   onFlip,
+  medicationId,
   medicine,
 }: MedicineCardProps) => {
   return (
@@ -33,8 +35,8 @@ const MedicineCard = ({
         isActive ? 'h-125 opacity-100' : 'h-100 opacity-55'
       }`}
     >
-      {isFlipped ? (
-        <MedicineCardBack medicine={medicine} />
+      {isFlipped && medicine ? (
+        <MedicineCardBack medicationId={medicationId} medicine={medicine} />
       ) : (
         <MedicineCardFront
           name={name}

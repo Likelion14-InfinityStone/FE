@@ -1,45 +1,86 @@
 import { useState } from 'react';
 
 import type { SavedMedicine } from '@/hooks/useSavedMedicines';
+import type { DoseUnit } from '@/types/home/medicationCard.type';
+import { useMedicationCardDetail } from '../services/useMedicationCards';
 import MedicineInfo from './MedicineInfo';
 
-// 교체 예정
-const MOCK_MEDICINE: SavedMedicine = {
-  id: 0,
-  name: '김피루',
-  dispensedDate: '2026. 07. 20.',
-  issuer: '서울메디컬의원',
-  productInfo: '로라타딘 10mg',
-  frequency: '1일 1회',
-  duration: '14일',
-  dosePerTime: '1정',
+const DOSE_UNIT_LABEL: Record<DoseUnit, string> = {
+  TABLET: '정',
+  CAPSULE: '캡슐',
+  PACKET: '포',
+  ML: 'mL',
+  DROP: '방울',
+  MG: 'mg',
 };
 
 type MedicineCardBackProps = {
-  medicine?: SavedMedicine;
+  medicationId: number;
+  medicine: SavedMedicine;
 };
 
 const MedicineCardBack = ({
-  medicine = MOCK_MEDICINE,
+  medicationId,
+  medicine,
 }: MedicineCardBackProps) => {
   const [isKorean, setIsKorean] = useState(true);
+  const {
+    data: englishCard,
+    isFetching: isEnglishFetching,
+    isError: isEnglishError,
+    refetch: refetchEnglishCard,
+  } = useMedicationCardDetail(medicationId, 'en', !isKorean);
+  const isEnglishDisplayed = !isKorean && Boolean(englishCard);
+  const displayedMedicine: SavedMedicine =
+    isEnglishDisplayed && englishCard
+      ? {
+          id: englishCard.medicationId,
+          name: englishCard.nickname,
+          dispensedDate: englishCard.back.dispensedAt,
+          issuer: englishCard.back.issuer,
+          productInfo: `${englishCard.back.productName}${
+            englishCard.back.contentMg === null
+              ? ''
+              : ` / ${englishCard.back.contentMg}mg`
+          }`,
+          frequency: `1일 ${englishCard.back.intakesPerDay}회`,
+          duration: `${englishCard.back.totalDays}일`,
+          dosePerTime: `${englishCard.back.dosePerIntake}${DOSE_UNIT_LABEL[englishCard.back.doseUnit]}`,
+        }
+      : medicine;
 
   const fields = [
-    { labelKo: '성명', labelEn: 'Name', value: medicine.name },
+    { labelKo: '성명', labelEn: 'Name', value: displayedMedicine.name },
     {
       labelKo: '조제 일자',
       labelEn: 'Dispensed on',
-      value: medicine.dispensedDate,
+      value: displayedMedicine.dispensedDate,
     },
-    { labelKo: '발행 기관', labelEn: 'Issuer', value: medicine.issuer },
+    {
+      labelKo: '발행 기관',
+      labelEn: 'Issuer',
+      value: displayedMedicine.issuer,
+    },
     {
       labelKo: '제품명 및 함량',
       labelEn: 'Product\n& strength',
-      value: medicine.productInfo,
+      value: displayedMedicine.productInfo,
     },
-    { labelKo: '복용 횟수', labelEn: 'Frequency', value: medicine.frequency },
-    { labelKo: '복용 일수', labelEn: 'Duration', value: medicine.duration },
-    { labelKo: '1회 복용량', labelEn: 'Dose', value: medicine.dosePerTime },
+    {
+      labelKo: '복용 횟수',
+      labelEn: 'Frequency',
+      value: displayedMedicine.frequency,
+    },
+    {
+      labelKo: '복용 일수',
+      labelEn: 'Duration',
+      value: displayedMedicine.duration,
+    },
+    {
+      labelKo: '1회 복용량',
+      labelEn: 'Dose',
+      value: displayedMedicine.dosePerTime,
+    },
   ];
 
   return (
@@ -47,18 +88,31 @@ const MedicineCardBack = ({
       <div className="flex flex-col gap-6">
         <div className="flex items-start gap-3">
           <p className="min-w-0 flex-1 [overflow-wrap:anywhere] font-Pretendard text-[1rem] leading-5.6 tracking-[0.4px] font-semibold text-[#000000]">
-            {medicine.productInfo}
+            {displayedMedicine.productInfo}
           </p>
           <button
             type="button"
             onClick={(event) => {
               event.stopPropagation();
+
+              if (isEnglishError) {
+                void refetchEnglishCard();
+                return;
+              }
+
               setIsKorean((prev) => !prev);
             }}
+            disabled={isEnglishFetching}
             className="shrink-0 whitespace-nowrap px-2 py-1.5 border border-[#23408F] rounded-xl"
           >
             <p className="whitespace-nowrap font-Pretendard text-[0.875rem] leading-4.9 tracking-[0.3px] font-semibold text-[#23408F]">
-              {isKorean ? '한국어' : 'EN'}
+              {isEnglishFetching
+                ? '로딩'
+                : isEnglishError
+                  ? '재시도'
+                  : isKorean
+                    ? '한국어'
+                    : 'EN'}
             </p>
           </button>
         </div>
@@ -66,7 +120,7 @@ const MedicineCardBack = ({
           {fields.map((field) => (
             <MedicineInfo
               key={field.labelKo}
-              label={isKorean ? field.labelKo : field.labelEn}
+              label={isEnglishDisplayed ? field.labelEn : field.labelKo}
               value={field.value}
             />
           ))}
