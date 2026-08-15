@@ -16,10 +16,25 @@ const MOCK_MEDICINE_CARDS: {
   id: number;
   name: string;
   medicineName: string;
-  status: 'unregistered';
+  status: 'unregistered' | 'registered';
   medicine?: SavedMedicine;
 }[] = [
-  { id: 1, name: '피루피루', medicineName: '', status: 'unregistered' },
+  {
+    id: 1,
+    name: '피루피루',
+    medicineName: '로라타딘 10mg\nLoratadine 10mg',
+    status: 'registered',
+    medicine: {
+      id: 1,
+      name: '피루피루',
+      dispensedDate: '2026.08.16',
+      issuer: '메디패스 약국',
+      productInfo: '로라타딘 10mg',
+      frequency: '1일 1회',
+      duration: '7일',
+      dosePerTime: '1정',
+    },
+  },
   { id: 2, name: '피루피루', medicineName: '', status: 'unregistered' },
   { id: 3, name: '피루피루', medicineName: '', status: 'unregistered' },
 ];
@@ -41,7 +56,7 @@ const Home = () => {
       id: medicine.id,
       name: medicine.name,
       medicineName: medicine.productInfo,
-      status: 'unregistered' as const,
+      status: 'registered' as const,
       medicine,
     })),
   ];
