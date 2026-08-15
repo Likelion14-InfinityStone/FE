@@ -34,7 +34,7 @@ const MedicineCardBack = ({
     { labelKo: '발행 기관', labelEn: 'Issuer', value: medicine.issuer },
     {
       labelKo: '제품명 및 함량',
-      labelEn: 'Product & strength',
+      labelEn: 'Product\n& strength',
       value: medicine.productInfo,
     },
     { labelKo: '복용 횟수', labelEn: 'Frequency', value: medicine.frequency },
@@ -45,8 +45,8 @@ const MedicineCardBack = ({
   return (
     <div className="h-full w-full pt-6 pb-5 px-5.5 rounded-[20px] shadow-[0_2px_2px_0_rgba(0,0,0,0.04)] bg-[#FCFCFC] border-2 border-[#23408F]">
       <div className="flex flex-col gap-6">
-        <div className="flex justify-between">
-          <p className="font-Pretendard text-[1rem] leading-5.6 tracking-[0.4px] font-semibold text-[#000000]">
+        <div className="flex items-start gap-3">
+          <p className="min-w-0 flex-1 [overflow-wrap:anywhere] font-Pretendard text-[1rem] leading-5.6 tracking-[0.4px] font-semibold text-[#000000]">
             {medicine.productInfo}
           </p>
           <button
@@ -55,9 +55,9 @@ const MedicineCardBack = ({
               event.stopPropagation();
               setIsKorean((prev) => !prev);
             }}
-            className="px-2 py-1.5 border border-[#23408F] rounded-xl"
+            className="shrink-0 whitespace-nowrap px-2 py-1.5 border border-[#23408F] rounded-xl"
           >
-            <p className="font-Pretendard text-[0.875rem] leading-4.9 tracking-[0.3px] font-semibold text-[#23408F]">
+            <p className="whitespace-nowrap font-Pretendard text-[0.875rem] leading-4.9 tracking-[0.3px] font-semibold text-[#23408F]">
               {isKorean ? '한국어' : 'EN'}
             </p>
           </button>
