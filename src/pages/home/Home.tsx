@@ -3,41 +3,31 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import SosButton from '@/components/button/SosButton';
-import { useSavedMedicines } from '@/hooks/useSavedMedicines';
 import type { SavedMedicine } from '@/hooks/useSavedMedicines';
+import type { DoseUnit } from '@/types/home/medicationCard.type';
 import MedicineCard from './components/MedicineCard';
 import MedicineCardDrawer from './components/MedicineCardDrawer';
+import { useMedicationCards } from './services/useMedicationCards';
 import MoreCardIcon from '@/assets/images/home/moreCardIcon.svg';
 
 const CARD_STEP = 298;
 
-// 임시 카드 목록
-const MOCK_MEDICINE_CARDS: {
+const DOSE_UNIT_LABEL: Record<DoseUnit, string> = {
+  TABLET: '정',
+  CAPSULE: '캡슐',
+  PACKET: '포',
+  ML: 'mL',
+  DROP: '방울',
+  MG: 'mg',
+};
+
+type HomeMedicineCard = {
   id: number;
   name: string;
   medicineName: string;
   status: 'unregistered' | 'registered';
   medicine?: SavedMedicine;
-}[] = [
-  {
-    id: 1,
-    name: '피루피루',
-    medicineName: '로라타딘 10mg\nLoratadine 10mg',
-    status: 'registered',
-    medicine: {
-      id: 1,
-      name: '피루피루',
-      dispensedDate: '2026.08.16',
-      issuer: '메디패스 약국',
-      productInfo: '로라타딘 10mg',
-      frequency: '1일 1회',
-      duration: '7일',
-      dosePerTime: '1정',
-    },
-  },
-  { id: 2, name: '피루피루', medicineName: '', status: 'unregistered' },
-  { id: 3, name: '피루피루', medicineName: '', status: 'unregistered' },
-];
+};
 
 type HomeLocationState = {
   medicineName?: string;
@@ -46,20 +36,44 @@ type HomeLocationState = {
 
 const Home = () => {
   const navigate = useNavigate();
-  const { savedMedicines } = useSavedMedicines();
   const { state } = useLocation();
   const locationState = state as HomeLocationState | null;
+  const {
+    data: medicationCardPage,
+    isLoading,
+    isError,
+    refetch,
+  } = useMedicationCards();
 
-  const medicineCards = [
-    ...MOCK_MEDICINE_CARDS,
-    ...savedMedicines.map((medicine) => ({
-      id: medicine.id,
-      name: medicine.name,
-      medicineName: medicine.productInfo,
-      status: 'registered' as const,
-      medicine,
-    })),
-  ];
+  const medicineCards: HomeMedicineCard[] = medicationCardPage
+    ? medicationCardPage.cards.length > 0
+      ? medicationCardPage.cards.map((card) => ({
+          id: card.medicationId,
+          name: medicationCardPage.nickname,
+          medicineName: card.front.productName,
+          status: 'registered' as const,
+          medicine: {
+            id: card.medicationId,
+            name: medicationCardPage.nickname,
+            dispensedDate: card.back.dispensedAt,
+            issuer: card.back.issuer,
+            productInfo: `${card.back.productName}${
+              card.back.contentMg === null ? '' : ` / ${card.back.contentMg}mg`
+            }`,
+            frequency: `1일 ${card.back.intakesPerDay}회`,
+            duration: `${card.back.totalDays}일`,
+            dosePerTime: `${card.back.dosePerIntake}${DOSE_UNIT_LABEL[card.back.doseUnit]}`,
+          },
+        }))
+      : [
+          {
+            id: -1,
+            name: medicationCardPage.nickname,
+            medicineName: '',
+            status: 'unregistered' as const,
+          },
+        ]
+    : [];
 
   const requestedCardIndex = Math.max(
     medicineCards.findIndex(
@@ -70,7 +84,9 @@ const Home = () => {
   const cardListRef = useRef<HTMLDivElement>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(requestedCardIndex);
   const [flippedCardId, setFlippedCardId] = useState<number | null>(() =>
-    locationState?.showBack ? medicineCards[requestedCardIndex].id : null
+    locationState?.showBack
+      ? (medicineCards[requestedCardIndex]?.id ?? null)
+      : null
   );
   const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
 
@@ -105,6 +121,8 @@ const Home = () => {
       <div
         ref={cardListRef}
         onScroll={(event) => {
+          if (medicineCards.length === 0) return;
+
           const nextIndex = Math.round(
             event.currentTarget.scrollLeft / CARD_STEP
           );
@@ -120,6 +138,20 @@ const Home = () => {
         }}
         className="-mx-6.5 mt-10 flex h-125 w-[calc(100%+52px)] snap-x snap-mandatory items-center gap-4.5 overflow-x-auto px-[calc((100%-280px)/2)] scrollbar-none [&::-webkit-scrollbar]:hidden"
       >
+        {isLoading && (
+          <p className="m-auto font-Pretendard text-sm text-[#667085]">
+            복약 카드를 불러오는 중이에요.
+          </p>
+        )}
+        {isError && (
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="m-auto font-Pretendard text-sm font-semibold text-[#23408F]"
+          >
+            불러오지 못했어요. 다시 시도하기
+          </button>
+        )}
         {medicineCards.map((card, index) => (
           <MedicineCard
             key={card.id}
@@ -139,7 +171,7 @@ const Home = () => {
         ))}
       </div>
       <SosButton />
-      {isCardDrawerOpen && (
+      {isCardDrawerOpen && medicationCardPage && (
         <MedicineCardDrawer
           medicines={medicineCards}
           onClose={() => setIsCardDrawerOpen(false)}
