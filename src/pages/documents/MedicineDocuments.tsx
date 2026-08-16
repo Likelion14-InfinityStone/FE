@@ -1,24 +1,19 @@
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import BottomButton from '@/components/button/BottomButton';
 import PageHeader from '@/components/layout/PageHeader';
 import MedicineDocumentItem from './components/MedicineDocumentItem';
 import { useMedicationDocuments } from './services/useDocuments';
 
-type MedicineDocumentsLocationState = {
-  medicationId?: number;
-};
-
 const MedicineDocuments = () => {
   const navigate = useNavigate();
-  const { medicineName } = useParams();
-  const { state } = useLocation();
-  const medicationId = (state as MedicineDocumentsLocationState | null)
-    ?.medicationId;
+  const { medicationId: medicationIdParam } = useParams();
+  const medicationId = Number(medicationIdParam);
+  const isValidMedicationId =
+    Number.isSafeInteger(medicationId) && medicationId > 0;
   const { data, isLoading, isError, refetch } = useMedicationDocuments(
-    medicationId ?? 0,
-    medicationId !== undefined
+    medicationId,
+    isValidMedicationId
   );
-  const decodedMedicineName = medicineName ?? '콘서타 27mg';
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -26,7 +21,7 @@ const MedicineDocuments = () => {
 
       <div className="flex flex-1 flex-col gap-6 pt-3">
         <h1 className="font-Pretendard text-[1.375rem] leading-7.5 font-semibold text-[#191919]">
-          {data?.productKoName ?? decodedMedicineName}
+          {data?.productKoName ?? '약품 정보를 불러오는 중...'}
         </h1>
 
         <div className="flex flex-col gap-4.5">
@@ -36,11 +31,11 @@ const MedicineDocuments = () => {
             </p>
           )}
 
-          {(isError || medicationId === undefined) && (
+          {(isError || !isValidMedicationId) && (
             <button
               type="button"
               onClick={() => {
-                if (medicationId === undefined) {
+                if (!isValidMedicationId) {
                   navigate('/documents');
                   return;
                 }
@@ -49,9 +44,7 @@ const MedicineDocuments = () => {
               }}
               className="py-5 text-center font-Pretendard text-[0.875rem] font-semibold text-[#23408F]"
             >
-              {medicationId === undefined
-                ? '서류함으로 돌아가기'
-                : '다시 시도하기'}
+              {!isValidMedicationId ? '서류함으로 돌아가기' : '다시 시도하기'}
             </button>
           )}
 
@@ -66,7 +59,7 @@ const MedicineDocuments = () => {
                   ? undefined
                   : () =>
                       navigate(
-                        `/documents/${encodeURIComponent(data.productKoName)}/${document.documentId}`
+                        `/documents/${medicationId}/${document.documentId}`
                       )
               }
             />
@@ -76,15 +69,16 @@ const MedicineDocuments = () => {
         <div className="mt-auto pb-4">
           <BottomButton
             text="복약 카드 보기"
-            onClick={() =>
+            onClick={() => {
+              if (!isValidMedicationId) return;
+
               navigate('/home', {
                 state: {
                   medicationId,
-                  medicineName: decodedMedicineName,
                   showBack: true,
                 },
-              })
-            }
+              });
+            }}
           />
         </div>
       </div>

@@ -193,13 +193,18 @@ const Home = () => {
   };
 
   useEffect(() => {
-    isProgrammaticScrollRef.current = requestedCardIndex !== activeCardIndex;
+    const cardList = cardListRef.current;
+    if (!cardList) return;
 
-    cardListRef.current?.scrollTo({
-      left: requestedCardIndex * CARD_STEP,
+    const targetLeft = requestedCardIndex * CARD_STEP;
+    isProgrammaticScrollRef.current =
+      Math.abs(cardList.scrollLeft - targetLeft) > 1;
+
+    cardList.scrollTo({
+      left: targetLeft,
       behavior: 'instant',
     });
-  }, [requestedCardIndex, activeCardIndex]);
+  }, [requestedCardIndex]);
 
   useEffect(() => {
     if (

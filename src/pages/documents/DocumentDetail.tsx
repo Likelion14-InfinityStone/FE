@@ -22,7 +22,7 @@ const formatFileSize = (fileSize: number) => {
 
 const DocumentDetail = () => {
   const navigate = useNavigate();
-  const { medicineName, documentId: documentIdParam } = useParams();
+  const { documentId: documentIdParam } = useParams();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const documentId = Number(documentIdParam);
   const isValidDocumentId = Number.isSafeInteger(documentId) && documentId > 0;
@@ -40,7 +40,6 @@ const DocumentDetail = () => {
     isPending: isDeletePending,
     isError: isDeleteError,
   } = useDocumentDelete();
-  const medicine = medicineName ?? '콘서타 27mg';
 
   const handleDownload = () => {
     if (!isValidDocumentId) return;
@@ -74,7 +73,7 @@ const DocumentDetail = () => {
       <div className="flex flex-1 flex-col gap-2.5">
         <div className="flex flex-col">
           <p className="font-Pretendard text-[1.5rem] leading-8.4 font-semibold text-[#191919]">
-            {data?.productKoName ?? medicine}
+            {data?.productKoName ?? '약품 정보를 불러오는 중...'}
           </p>
           <p className="font-Pretendard text-[1.125rem] leading-6.3 font-semibold text-[#6D6D6D]">
             {data ? `등록일 ${data.registeredOn}` : '\u00A0'}

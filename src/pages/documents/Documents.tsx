@@ -66,12 +66,7 @@ const Documents = () => {
               <MedicineDocumentRow
                 key={medicine.medicationId}
                 name={medicine.productKoName}
-                onClick={() =>
-                  navigate(
-                    `/documents/${encodeURIComponent(medicine.productKoName)}`,
-                    { state: { medicationId: medicine.medicationId } }
-                  )
-                }
+                onClick={() => navigate(`/documents/${medicine.medicationId}`)}
               />
             ))}
           </div>
