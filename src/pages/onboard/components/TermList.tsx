@@ -11,7 +11,7 @@ interface TermsListProps {
   agreedTermIds: TermId[];
   onToggleAgreement: (termId: TermId) => void;
   onSelectTerm: (termId: TermId) => void;
-  onBack: () => void;
+  onBack?: () => void;
   onConfirm: () => void;
 }
 
@@ -27,9 +27,11 @@ const TermsList = ({
 
   return (
     <div className="flex min-h-full w-full flex-col gap-9.5 pt-7 pb-24">
-      <button type="button" aria-label="뒤로 가기" onClick={onBack}>
-        <img src={BackArrowIcon} alt="" />
-      </button>
+      {onBack && (
+        <button type="button" aria-label="뒤로 가기" onClick={onBack}>
+          <img src={BackArrowIcon} alt="" />
+        </button>
+      )}
 
       <p className="text-[1.5rem] font-Pretendard leading-[normal] font-semibold tracking-[-0.12px] text-[#000000] whitespace-pre-line">
         {'서비스 이용을 위해\n정보 수집 약관에 동의해 주세요'}

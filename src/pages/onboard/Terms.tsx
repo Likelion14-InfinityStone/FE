@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { TERMS, type TermId } from '@/constants/term';
+import { useAuthStore } from '@/stores/useAuthStore';
 import TermDetail from './components/TermDetail';
 import TermsList from './components/TermList';
 
 const Terms = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const agreeToTerms = useAuthStore((state) => state.agreeToTerms);
   const [agreedTermIds, setAgreedTermIds] = useState<TermId[]>([]);
 
   const selectedTermId = searchParams.get('detail');
@@ -48,8 +50,10 @@ const Terms = () => {
       agreedTermIds={agreedTermIds}
       onToggleAgreement={toggleTermAgreement}
       onSelectTerm={(termId) => setSearchParams({ detail: termId })}
-      onBack={() => navigate('/onboard?step=3')}
-      onConfirm={() => navigate('/login')}
+      onConfirm={() => {
+        agreeToTerms(agreedTermIds);
+        navigate('/home', { replace: true });
+      }}
     />
   );
 };

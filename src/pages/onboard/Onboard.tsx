@@ -37,7 +37,7 @@ const Onboard = () => {
 
   const handleNext = () => {
     if (isLastStep) {
-      navigate('/terms');
+      navigate('/login');
       return;
     }
 

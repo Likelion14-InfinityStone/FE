@@ -12,7 +12,7 @@ const OAuthCallback = () => {
 
     if (accessToken) {
       login(accessToken);
-      navigate('/home', { replace: true });
+      navigate('/terms', { replace: true });
     } else {
       navigate('/login', { replace: true });
     }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import MoreCardIcon from '@/assets/images/home/moreCardIcon.svg';
+import CardSearchIcon from '@/assets/images/home/cardSearchIcon.svg';
 import RegisterButtonIcon from '@/assets/images/home/registerButtonIcon.svg';
 import CardConnectIcon from '@/assets/images/home/cardConnectIcon.svg';
 import DocumentsDetailArrowIcon from '@/assets/images/documents/documentsDetailArrowIcon.svg';
@@ -48,7 +48,7 @@ const MedicineCardDrawer = ({
           </p>
 
           <div className="flex p-4 items-center gap-2 rounded-xl border border-[#23408F] bg-[#FCFCFC]">
-            <img src={MoreCardIcon} alt="" />
+            <img src={CardSearchIcon} alt="" />
             <input
               type="search"
               value={keyword}
