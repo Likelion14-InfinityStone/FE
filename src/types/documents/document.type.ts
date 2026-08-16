@@ -13,3 +13,18 @@ export interface DocumentsMainResult {
   summary: DocumentSummary;
   medications: DocumentMedication[];
 }
+
+export interface MedicationDocument {
+  checklistItemId: number;
+  documentId: number | null;
+  type: string | null;
+  title: string;
+  registered: boolean;
+  registeredOn: string | null;
+}
+
+export interface MedicationDocumentsResult {
+  medicationId: number;
+  productKoName: string;
+  documents: MedicationDocument[];
+}

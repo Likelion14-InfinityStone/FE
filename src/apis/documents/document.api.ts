@@ -1,6 +1,9 @@
 import { instance } from '@/apis/instance';
 import type { ApiResultEnvelope } from '@/types/api.type';
-import type { DocumentsMainResult } from '@/types/documents/document.type';
+import type {
+  DocumentsMainResult,
+  MedicationDocumentsResult,
+} from '@/types/documents/document.type';
 
 export const fetchDocumentsMain = async (): Promise<
   ApiResultEnvelope<DocumentsMainResult>
@@ -9,6 +12,16 @@ export const fetchDocumentsMain = async (): Promise<
     await instance.get<ApiResultEnvelope<DocumentsMainResult>>(
       '/api/documents'
     );
+
+  return response.data;
+};
+
+export const fetchMedicationDocuments = async (
+  medicationId: number
+): Promise<ApiResultEnvelope<MedicationDocumentsResult>> => {
+  const response = await instance.get<
+    ApiResultEnvelope<MedicationDocumentsResult>
+  >(`/api/medications/${medicationId}/documents`);
 
   return response.data;
 };
