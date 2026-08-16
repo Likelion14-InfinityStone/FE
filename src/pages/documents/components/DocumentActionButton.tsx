@@ -3,6 +3,7 @@ type DocumentActionButtonProps = {
   icon: string;
   tone: 'primary' | 'secondary' | 'danger';
   onClick?: () => void;
+  disabled?: boolean;
 };
 
 const TONE_STYLES = {
@@ -16,12 +17,13 @@ const DocumentActionButton = ({
   icon,
   tone,
   onClick,
+  disabled = false,
 }: DocumentActionButtonProps) => {
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={!onClick}
+      disabled={disabled || !onClick}
       className={`flex py-5 w-full items-center justify-center gap-2.5 rounded-xl disabled:cursor-not-allowed ${TONE_STYLES[tone]}`}
     >
       <img src={icon} alt="" />

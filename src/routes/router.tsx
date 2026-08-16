@@ -68,11 +68,11 @@ const router = createBrowserRouter([
       { path: '/medicine', element: <Medicine /> },
       { path: '/documents', element: <Documents /> },
       {
-        path: '/documents/:medicineName',
+        path: '/documents/:medicationId',
         element: <MedicineDocuments />,
       },
       {
-        path: '/documents/:medicineName/:documentIndex',
+        path: '/documents/:medicationId/:documentId',
         element: <DocumentDetail />,
       },
       { path: '/scan', element: <Scan /> },

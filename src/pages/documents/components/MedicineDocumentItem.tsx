@@ -5,7 +5,7 @@ import ReadyPiruIcon from '@/assets/images/documents/readyPiruIcon.svg';
 
 type MedicineDocumentItemProps = {
   title: string;
-  issuedAt?: string;
+  registeredOn?: string | null;
   status: '등록완료' | '갱신필요' | '미발급';
   onClick?: () => void;
 };
@@ -18,7 +18,7 @@ const STATUS_ICONS = {
 
 const MedicineDocumentItem = ({
   title,
-  issuedAt,
+  registeredOn,
   status,
   onClick,
 }: MedicineDocumentItemProps) => {
@@ -26,7 +26,8 @@ const MedicineDocumentItem = ({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3.5 rounded-[20px] border border-[#848B9C] bg-[#FCFCFC] px-5 py-2.5 shadow-[0_2px_2px_0_rgba(113,112,113,0.20)]"
+      disabled={!onClick}
+      className="flex w-full items-center gap-3.5 rounded-[20px] border border-[#848B9C] bg-[#FCFCFC] px-5 py-2.5 shadow-[0_2px_2px_0_rgba(113,112,113,0.20)] disabled:cursor-default"
     >
       <img
         src={STATUS_ICONS[status]}
@@ -39,10 +40,10 @@ const MedicineDocumentItem = ({
           {title}
         </span>
         <span
-          aria-hidden={!issuedAt}
+          aria-hidden={!registeredOn}
           className="min-h-5 font-Pretendard text-[0.875rem] leading-5 font-regular text-[#191919]"
         >
-          {issuedAt ? `발급일 ${issuedAt}` : '\u00A0'}
+          {registeredOn ? `등록일 ${registeredOn}` : '\u00A0'}
         </span>
       </p>
 

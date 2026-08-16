@@ -40,6 +40,7 @@ type HomeMedicineCard = {
 };
 
 type HomeLocationState = {
+  medicationId?: number;
   medicineName?: string;
   showBack?: boolean;
 };
@@ -119,20 +120,31 @@ const Home = () => {
           selectedHomeCard,
         ]
     : baseMedicineCards;
+  const requestedMedicationId = locationState?.medicationId;
+  const hasRequestedMedicationCard =
+    requestedMedicationId !== undefined &&
+    medicineCards.some((card) => card.id === requestedMedicationId);
 
   const requestedCardIndex = Math.max(
     medicineCards.findIndex(
-      (card) => card.medicineName === locationState?.medicineName
+      (card) =>
+        (locationState?.medicationId !== undefined &&
+          card.id === locationState.medicationId) ||
+        (locationState?.medicationId === undefined &&
+          card.medicineName === locationState?.medicineName)
     ),
     0
   );
   const cardListRef = useRef<HTMLDivElement>(null);
+  const isProgrammaticScrollRef = useRef(false);
   const [activeCardIndex, setActiveCardIndex] = useState(requestedCardIndex);
   const [flippedCardIdOverride, setFlippedCardIdOverride] = useState<
     number | null | undefined
   >(undefined);
   const initialFlippedCardId = locationState?.showBack
-    ? (medicineCards[requestedCardIndex]?.id ?? null)
+    ? (locationState.medicationId ??
+      medicineCards[requestedCardIndex]?.id ??
+      null)
     : null;
   const flippedCardId =
     flippedCardIdOverride === undefined
@@ -181,11 +193,46 @@ const Home = () => {
   };
 
   useEffect(() => {
-    cardListRef.current?.scrollTo({
-      left: requestedCardIndex * CARD_STEP,
+    const cardList = cardListRef.current;
+    if (!cardList) return;
+
+    const targetLeft = requestedCardIndex * CARD_STEP;
+    isProgrammaticScrollRef.current =
+      Math.abs(cardList.scrollLeft - targetLeft) > 1;
+
+    cardList.scrollTo({
+      left: targetLeft,
       behavior: 'instant',
     });
   }, [requestedCardIndex]);
+
+  useEffect(() => {
+    if (
+      requestedMedicationId === undefined ||
+      !medicationCardPage ||
+      hasRequestedMedicationCard
+    ) {
+      return;
+    }
+
+    void queryClient
+      .fetchQuery({
+        queryKey: medicationCardKeys.detail(requestedMedicationId, 'ko'),
+        queryFn: () => fetchMedicationCardDetail(requestedMedicationId, 'ko'),
+      })
+      .then((response) => {
+        setSelectedCardDetail(response.result);
+        setFlippedCardIdOverride(response.result.medicationId);
+      })
+      .catch(() => {
+        setFlippedCardIdOverride(null);
+      });
+  }, [
+    requestedMedicationId,
+    medicationCardPage,
+    hasRequestedMedicationCard,
+    queryClient,
+  ]);
 
   return (
     <div className="w-full h-full">
@@ -210,6 +257,12 @@ const Home = () => {
 
           if (boundedIndex !== activeCardIndex) {
             setActiveCardIndex(boundedIndex);
+
+            if (isProgrammaticScrollRef.current) {
+              isProgrammaticScrollRef.current = false;
+              return;
+            }
+
             setFlippedCardIdOverride(null);
           }
         }}
