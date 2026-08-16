@@ -40,6 +40,7 @@ type HomeMedicineCard = {
 };
 
 type HomeLocationState = {
+  medicationId?: number;
   medicineName?: string;
   showBack?: boolean;
 };
@@ -119,10 +120,18 @@ const Home = () => {
           selectedHomeCard,
         ]
     : baseMedicineCards;
+  const requestedMedicationId = locationState?.medicationId;
+  const hasRequestedMedicationCard =
+    requestedMedicationId !== undefined &&
+    medicineCards.some((card) => card.id === requestedMedicationId);
 
   const requestedCardIndex = Math.max(
     medicineCards.findIndex(
-      (card) => card.medicineName === locationState?.medicineName
+      (card) =>
+        (locationState?.medicationId !== undefined &&
+          card.id === locationState.medicationId) ||
+        (locationState?.medicationId === undefined &&
+          card.medicineName === locationState?.medicineName)
     ),
     0
   );
@@ -132,7 +141,9 @@ const Home = () => {
     number | null | undefined
   >(undefined);
   const initialFlippedCardId = locationState?.showBack
-    ? (medicineCards[requestedCardIndex]?.id ?? null)
+    ? (locationState.medicationId ??
+      medicineCards[requestedCardIndex]?.id ??
+      null)
     : null;
   const flippedCardId =
     flippedCardIdOverride === undefined
@@ -186,6 +197,34 @@ const Home = () => {
       behavior: 'instant',
     });
   }, [requestedCardIndex]);
+
+  useEffect(() => {
+    if (
+      requestedMedicationId === undefined ||
+      !medicationCardPage ||
+      hasRequestedMedicationCard
+    ) {
+      return;
+    }
+
+    void queryClient
+      .fetchQuery({
+        queryKey: medicationCardKeys.detail(requestedMedicationId, 'ko'),
+        queryFn: () => fetchMedicationCardDetail(requestedMedicationId, 'ko'),
+      })
+      .then((response) => {
+        setSelectedCardDetail(response.result);
+        setFlippedCardIdOverride(response.result.medicationId);
+      })
+      .catch(() => {
+        setFlippedCardIdOverride(null);
+      });
+  }, [
+    requestedMedicationId,
+    medicationCardPage,
+    hasRequestedMedicationCard,
+    queryClient,
+  ]);
 
   return (
     <div className="w-full h-full">

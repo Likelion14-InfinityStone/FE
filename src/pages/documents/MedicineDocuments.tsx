@@ -79,6 +79,7 @@ const MedicineDocuments = () => {
             onClick={() =>
               navigate('/home', {
                 state: {
+                  medicationId,
                   medicineName: decodedMedicineName,
                   showBack: true,
                 },
