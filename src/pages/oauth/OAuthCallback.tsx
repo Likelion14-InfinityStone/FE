@@ -12,7 +12,9 @@ const OAuthCallback = () => {
 
     if (accessToken) {
       login(accessToken);
-      navigate(hasAgreedToTerms ? '/home' : '/terms', { replace: true });
+      const shouldShowTerms = import.meta.env.DEV || !hasAgreedToTerms;
+
+      navigate(shouldShowTerms ? '/terms' : '/home', { replace: true });
     } else {
       navigate('/login', { replace: true });
     }
