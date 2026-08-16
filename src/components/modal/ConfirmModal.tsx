@@ -4,6 +4,7 @@ type ConfirmModalProps = {
   description: string;
   cancelText?: string;
   confirmText?: string;
+  isPending?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 };
@@ -14,12 +15,15 @@ const ConfirmModal = ({
   description,
   cancelText = '취소',
   confirmText = '확인',
+  isPending = false,
   onCancel,
   onConfirm,
 }: ConfirmModalProps) => {
   return (
     <div
-      onClick={onCancel}
+      onClick={() => {
+        if (!isPending) onCancel();
+      }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(25,25,21,0.6)] px-6.5"
     >
       <div
@@ -46,7 +50,8 @@ const ConfirmModal = ({
             <button
               type="button"
               onClick={onCancel}
-              className="py-3.75 flex-1 rounded-xl border border-[#E2E2E2]"
+              disabled={isPending}
+              className="py-3.75 flex-1 rounded-xl border border-[#E2E2E2] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <p className="font-Pretendard text-[1rem] font-semibold text-[#848B9C]">
                 {cancelText}
@@ -55,7 +60,8 @@ const ConfirmModal = ({
             <button
               type="button"
               onClick={onConfirm}
-              className="py-3.75 flex-1 rounded-xl bg-[#23408F]"
+              disabled={isPending}
+              className="py-3.75 flex-1 rounded-xl bg-[#23408F] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <p className="font-Pretendard text-[1rem] font-semibold text-[#FAFAF6]">
                 {confirmText}

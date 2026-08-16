@@ -28,6 +28,16 @@ export const createDocumentDownloadUrl = async (
   return response.data;
 };
 
+export const deleteDocument = async (
+  documentId: number
+): Promise<ApiResultEnvelope<null>> => {
+  const response = await instance.delete<ApiResultEnvelope<null>>(
+    `/api/documents/${documentId}`
+  );
+
+  return response.data;
+};
+
 export const fetchDocumentDetail = async (
   documentId: number
 ): Promise<ApiResultEnvelope<DocumentDetailResult>> => {

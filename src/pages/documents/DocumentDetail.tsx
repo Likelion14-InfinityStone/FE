@@ -9,6 +9,7 @@ import ConfirmModal from '@/components/modal/ConfirmModal';
 import DocumentActionButton from './components/DocumentActionButton';
 import {
   useDocumentDetail,
+  useDocumentDelete,
   useDocumentDownload,
 } from './services/useDocuments';
 
@@ -34,6 +35,11 @@ const DocumentDetail = () => {
     isPending: isDownloadPending,
     isError: isDownloadError,
   } = useDocumentDownload();
+  const {
+    mutate: deleteDocument,
+    isPending: isDeletePending,
+    isError: isDeleteError,
+  } = useDocumentDelete();
   const medicine = medicineName ?? '콘서타 27mg';
 
   const handleDownload = () => {
@@ -50,6 +56,14 @@ const DocumentDetail = () => {
         link.click();
         link.remove();
       },
+    });
+  };
+
+  const handleDelete = () => {
+    if (!isValidDocumentId) return;
+
+    deleteDocument(documentId, {
+      onSuccess: () => navigate(-1),
     });
   };
 
@@ -149,8 +163,12 @@ const DocumentDetail = () => {
           icon={DeleteWarningIcon}
           title="정말로 삭제하시겠습니까?"
           description="삭제된 서류는 복구할 수 없습니다."
+          confirmText={
+            isDeletePending ? '삭제 중' : isDeleteError ? '다시 시도' : '삭제'
+          }
+          isPending={isDeletePending}
           onCancel={() => setIsDeleteModalOpen(false)}
-          onConfirm={() => navigate(-1)}
+          onConfirm={handleDelete}
         />
       )}
     </div>

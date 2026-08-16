@@ -1,7 +1,8 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   createDocumentDownloadUrl,
+  deleteDocument,
   fetchDocumentDetail,
   fetchDocumentsMain,
   fetchMedicationDocuments,
@@ -47,3 +48,18 @@ export const useDocumentDownload = () =>
   useMutation({
     mutationFn: createDocumentDownloadUrl,
   });
+
+export const useDocumentDelete = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteDocument,
+    onSuccess: (_response, documentId) => {
+      queryClient.removeQueries({ queryKey: documentKeys.detail(documentId) });
+      void queryClient.invalidateQueries({ queryKey: documentKeys.main() });
+      void queryClient.invalidateQueries({
+        queryKey: [...documentKeys.all, 'medication'],
+      });
+    },
+  });
+};
