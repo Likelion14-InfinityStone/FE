@@ -5,20 +5,18 @@ import { useAuthStore } from '@/stores/useAuthStore';
 const OAuthCallback = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { login, hasAgreedToTerms } = useAuthStore();
+  const { login } = useAuthStore();
 
   useEffect(() => {
     const accessToken = searchParams.get('accessToken');
 
     if (accessToken) {
       login(accessToken);
-      const shouldShowTerms = import.meta.env.DEV || !hasAgreedToTerms;
-
-      navigate(shouldShowTerms ? '/terms' : '/home', { replace: true });
+      navigate('/terms', { replace: true });
     } else {
       navigate('/login', { replace: true });
     }
-  }, [searchParams, navigate, login, hasAgreedToTerms]);
+  }, [searchParams, navigate, login]);
 
   return null;
 };
