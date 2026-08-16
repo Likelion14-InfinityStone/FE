@@ -136,6 +136,7 @@ const Home = () => {
     0
   );
   const cardListRef = useRef<HTMLDivElement>(null);
+  const isProgrammaticScrollRef = useRef(false);
   const [activeCardIndex, setActiveCardIndex] = useState(requestedCardIndex);
   const [flippedCardIdOverride, setFlippedCardIdOverride] = useState<
     number | null | undefined
@@ -192,11 +193,13 @@ const Home = () => {
   };
 
   useEffect(() => {
+    isProgrammaticScrollRef.current = requestedCardIndex !== activeCardIndex;
+
     cardListRef.current?.scrollTo({
       left: requestedCardIndex * CARD_STEP,
       behavior: 'instant',
     });
-  }, [requestedCardIndex]);
+  }, [requestedCardIndex, activeCardIndex]);
 
   useEffect(() => {
     if (
@@ -249,6 +252,12 @@ const Home = () => {
 
           if (boundedIndex !== activeCardIndex) {
             setActiveCardIndex(boundedIndex);
+
+            if (isProgrammaticScrollRef.current) {
+              isProgrammaticScrollRef.current = false;
+              return;
+            }
+
             setFlippedCardIdOverride(null);
           }
         }}
