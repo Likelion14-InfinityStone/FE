@@ -128,16 +128,21 @@ const Home = () => {
   );
   const cardListRef = useRef<HTMLDivElement>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(requestedCardIndex);
-  const [flippedCardId, setFlippedCardId] = useState<number | null>(() =>
-    locationState?.showBack
-      ? (medicineCards[requestedCardIndex]?.id ?? null)
-      : null
-  );
+  const [flippedCardIdOverride, setFlippedCardIdOverride] = useState<
+    number | null | undefined
+  >(undefined);
+  const initialFlippedCardId = locationState?.showBack
+    ? (medicineCards[requestedCardIndex]?.id ?? null)
+    : null;
+  const flippedCardId =
+    flippedCardIdOverride === undefined
+      ? initialFlippedCardId
+      : flippedCardIdOverride;
 
   const selectCard = async (cardId: number) => {
     const selectedIndex = medicineCards.findIndex((card) => card.id === cardId);
 
-    setFlippedCardId(cardId);
+    setFlippedCardIdOverride(cardId);
     setIsCardDrawerOpen(false);
 
     if (selectedIndex >= 0) {
@@ -165,13 +170,13 @@ const Home = () => {
 
       setSelectedCardDetail(detail);
       setActiveCardIndex(detailIndex);
-      setFlippedCardId(detail.medicationId);
+      setFlippedCardIdOverride(detail.medicationId);
       cardListRef.current?.scrollTo({
         left: detailIndex * CARD_STEP,
         behavior: 'instant',
       });
     } catch {
-      setFlippedCardId(null);
+      setFlippedCardIdOverride(null);
     }
   };
 
@@ -205,7 +210,7 @@ const Home = () => {
 
           if (boundedIndex !== activeCardIndex) {
             setActiveCardIndex(boundedIndex);
-            setFlippedCardId(null);
+            setFlippedCardIdOverride(null);
           }
         }}
         className="-mx-6.5 mt-10 flex h-125 w-[calc(100%+52px)] snap-x snap-mandatory items-center gap-4.5 overflow-x-auto px-[calc((100%-280px)/2)] scrollbar-none [&::-webkit-scrollbar]:hidden"
@@ -235,8 +240,8 @@ const Home = () => {
             isActive={activeCardIndex === index}
             isFlipped={flippedCardId === card.id}
             onFlip={() =>
-              setFlippedCardId((currentId) =>
-                currentId === card.id ? null : card.id
+              setFlippedCardIdOverride(
+                flippedCardId === card.id ? null : card.id
               )
             }
             onRegister={() => navigate('/register')}
@@ -244,7 +249,7 @@ const Home = () => {
         ))}
       </div>
       <SosButton />
-      {isCardDrawerOpen && medicationCardPage && (
+      {isCardDrawerOpen && (
         <MedicineCardDrawer
           medicines={sidebarMedications.map((medicine) => ({
             id: medicine.medicationId,

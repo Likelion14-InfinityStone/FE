@@ -5,12 +5,12 @@ import type { DoseUnit } from '@/types/home/medicationCard.type';
 import { useMedicationCardDetail } from '../services/useMedicationCards';
 import MedicineInfo from './MedicineInfo';
 
-const DOSE_UNIT_LABEL: Record<DoseUnit, string> = {
-  TABLET: '정',
-  CAPSULE: '캡슐',
-  PACKET: '포',
+const DOSE_UNIT_LABEL_EN: Record<DoseUnit, string> = {
+  TABLET: 'tablet(s)',
+  CAPSULE: 'capsule(s)',
+  PACKET: 'packet(s)',
   ML: 'mL',
-  DROP: '방울',
+  DROP: 'drop(s)',
   MG: 'mg',
 };
 
@@ -28,7 +28,6 @@ const MedicineCardBack = ({
     data: englishCard,
     isFetching: isEnglishFetching,
     isError: isEnglishError,
-    refetch: refetchEnglishCard,
   } = useMedicationCardDetail(medicationId, 'en', !isKorean);
   const isEnglishDisplayed = !isKorean && Boolean(englishCard);
   const displayedMedicine: SavedMedicine =
@@ -43,9 +42,9 @@ const MedicineCardBack = ({
               ? ''
               : ` / ${englishCard.back.contentMg}mg`
           }`,
-          frequency: `1일 ${englishCard.back.intakesPerDay}회`,
-          duration: `${englishCard.back.totalDays}일`,
-          dosePerTime: `${englishCard.back.dosePerIntake}${DOSE_UNIT_LABEL[englishCard.back.doseUnit]}`,
+          frequency: `${englishCard.back.intakesPerDay} time(s)/day`,
+          duration: `${englishCard.back.totalDays} day(s)`,
+          dosePerTime: `${englishCard.back.dosePerIntake} ${DOSE_UNIT_LABEL_EN[englishCard.back.doseUnit]}`,
         }
       : medicine;
 
@@ -96,7 +95,7 @@ const MedicineCardBack = ({
               event.stopPropagation();
 
               if (isEnglishError) {
-                void refetchEnglishCard();
+                setIsKorean(true);
                 return;
               }
 
@@ -109,7 +108,7 @@ const MedicineCardBack = ({
               {isEnglishFetching
                 ? '로딩'
                 : isEnglishError
-                  ? '재시도'
+                  ? '한국어'
                   : isKorean
                     ? '한국어'
                     : 'EN'}
