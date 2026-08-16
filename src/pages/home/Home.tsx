@@ -1,50 +1,124 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
+import { fetchMedicationCardDetail } from '@/apis/home/medicationCard.api';
 import Header from '@/components/layout/Header';
 import SosButton from '@/components/button/SosButton';
-import { useSavedMedicines } from '@/hooks/useSavedMedicines';
 import type { SavedMedicine } from '@/hooks/useSavedMedicines';
+import type {
+  DoseUnit,
+  MedicationCard as MedicationCardData,
+  MedicationCardDetailResult,
+} from '@/types/home/medicationCard.type';
 import MedicineCard from './components/MedicineCard';
 import MedicineCardDrawer from './components/MedicineCardDrawer';
+import {
+  medicationCardKeys,
+  useMedicationCards,
+  useMedicationList,
+} from './services/useMedicationCards';
 import MoreCardIcon from '@/assets/images/home/moreCardIcon.svg';
 
 const CARD_STEP = 298;
 
-// 임시 카드 목록
-const MOCK_MEDICINE_CARDS: {
+const DOSE_UNIT_LABEL: Record<DoseUnit, string> = {
+  TABLET: '정',
+  CAPSULE: '캡슐',
+  PACKET: '포',
+  ML: 'mL',
+  DROP: '방울',
+  MG: 'mg',
+};
+
+type HomeMedicineCard = {
   id: number;
   name: string;
   medicineName: string;
-  status: 'unregistered';
+  status: 'unregistered' | 'registered';
   medicine?: SavedMedicine;
-}[] = [
-  { id: 1, name: '피루피루', medicineName: '', status: 'unregistered' },
-  { id: 2, name: '피루피루', medicineName: '', status: 'unregistered' },
-  { id: 3, name: '피루피루', medicineName: '', status: 'unregistered' },
-];
+};
 
 type HomeLocationState = {
   medicineName?: string;
   showBack?: boolean;
 };
 
+const toHomeMedicineCard = (
+  card: MedicationCardData,
+  nickname: string
+): HomeMedicineCard => ({
+  id: card.medicationId,
+  name: nickname,
+  medicineName: card.front.productName,
+  status: 'registered',
+  medicine: {
+    id: card.medicationId,
+    name: nickname,
+    dispensedDate: card.back.dispensedAt,
+    issuer: card.back.issuer,
+    productInfo: `${card.back.productName}${
+      card.back.contentMg === null ? '' : ` / ${card.back.contentMg}mg`
+    }`,
+    frequency: `1일 ${card.back.intakesPerDay}회`,
+    duration: `${card.back.totalDays}일`,
+    dosePerTime: `${card.back.dosePerIntake}${DOSE_UNIT_LABEL[card.back.doseUnit]}`,
+  },
+});
+
 const Home = () => {
   const navigate = useNavigate();
-  const { savedMedicines } = useSavedMedicines();
+  const queryClient = useQueryClient();
   const { state } = useLocation();
   const locationState = state as HomeLocationState | null;
+  const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
+  const {
+    data: medicationCardPage,
+    isLoading,
+    isError,
+    refetch,
+  } = useMedicationCards();
+  const [selectedCardDetail, setSelectedCardDetail] =
+    useState<MedicationCardDetailResult | null>(null);
+  const {
+    data: sidebarMedications = [],
+    isLoading: isSidebarLoading,
+    isError: isSidebarError,
+    refetch: refetchSidebarMedications,
+  } = useMedicationList(isCardDrawerOpen);
 
-  const medicineCards = [
-    ...MOCK_MEDICINE_CARDS,
-    ...savedMedicines.map((medicine) => ({
-      id: medicine.id,
-      name: medicine.name,
-      medicineName: medicine.productInfo,
-      status: 'unregistered' as const,
-      medicine,
-    })),
-  ];
+  const baseMedicineCards: HomeMedicineCard[] = medicationCardPage
+    ? medicationCardPage.cards.length > 0
+      ? medicationCardPage.cards.map((card) =>
+          selectedCardDetail?.medicationId === card.medicationId
+            ? toHomeMedicineCard(
+                selectedCardDetail,
+                selectedCardDetail.nickname
+              )
+            : toHomeMedicineCard(card, medicationCardPage.nickname)
+        )
+      : [
+          {
+            id: -1,
+            name: medicationCardPage.nickname,
+            medicineName: '',
+            status: 'unregistered' as const,
+          },
+        ]
+    : [];
+  const selectedHomeCard = selectedCardDetail
+    ? toHomeMedicineCard(selectedCardDetail, selectedCardDetail.nickname)
+    : null;
+  const medicineCards = selectedHomeCard
+    ? baseMedicineCards.some((card) => card.id === selectedHomeCard.id)
+      ? baseMedicineCards.map((card) =>
+          card.id === selectedHomeCard.id ? selectedHomeCard : card
+        )
+      : [
+          ...baseMedicineCards.filter((card) => card.status === 'registered'),
+          selectedHomeCard,
+        ]
+    : baseMedicineCards;
 
   const requestedCardIndex = Math.max(
     medicineCards.findIndex(
@@ -54,22 +128,56 @@ const Home = () => {
   );
   const cardListRef = useRef<HTMLDivElement>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(requestedCardIndex);
-  const [flippedCardId, setFlippedCardId] = useState<number | null>(() =>
-    locationState?.showBack ? medicineCards[requestedCardIndex].id : null
-  );
-  const [isCardDrawerOpen, setIsCardDrawerOpen] = useState(false);
+  const [flippedCardIdOverride, setFlippedCardIdOverride] = useState<
+    number | null | undefined
+  >(undefined);
+  const initialFlippedCardId = locationState?.showBack
+    ? (medicineCards[requestedCardIndex]?.id ?? null)
+    : null;
+  const flippedCardId =
+    flippedCardIdOverride === undefined
+      ? initialFlippedCardId
+      : flippedCardIdOverride;
 
-  const selectCard = (cardId: number) => {
+  const selectCard = async (cardId: number) => {
     const selectedIndex = medicineCards.findIndex((card) => card.id === cardId);
-    if (selectedIndex < 0) return;
 
-    setActiveCardIndex(selectedIndex);
-    setFlippedCardId(cardId);
+    setFlippedCardIdOverride(cardId);
     setIsCardDrawerOpen(false);
-    cardListRef.current?.scrollTo({
-      left: selectedIndex * CARD_STEP,
-      behavior: 'instant',
-    });
+
+    if (selectedIndex >= 0) {
+      setActiveCardIndex(selectedIndex);
+      cardListRef.current?.scrollTo({
+        left: selectedIndex * CARD_STEP,
+        behavior: 'instant',
+      });
+    }
+
+    try {
+      const response = await queryClient.fetchQuery({
+        queryKey: medicationCardKeys.detail(cardId, 'ko'),
+        queryFn: () => fetchMedicationCardDetail(cardId, 'ko'),
+      });
+      const detail = response.result;
+      const homeCardIndex =
+        medicationCardPage?.cards.findIndex(
+          (card) => card.medicationId === detail.medicationId
+        ) ?? -1;
+      const detailIndex =
+        homeCardIndex >= 0
+          ? homeCardIndex
+          : (medicationCardPage?.cards.length ?? 0);
+
+      setSelectedCardDetail(detail);
+      setActiveCardIndex(detailIndex);
+      setFlippedCardIdOverride(detail.medicationId);
+      cardListRef.current?.scrollTo({
+        left: detailIndex * CARD_STEP,
+        behavior: 'instant',
+      });
+    } catch {
+      setFlippedCardIdOverride(null);
+    }
   };
 
   useEffect(() => {
@@ -90,6 +198,8 @@ const Home = () => {
       <div
         ref={cardListRef}
         onScroll={(event) => {
+          if (medicineCards.length === 0) return;
+
           const nextIndex = Math.round(
             event.currentTarget.scrollLeft / CARD_STEP
           );
@@ -100,23 +210,38 @@ const Home = () => {
 
           if (boundedIndex !== activeCardIndex) {
             setActiveCardIndex(boundedIndex);
-            setFlippedCardId(null);
+            setFlippedCardIdOverride(null);
           }
         }}
         className="-mx-6.5 mt-10 flex h-125 w-[calc(100%+52px)] snap-x snap-mandatory items-center gap-4.5 overflow-x-auto px-[calc((100%-280px)/2)] scrollbar-none [&::-webkit-scrollbar]:hidden"
       >
+        {isLoading && (
+          <p className="m-auto font-Pretendard text-sm text-[#667085]">
+            복약 카드를 불러오는 중이에요.
+          </p>
+        )}
+        {isError && (
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="m-auto font-Pretendard text-sm font-semibold text-[#23408F]"
+          >
+            불러오지 못했어요. 다시 시도하기
+          </button>
+        )}
         {medicineCards.map((card, index) => (
           <MedicineCard
             key={card.id}
             name={card.name}
             medicineName={card.medicineName}
             status={card.status}
+            medicationId={card.id}
             medicine={card.medicine}
             isActive={activeCardIndex === index}
             isFlipped={flippedCardId === card.id}
             onFlip={() =>
-              setFlippedCardId((currentId) =>
-                currentId === card.id ? null : card.id
+              setFlippedCardIdOverride(
+                flippedCardId === card.id ? null : card.id
               )
             }
             onRegister={() => navigate('/register')}
@@ -126,7 +251,13 @@ const Home = () => {
       <SosButton />
       {isCardDrawerOpen && (
         <MedicineCardDrawer
-          medicines={medicineCards}
+          medicines={sidebarMedications.map((medicine) => ({
+            id: medicine.medicationId,
+            medicineName: medicine.productKoName,
+          }))}
+          isLoading={isSidebarLoading}
+          isError={isSidebarError}
+          onRetry={() => void refetchSidebarMedications()}
           onClose={() => setIsCardDrawerOpen(false)}
           onRegister={() => navigate('/register')}
           onSelect={selectCard}

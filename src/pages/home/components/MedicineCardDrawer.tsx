@@ -14,6 +14,9 @@ type MedicineCardDrawerProps = {
   onClose: () => void;
   onRegister: () => void;
   onSelect: (id: number) => void;
+  isLoading: boolean;
+  isError: boolean;
+  onRetry: () => void;
 };
 
 const MedicineCardDrawer = ({
@@ -21,6 +24,9 @@ const MedicineCardDrawer = ({
   onClose,
   onRegister,
   onSelect,
+  isLoading,
+  isError,
+  onRetry,
 }: MedicineCardDrawerProps) => {
   const [keyword, setKeyword] = useState('');
   const filteredMedicines = medicines.filter(({ medicineName }) =>
@@ -64,20 +70,38 @@ const MedicineCardDrawer = ({
               </span>
             </button>
 
-            {filteredMedicines.map(({ id, medicineName }) => (
+            {isLoading && (
+              <p className="py-5 text-center font-Pretendard text-[0.875rem] text-[#848B9C]">
+                복약 카드를 불러오는 중이에요.
+              </p>
+            )}
+
+            {isError && (
               <button
-                key={id}
                 type="button"
-                onClick={() => onSelect(id)}
-                className="flex h-16 items-center gap-4 border-b border-[#D2D1CB] pl-4.5 pr-2.5 py-4 text-left"
+                onClick={onRetry}
+                className="py-5 text-center font-Pretendard text-[0.875rem] font-semibold text-[#23408F]"
               >
-                <img src={CardConnectIcon} alt="" />
-                <span className="min-w-0 flex-1 truncate font-Pretendard text-[1rem] font-regular text-[#3F3D38]">
-                  {medicineName}
-                </span>
-                <img src={DocumentsDetailArrowIcon} alt="" />
+                불러오지 못했어요. 다시 시도하기
               </button>
-            ))}
+            )}
+
+            {!isLoading &&
+              !isError &&
+              filteredMedicines.map(({ id, medicineName }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => onSelect(id)}
+                  className="flex h-16 items-center gap-4 border-b border-[#D2D1CB] pl-4.5 pr-2.5 py-4 text-left"
+                >
+                  <img src={CardConnectIcon} alt="" />
+                  <span className="min-w-0 flex-1 truncate font-Pretendard text-[1rem] font-regular text-[#3F3D38]">
+                    {medicineName}
+                  </span>
+                  <img src={DocumentsDetailArrowIcon} alt="" />
+                </button>
+              ))}
           </div>
         </div>
       </div>

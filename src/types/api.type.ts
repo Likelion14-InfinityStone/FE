@@ -16,3 +16,13 @@ export interface ApiEnvelope<T> extends ApiBase {
 export interface ApiEnvelopeNullable<T> extends ApiBase {
   data: T | null;
 }
+
+/** result를 반환하는 API 응답 */
+export interface ApiResultEnvelope<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  requestId: string;
+  result: T;
+  timestamp: string;
+}
