@@ -7,55 +7,107 @@ import DocumentsShareIcon from '@/assets/images/documents/documentsShareIcon.svg
 import DeleteWarningIcon from '@/assets/images/documents/deleteWarningIcon.svg';
 import ConfirmModal from '@/components/modal/ConfirmModal';
 import DocumentActionButton from './components/DocumentActionButton';
-import { MEDICINE_DOCUMENTS } from './constants';
+import { useDocumentDetail } from './services/useDocuments';
+
+const formatFileSize = (fileSize: number) => {
+  if (fileSize < 1024) return `${fileSize} B`;
+  if (fileSize < 1024 * 1024) return `${Math.round(fileSize / 1024)} KB`;
+
+  return `${(fileSize / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 const DocumentDetail = () => {
   const navigate = useNavigate();
-  const { medicineName, documentIndex } = useParams();
+  const { medicineName, documentId: documentIdParam } = useParams();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const documentId = Number(documentIdParam);
+  const isValidDocumentId = Number.isSafeInteger(documentId) && documentId > 0;
+  const { data, isLoading, isError, refetch } = useDocumentDetail(
+    documentId,
+    isValidDocumentId
+  );
   const medicine = medicineName ?? '콘서타 27mg';
-  const document =
-    MEDICINE_DOCUMENTS[Number(documentIndex)] ?? MEDICINE_DOCUMENTS[0];
 
   return (
     <div className="flex min-h-full w-full flex-col">
-      <PageHeader title={document.title} />
+      <PageHeader title={data?.title ?? '서류 상세'} />
 
       <div className="flex flex-1 flex-col gap-2.5">
         <div className="flex flex-col">
           <p className="font-Pretendard text-[1.5rem] leading-8.4 font-semibold text-[#191919]">
-            {medicine}
+            {data?.productKoName ?? medicine}
           </p>
           <p className="font-Pretendard text-[1.125rem] leading-6.3 font-semibold text-[#6D6D6D]">
-            유효 기한 {document.expiresAt ?? '-'} 까지
+            {data ? `등록일 ${data.registeredOn}` : '\u00A0'}
           </p>
+          {data && (
+            <p className="font-Pretendard text-[0.875rem] text-[#848B9C]">
+              {data.originalFilename} · {formatFileSize(data.fileSize)}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-1 flex-col gap-6">
-          <div className="flex h-95 w-full shrink-0 items-center justify-center self-center rounded-lg bg-[#E1E1E1]">
-            <p className="font-Pretendard text-[1rem] font-semibold text-[#191919]">
-              사진 미리 보기
-            </p>
+          <div className="flex h-95 w-full shrink-0 items-center justify-center self-center overflow-hidden rounded-lg bg-[#E1E1E1]">
+            {isLoading && (
+              <p className="font-Pretendard text-[1rem] font-semibold text-[#191919]">
+                서류를 불러오는 중...
+              </p>
+            )}
+
+            {(isError || !isValidDocumentId) && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isValidDocumentId) {
+                    navigate('/documents');
+                    return;
+                  }
+
+                  void refetch();
+                }}
+                className="font-Pretendard text-[0.875rem] font-semibold text-[#23408F]"
+              >
+                {!isValidDocumentId ? '서류함으로 돌아가기' : '다시 시도하기'}
+              </button>
+            )}
+
+            {data && (
+              <iframe
+                key={data.previewUrl}
+                src={data.previewUrl}
+                title={`${data.title} 미리보기`}
+                className="h-full w-full border-0"
+              />
+            )}
+
+            {!isLoading && !isError && isValidDocumentId && !data && (
+              <p className="font-Pretendard text-[1rem] font-semibold text-[#191919]">
+                미리보기를 표시할 수 없습니다.
+              </p>
+            )}
           </div>
 
-          <div className="mt-auto flex flex-col gap-2.5 pb-4">
-            <DocumentActionButton
-              label="다운로드"
-              icon={DocumentsDownloadIcon}
-              tone="primary"
-            />
-            <DocumentActionButton
-              label="공유"
-              icon={DocumentsShareIcon}
-              tone="secondary"
-            />
-            <DocumentActionButton
-              label="서류 삭제"
-              icon={DocumentsDeleteIcon}
-              tone="danger"
-              onClick={() => setIsDeleteModalOpen(true)}
-            />
-          </div>
+          {data && (
+            <div className="mt-auto flex flex-col gap-2.5 pb-4">
+              <DocumentActionButton
+                label="다운로드"
+                icon={DocumentsDownloadIcon}
+                tone="primary"
+              />
+              <DocumentActionButton
+                label="공유"
+                icon={DocumentsShareIcon}
+                tone="secondary"
+              />
+              <DocumentActionButton
+                label="서류 삭제"
+                icon={DocumentsDeleteIcon}
+                tone="danger"
+                onClick={() => setIsDeleteModalOpen(true)}
+              />
+            </div>
+          )}
         </div>
       </div>
 

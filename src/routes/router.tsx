@@ -72,7 +72,7 @@ const router = createBrowserRouter([
         element: <MedicineDocuments />,
       },
       {
-        path: '/documents/:medicineName/:documentIndex',
+        path: '/documents/:medicineName/:documentId',
         element: <DocumentDetail />,
       },
       { path: '/scan', element: <Scan /> },

@@ -26,7 +26,8 @@ const MedicineDocumentItem = ({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3.5 rounded-[20px] border border-[#848B9C] bg-[#FCFCFC] px-5 py-2.5 shadow-[0_2px_2px_0_rgba(113,112,113,0.20)]"
+      disabled={!onClick}
+      className="flex w-full items-center gap-3.5 rounded-[20px] border border-[#848B9C] bg-[#FCFCFC] px-5 py-2.5 shadow-[0_2px_2px_0_rgba(113,112,113,0.20)] disabled:cursor-default"
     >
       <img
         src={STATUS_ICONS[status]}

@@ -55,23 +55,19 @@ const MedicineDocuments = () => {
             </button>
           )}
 
-          {data?.documents.map((document, index) => (
+          {data?.documents.map((document) => (
             <MedicineDocumentItem
               key={document.checklistItemId}
               title={document.title}
               registeredOn={document.registeredOn}
               status={document.registered ? '등록완료' : '미발급'}
-              onClick={() =>
-                navigate(
-                  `/documents/${encodeURIComponent(data.productKoName)}/${index}`,
-                  {
-                    state: {
-                      medicationId: data.medicationId,
-                      checklistItemId: document.checklistItemId,
-                      documentId: document.documentId,
-                    },
-                  }
-                )
+              onClick={
+                document.documentId === null
+                  ? undefined
+                  : () =>
+                      navigate(
+                        `/documents/${encodeURIComponent(data.productKoName)}/${document.documentId}`
+                      )
               }
             />
           ))}

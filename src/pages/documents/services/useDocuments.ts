@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import {
+  fetchDocumentDetail,
   fetchDocumentsMain,
   fetchMedicationDocuments,
 } from '@/apis/documents/document.api';
@@ -10,6 +11,8 @@ export const documentKeys = {
   main: () => [...documentKeys.all, 'main'] as const,
   medication: (medicationId: number) =>
     [...documentKeys.all, 'medication', medicationId] as const,
+  detail: (documentId: number) =>
+    [...documentKeys.all, 'detail', documentId] as const,
 };
 
 export const useDocumentsMain = () =>
@@ -28,4 +31,13 @@ export const useMedicationDocuments = (
     queryFn: () => fetchMedicationDocuments(medicationId),
     select: (response) => response.result,
     enabled,
+  });
+
+export const useDocumentDetail = (documentId: number, enabled: boolean) =>
+  useQuery({
+    queryKey: documentKeys.detail(documentId),
+    queryFn: () => fetchDocumentDetail(documentId),
+    select: (response) => response.result,
+    enabled,
+    refetchInterval: 4 * 60 * 1000,
   });

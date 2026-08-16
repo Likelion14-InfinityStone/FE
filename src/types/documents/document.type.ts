@@ -28,3 +28,15 @@ export interface MedicationDocumentsResult {
   productKoName: string;
   documents: MedicationDocument[];
 }
+
+export interface DocumentDetailResult {
+  documentId: number;
+  medicationId: number;
+  productKoName: string;
+  type: string;
+  title: string;
+  originalFilename: string;
+  fileSize: number;
+  registeredOn: string;
+  previewUrl: string;
+}
