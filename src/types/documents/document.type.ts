@@ -40,3 +40,9 @@ export interface DocumentDetailResult {
   registeredOn: string;
   previewUrl: string;
 }
+
+export interface DocumentDownloadResult {
+  documentId: number;
+  originalFilename: string;
+  downloadUrl: string;
+}

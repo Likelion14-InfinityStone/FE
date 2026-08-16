@@ -7,7 +7,10 @@ import DocumentsShareIcon from '@/assets/images/documents/documentsShareIcon.svg
 import DeleteWarningIcon from '@/assets/images/documents/deleteWarningIcon.svg';
 import ConfirmModal from '@/components/modal/ConfirmModal';
 import DocumentActionButton from './components/DocumentActionButton';
-import { useDocumentDetail } from './services/useDocuments';
+import {
+  useDocumentDetail,
+  useDocumentDownload,
+} from './services/useDocuments';
 
 const formatFileSize = (fileSize: number) => {
   if (fileSize < 1024) return `${fileSize} B`;
@@ -26,7 +29,29 @@ const DocumentDetail = () => {
     documentId,
     isValidDocumentId
   );
+  const {
+    mutate: downloadDocument,
+    isPending: isDownloadPending,
+    isError: isDownloadError,
+  } = useDocumentDownload();
   const medicine = medicineName ?? '콘서타 27mg';
+
+  const handleDownload = () => {
+    if (!isValidDocumentId) return;
+
+    downloadDocument(documentId, {
+      onSuccess: (response) => {
+        const link = window.document.createElement('a');
+        link.href = response.result.downloadUrl;
+        link.download = response.result.originalFilename;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        window.document.body.appendChild(link);
+        link.click();
+        link.remove();
+      },
+    });
+  };
 
   return (
     <div className="flex min-h-full w-full flex-col">
@@ -91,9 +116,17 @@ const DocumentDetail = () => {
           {data && (
             <div className="mt-auto flex flex-col gap-2.5 pb-4">
               <DocumentActionButton
-                label="다운로드"
+                label={
+                  isDownloadPending
+                    ? '다운로드 준비 중'
+                    : isDownloadError
+                      ? '다운로드 재시도'
+                      : '다운로드'
+                }
                 icon={DocumentsDownloadIcon}
                 tone="primary"
+                onClick={handleDownload}
+                disabled={isDownloadPending}
               />
               <DocumentActionButton
                 label="공유"

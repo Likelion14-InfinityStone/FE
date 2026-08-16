@@ -2,6 +2,7 @@ import { instance } from '@/apis/instance';
 import type { ApiResultEnvelope } from '@/types/api.type';
 import type {
   DocumentDetailResult,
+  DocumentDownloadResult,
   DocumentsMainResult,
   MedicationDocumentsResult,
 } from '@/types/documents/document.type';
@@ -13,6 +14,16 @@ export const fetchDocumentsMain = async (): Promise<
     await instance.get<ApiResultEnvelope<DocumentsMainResult>>(
       '/api/documents'
     );
+
+  return response.data;
+};
+
+export const createDocumentDownloadUrl = async (
+  documentId: number
+): Promise<ApiResultEnvelope<DocumentDownloadResult>> => {
+  const response = await instance.post<
+    ApiResultEnvelope<DocumentDownloadResult>
+  >(`/api/documents/${documentId}/download`);
 
   return response.data;
 };

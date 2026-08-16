@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import {
+  createDocumentDownloadUrl,
   fetchDocumentDetail,
   fetchDocumentsMain,
   fetchMedicationDocuments,
@@ -40,4 +41,9 @@ export const useDocumentDetail = (documentId: number, enabled: boolean) =>
     select: (response) => response.result,
     enabled,
     refetchInterval: 4 * 60 * 1000,
+  });
+
+export const useDocumentDownload = () =>
+  useMutation({
+    mutationFn: createDocumentDownloadUrl,
   });
