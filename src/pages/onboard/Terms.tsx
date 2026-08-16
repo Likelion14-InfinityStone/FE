@@ -9,9 +9,8 @@ import TermsList from './components/TermList';
 const Terms = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const savedTermIds = useAuthStore((state) => state.agreedTermIds);
   const agreeToTerms = useAuthStore((state) => state.agreeToTerms);
-  const [agreedTermIds, setAgreedTermIds] = useState<TermId[]>(savedTermIds);
+  const [agreedTermIds, setAgreedTermIds] = useState<TermId[]>([]);
 
   const selectedTermId = searchParams.get('detail');
   const selectedTerm = TERMS.find(({ id }) => id === selectedTermId);
@@ -51,7 +50,6 @@ const Terms = () => {
       agreedTermIds={agreedTermIds}
       onToggleAgreement={toggleTermAgreement}
       onSelectTerm={(termId) => setSearchParams({ detail: termId })}
-      onBack={() => navigate('/login')}
       onConfirm={() => {
         agreeToTerms(agreedTermIds);
         navigate('/home', { replace: true });
