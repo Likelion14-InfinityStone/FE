@@ -10,7 +10,7 @@ const PageHeader = ({ title, onBack }: PageHeaderProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex relative pt-5.5 pb-5 items-center justify-center">
+    <div className="relative flex items-center pt-5.5 pb-5">
       <button
         type="button"
         onClick={onBack ?? (() => navigate(-1))}
@@ -18,7 +18,7 @@ const PageHeader = ({ title, onBack }: PageHeaderProps) => {
       >
         <img src={BackArrowIcon} alt="뒤로 가기" />
       </button>
-      <p className="font-Pretendard text-[1.375rem] leading-7.5 font-semibold text-[#191919]">
+      <p className="w-full truncate pl-10 text-left font-Pretendard text-[1.375rem] leading-7.5 font-semibold text-[#191919]">
         {title}
       </p>
     </div>
