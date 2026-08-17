@@ -10,7 +10,9 @@ import type {
   ScanMedicationResult,
 } from '@/types/scan/scan.type';
 
-const isMedicineDraftComplete = (medicine: ScanMedicationResult): boolean =>
+export const isMedicineDraftComplete = (
+  medicine: ScanMedicationResult
+): boolean =>
   medicine.productKoName.trim() !== '' &&
   medicine.mfdsProductCode.trim() !== '' &&
   medicine.productEnName.trim() !== '' &&

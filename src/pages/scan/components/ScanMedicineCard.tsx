@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import chevronIcon from '@/assets/images/register/medicineDetail/downArrowIcon.svg';
 import inputCompleteStemp from '@/assets/images/scan/inputCompleteStemp.svg';
 import medicineStampIncomplete from '@/assets/images/scan/medicineStampIncomplete.svg';
@@ -7,7 +9,9 @@ import type {
   QuantityField,
   ScanMedicationResult,
 } from '@/types/scan/scan.type';
+import DoseUnitPopover from './DoseUnitPopover';
 import MedicineNameSearchInput from './MedicineNameSearchInput';
+import { isMedicineDraftComplete } from '../services/useScanResultForm';
 
 const DOSE_UNIT_LABEL: Record<DoseUnit, string> = {
   TABLET: '정',
@@ -17,8 +21,6 @@ const DOSE_UNIT_LABEL: Record<DoseUnit, string> = {
   DROP: '방울',
   MG: 'mg',
 };
-
-const DOSE_UNIT_OPTIONS = Object.keys(DOSE_UNIT_LABEL) as DoseUnit[];
 
 type ScanMedicineCardProps = {
   medicine: ScanMedicationResult;
@@ -37,14 +39,6 @@ const QUANTITY_ROWS: { key: QuantityField; label: string; suffix?: string }[] = 
   { key: 'dosePerIntake', label: '1회 복용량' },
 ];
 
-const isComplete = (medicine: ScanMedicationResult): boolean =>
-  medicine.intakesPerDay != null &&
-  medicine.intakesPerDay >= 1 &&
-  medicine.totalDays != null &&
-  medicine.totalDays >= 1 &&
-  medicine.dosePerIntake != null &&
-  medicine.dosePerIntake > 0;
-
 const ScanMedicineCard = ({
   medicine,
   isOpen,
@@ -55,7 +49,8 @@ const ScanMedicineCard = ({
   onSelectCandidate,
   onChangeDoseUnit,
 }: ScanMedicineCardProps) => {
-  const complete = isComplete(medicine);
+  const [isDoseUnitOpen, setIsDoseUnitOpen] = useState(false);
+  const complete = isMedicineDraftComplete(medicine);
   const isNameEditable = Boolean(onChangeName && onSelectCandidate);
   const title = medicine.productKoName.trim() || '제품명을 입력해 주세요';
 
@@ -148,19 +143,26 @@ const ScanMedicineCard = ({
                     className="min-w-0 flex-1 bg-transparent text-right font-Pretendard text-[14px] font-normal tracking-[0.336px] text-[#191919] outline-none placeholder:text-[#EF5050]"
                   />
                   {row.key === 'dosePerIntake' && onChangeDoseUnit ? (
-                    <select
-                      value={medicine.doseUnit}
-                      onChange={(event) =>
-                        onChangeDoseUnit(event.target.value as DoseUnit)
-                      }
-                      className="shrink-0 bg-transparent font-Pretendard text-[14px] tracking-[0.336px] text-[#191919] outline-none"
-                    >
-                      {DOSE_UNIT_OPTIONS.map((unit) => (
-                        <option key={unit} value={unit}>
-                          {DOSE_UNIT_LABEL[unit]}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setIsDoseUnitOpen((prev) => !prev)}
+                        className="rounded-full border border-[#E2E2E2] bg-[#FCFCFC] px-3 py-1 font-Pretendard text-[14px] tracking-[0.336px] text-[#191919]"
+                      >
+                        {DOSE_UNIT_LABEL[medicine.doseUnit]}
+                      </button>
+
+                      {isDoseUnitOpen && (
+                        <DoseUnitPopover
+                          value={medicine.doseUnit}
+                          onClose={() => setIsDoseUnitOpen(false)}
+                          onSelect={(unit) => {
+                            onChangeDoseUnit(unit);
+                            setIsDoseUnitOpen(false);
+                          }}
+                        />
+                      )}
+                    </div>
                   ) : (
                     <span className="shrink-0 whitespace-nowrap font-Pretendard text-[14px] tracking-[0.336px] text-[#191919]">
                       {row.key === 'dosePerIntake'
