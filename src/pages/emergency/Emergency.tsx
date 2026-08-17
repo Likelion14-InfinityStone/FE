@@ -30,6 +30,15 @@ const Emergency = () => {
   const reason = isEmergencyReason(reasonParam) ? reasonParam : 'lost';
   const config = EMERGENCY_CONFIG[reason];
   const translationData = createEmergencyTranslation(reason, answers);
+  const isFormComplete = config.questions.every(({ field }) => {
+    const answer = answers[field]?.label.trim();
+
+    return (
+      Boolean(answer) &&
+      answer !== '위치 확인에 실패했습니다' &&
+      answer !== '위치 정보를 지원하지 않는 브라우저입니다'
+    );
+  });
   const emergencyOptions = {
     ...EMERGENCY_MOCK_OPTIONS,
     medication: medications.map((medication) => ({
@@ -67,6 +76,7 @@ const Emergency = () => {
             {view === 'form' ? (
               <BottomButton
                 text="확인"
+                disabled={!isFormComplete}
                 onClick={() => {
                   setView('result');
                   requestAnimationFrame(() =>
