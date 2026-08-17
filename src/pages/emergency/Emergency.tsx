@@ -14,17 +14,27 @@ import { useMedicationList } from '@/pages/home/services/useMedicationCards';
 import {
   EMERGENCY_CONFIG,
   EMERGENCY_MOCK_OPTIONS,
+  SOS_SITUATION,
   createEmergencyTranslation,
   type EmergencyAnswers,
   isEmergencyReason,
 } from '@/constants/emergency';
+import { useSosContacts } from './services/useSos';
+import type { SosContact, SosLocation } from '@/types/emergency/sos.type';
 
 const Emergency = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [view, setView] = useState<'form' | 'result' | 'translation'>('form');
   const [answers, setAnswers] = useState<EmergencyAnswers>({});
+  const [location, setLocation] = useState<SosLocation | null>(null);
+  const [contacts, setContacts] = useState<SosContact[]>([]);
   const { data: medications = [] } = useMedicationList(true);
+  const {
+    mutate: fetchContacts,
+    isPending: isContactsPending,
+    isError: isContactsError,
+  } = useSosContacts();
   const pageRef = useRef<HTMLDivElement>(null);
   const reasonParam = searchParams.get('reason');
   const reason = isEmergencyReason(reasonParam) ? reasonParam : 'lost';
@@ -46,6 +56,27 @@ const Emergency = () => {
       label: medication.productKoName,
     })),
   };
+  const handleConfirm = () => {
+    const tripId = Number(answers.trip?.value);
+    if (!isFormComplete || !Number.isSafeInteger(tripId) || tripId <= 0) return;
+
+    fetchContacts(
+      {
+        situation: SOS_SITUATION[reason],
+        tripId,
+        location,
+      },
+      {
+        onSuccess: (response) => {
+          setContacts(response.result.contacts);
+          setView('result');
+          requestAnimationFrame(() =>
+            pageRef.current?.scrollIntoView({ block: 'start' })
+          );
+        },
+      }
+    );
+  };
 
   return (
     <div ref={pageRef} className="flex flex-col min-h-full">
@@ -58,7 +89,7 @@ const Emergency = () => {
 
         <div className="flex flex-1 flex-col gap-8 pb-23">
           {view === 'result' ? (
-            <EmergencyResult config={config} />
+            <EmergencyResult config={config} contacts={contacts} />
           ) : view === 'translation' ? (
             <EmergencyTranslation data={translationData} />
           ) : (
@@ -66,6 +97,7 @@ const Emergency = () => {
               questions={config.questions}
               answers={answers}
               options={emergencyOptions}
+              onLocationChange={setLocation}
               onAnswerChange={(field, answer) =>
                 setAnswers((current) => ({ ...current, [field]: answer }))
               }
@@ -75,14 +107,15 @@ const Emergency = () => {
           <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-100.5 overflow-y-auto bg-[#FAFAF6] px-6.5 pt-4 pb-[max(20px,env(safe-area-inset-bottom))]">
             {view === 'form' ? (
               <BottomButton
-                text="확인"
-                disabled={!isFormComplete}
-                onClick={() => {
-                  setView('result');
-                  requestAnimationFrame(() =>
-                    pageRef.current?.scrollIntoView({ block: 'start' })
-                  );
-                }}
+                text={
+                  isContactsPending
+                    ? '연락처 조회 중'
+                    : isContactsError
+                      ? '다시 시도'
+                      : '확인'
+                }
+                disabled={!isFormComplete || isContactsPending}
+                onClick={handleConfirm}
               />
             ) : view === 'result' ? (
               <DoubleButton

@@ -2,6 +2,7 @@ import WSosLostIcon from '@/assets/images/sos/wsosLostIcon.svg';
 import WSosPoliceIcon from '@/assets/images/sos/wsosPoliceIcon.svg';
 import WSosShortageIcon from '@/assets/images/sos/wsosShortageIcon.svg';
 import WSosEmergencyIcon from '@/assets/images/sos/wsosEmergencyIcon.svg';
+import type { SosSituation } from '@/types/emergency/sos.type';
 
 export type EmergencyReason = 'lost' | 'police' | 'shortage' | 'symptom';
 export type SosQuestionType = 'select' | 'location' | 'text';
@@ -39,9 +40,16 @@ export interface EmergencyTranslationData {
 
 export const EMERGENCY_MOCK_OPTIONS: EmergencyOptionMap = {
   trip: [
-    { value: 'mock-trip-1', label: '일본 여행' },
-    { value: 'mock-trip-2', label: '미국 여행' },
+    { value: '1', label: '일본 여행' },
+    { value: '2', label: '미국 여행' },
   ],
+};
+
+export const SOS_SITUATION: Record<EmergencyReason, SosSituation> = {
+  lost: 'MEDICATION_LOST',
+  police: 'CUSTOMS_CHECK',
+  shortage: 'MEDICATION_SHORTAGE',
+  symptom: 'EMERGENCY_SYMPTOM',
 };
 
 const EMERGENCY_REASON_TEXT: Record<EmergencyReason, { text: string }> = {
@@ -80,12 +88,6 @@ export const createEmergencyTranslation = (
     translatedText: '',
   };
 };
-
-export const EMERGENCY_CONTACTS = [
-  { name: '현지 경찰서', phone: '123-7899-4567' },
-  { name: '재외공관', phone: '123-1567-1235' },
-  { name: '국내 처방 기관', phone: '123-4568-1239' },
-];
 
 export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
   lost: {

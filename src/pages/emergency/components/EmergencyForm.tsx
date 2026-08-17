@@ -9,12 +9,14 @@ import {
   type EmergencyOptionMap,
 } from '@/constants/emergency';
 import SosQuestion from './SosQuestion';
+import type { SosLocation } from '@/types/emergency/sos.type';
 
 interface EmergencyFormProps {
   questions: EmergencyConfig['questions'];
   answers: EmergencyAnswers;
   options?: EmergencyOptionMap;
   onAnswerChange: (field: EmergencyField, answer: EmergencyOption) => void;
+  onLocationChange: (location: SosLocation | null) => void;
 }
 
 interface ReverseGeocodeResponse {
@@ -35,6 +37,7 @@ const EmergencyForm = ({
   answers,
   options = EMERGENCY_MOCK_OPTIONS,
   onAnswerChange,
+  onLocationChange,
 }: EmergencyFormProps) => {
   const [openQuestion, setOpenQuestion] = useState<EmergencyField | null>(null);
   const [locatingQuestion, setLocatingQuestion] =
@@ -42,6 +45,7 @@ const EmergencyForm = ({
 
   const handleLocation = async (field: EmergencyField) => {
     if (!navigator.geolocation) {
+      onLocationChange(null);
       const message = '위치 정보를 지원하지 않는 브라우저입니다';
       onAnswerChange(field, { value: message, label: message });
       return;
@@ -51,6 +55,10 @@ const EmergencyForm = ({
 
     try {
       const { coords } = await getCurrentPosition();
+      onLocationChange({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      });
       const searchParams = new URLSearchParams({
         latitude: String(coords.latitude),
         longitude: String(coords.longitude),
@@ -75,6 +83,7 @@ const EmergencyForm = ({
         label: data.countryName,
       });
     } catch {
+      onLocationChange(null);
       const message = '위치 확인에 실패했습니다';
       onAnswerChange(field, { value: message, label: message });
     } finally {
