@@ -5,6 +5,7 @@ import type {
   ChecklistDocumentUploadResult,
   CreateTripRequest,
   CreateTripResult,
+  MedicationBasisResult,
   MedicationDestinationDetail,
   TripChecklogResult,
   TripDetailResult,
@@ -88,6 +89,29 @@ export const updateTripMedicationChecklistItem = async (
   >(
     `/api/trips/${tripId}/medications/${tripMedicationId}/checklist/${checklistItemId}`,
     { done }
+  );
+
+  return response.data;
+};
+
+export const deleteTrip = async (
+  tripId: number
+): Promise<ApiResultEnvelope<null>> => {
+  const response = await instance.delete<ApiResultEnvelope<null>>(
+    `/api/trips/${tripId}`
+  );
+
+  return response.data;
+};
+
+export const fetchMedicationBasis = async (
+  tripId: number,
+  tripMedicationId: number
+): Promise<ApiResultEnvelope<MedicationBasisResult>> => {
+  const response = await instance.get<ApiResultEnvelope<MedicationBasisResult>>(
+    `/api/trips/${tripId}/medications/${tripMedicationId}/basis`,
+    // 저장된 근거가 없으면 서버가 이 요청 안에서 OpenAI로 생성하므로 기본 타임아웃보다 여유를 둠
+    { timeout: 30000 }
   );
 
   return response.data;

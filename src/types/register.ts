@@ -196,3 +196,11 @@ export interface ChecklistDocumentUploadResult {
   fileSize: number;
   uploadedAt: string;
 }
+
+export interface MedicationBasisResult {
+  tripMedicationId: number;
+  summary: string;
+  source: string | null;
+  sourceUrl: string | null;
+  verifiedDate: string | null;
+}

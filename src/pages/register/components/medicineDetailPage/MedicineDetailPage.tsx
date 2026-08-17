@@ -7,6 +7,7 @@ import MedicationPassportCard from '@/pages/register/components/medicineDetailPa
 import ChecklistBox from '@/pages/register/components/medicineDetailPage/components/button/ChecklistBox';
 import ActionButton from '@/pages/register/components/medicineDetailPage/components/button/ActionButton';
 import {
+  useMedicationBasis,
   useMedicationDestination,
   useTripMedicationChecklist,
   useUpdateTripMedicationChecklistItem,
@@ -258,25 +259,11 @@ const MedicineDetailContent = ({
           </>
         )}
 
-        {/* TODO: 요약 근거 API 연동 예정 */}
         {activeTab === 'summary' && (
-          <div className="flex flex-col gap-[17px]">
-            <h2 className="text-[18px] font-semibold tracking-[0.432px] text-[#191919]">
-              요약 근거
-            </h2>
-            <div className="relative pt-[47px]">
-              <img
-                src={reasonPUFIIcon}
-                alt=""
-                className="absolute right-0 top-0 z-10 h-[52px] w-[70px] object-contain"
-              />
-              <div className="relative z-0 box-border rounded-[20px] border-2 border-[#23408F] bg-[#FCFCFC] p-[16px_13px] shadow-[0px_2px_2px_0px_rgba(113,112,113,0.2)]">
-                <p className="text-[14px] tracking-[0.336px] text-[#848B9C]">
-                  요약 근거를 준비하고 있어요. 곧 만나보실 수 있어요.
-                </p>
-              </div>
-            </div>
-          </div>
+          <SummaryTabContent
+            tripId={tripId}
+            tripMedicationId={medication.tripMedicationId}
+          />
         )}
       </div>
     </div>
@@ -480,6 +467,90 @@ const ChecklistTabContent = ({ tripId, checklist }: ChecklistTabContentProps) =>
           })}
         </div>
       )}
+    </div>
+  );
+};
+
+type SummaryTabContentProps = {
+  tripId: number;
+  tripMedicationId: number;
+};
+
+const SummaryTabContent = ({
+  tripId,
+  tripMedicationId,
+}: SummaryTabContentProps) => {
+  const {
+    data: basis,
+    isPending,
+    isError,
+    error,
+  } = useMedicationBasis(tripId, tripMedicationId, true);
+
+  if (isPending) {
+    return (
+      <p className="text-[14px] tracking-[0.336px] text-[#848B9C]">
+        요약 근거를 준비하고 있어요. 곧 만나보실 수 있어요.
+      </p>
+    );
+  }
+
+  if (isError || !basis) {
+    const status = (error as AxiosError)?.response?.status;
+    const message =
+      status === 502
+        ? 'AI 요약 생성에 실패했어요. 잠시 후 다시 시도해 주세요.'
+        : '요약 근거를 불러오지 못했어요.';
+
+    return (
+      <p className="text-[14px] tracking-[0.336px] text-[#848B9C]">
+        {message}
+      </p>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-[17px]">
+      <h2 className="text-[18px] font-semibold tracking-[0.432px] text-[#191919]">
+        요약 근거
+      </h2>
+      <div className="relative pt-[47px]">
+        <img
+          src={reasonPUFIIcon}
+          alt=""
+          className="absolute right-0 top-0 z-10 h-[52px] w-[70px] object-contain"
+        />
+        <div className="relative z-0 box-border rounded-[20px] border-2 border-[#23408F] bg-[#FCFCFC] p-[16px_13px] shadow-[0px_2px_2px_0px_rgba(113,112,113,0.2)]">
+          <p className="text-[14px] tracking-[0.336px] text-[#848B9C]">
+            {basis.summary}
+          </p>
+
+          {basis.source && (
+            <div className="mt-[14px] flex flex-col gap-[4px] border-t border-[#E2E2E2] pt-[14px]">
+              <p className="text-[12px] tracking-[0.288px] text-[#848B9C]">
+                출처:{' '}
+                {basis.sourceUrl ? (
+                  <a
+                    href={basis.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#23408F] underline"
+                  >
+                    {basis.source}
+                  </a>
+                ) : (
+                  basis.source
+                )}
+              </p>
+              {basis.verifiedDate && (
+                <p className="text-[12px] tracking-[0.288px] text-[#848B9C]">
+                  확인일: {basis.verifiedDate}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

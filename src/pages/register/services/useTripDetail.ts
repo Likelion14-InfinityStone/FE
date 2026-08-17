@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 
 import {
+  deleteTrip,
+  fetchMedicationBasis,
   fetchMedicationDestination,
   fetchTripChecklog,
   fetchTripDetail,
@@ -40,6 +42,18 @@ export const useUpdateTripTitle = (tripId: number) => {
             result: { ...previous.result, title: response.result.title },
           }
       );
+      void queryClient.invalidateQueries({ queryKey: tripChecklogKeys.all });
+    },
+  });
+};
+
+export const useDeleteTrip = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (tripId: number) => deleteTrip(tripId),
+    onSuccess: (_response, tripId) => {
+      queryClient.removeQueries({ queryKey: tripDetailKeys.detail(tripId) });
       void queryClient.invalidateQueries({ queryKey: tripChecklogKeys.all });
     },
   });
@@ -142,6 +156,25 @@ export const useUploadChecklistDocument = (
     },
   });
 };
+
+export const medicationBasisKeys = {
+  all: ['medicationBasis'] as const,
+  detail: (tripId: number, tripMedicationId: number) =>
+    [...medicationBasisKeys.all, tripId, tripMedicationId] as const,
+};
+
+export const useMedicationBasis = (
+  tripId: number,
+  tripMedicationId: number,
+  enabled: boolean
+) =>
+  useQuery({
+    queryKey: medicationBasisKeys.detail(tripId, tripMedicationId),
+    queryFn: () => fetchMedicationBasis(tripId, tripMedicationId),
+    select: (response) => response.result,
+    enabled,
+    retry: false,
+  });
 
 export const tripChecklogKeys = {
   all: ['tripChecklog'] as const,

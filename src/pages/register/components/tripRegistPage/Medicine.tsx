@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 
-import { useSavedTrips } from '@/hooks/useSavedTrips';
 import { formatDDay, formatIsoDate } from '@/utils/dDay';
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
 import {
+  useDeleteTrip,
   useTripDetail,
   useUpdateTripTitle,
 } from '@/pages/register/services/useTripDetail';
@@ -26,7 +26,6 @@ const Medicine = () => {
 
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [renameError, setRenameError] = useState<string | null>(null);
-  const { removeTrip } = useSavedTrips();
 
   const {
     data: trip,
@@ -36,6 +35,7 @@ const Medicine = () => {
   } = useTripDetail(tripId ?? 0, Boolean(tripId));
 
   const updateTripTitleMutation = useUpdateTripTitle(tripId ?? 0);
+  const deleteTripMutation = useDeleteTrip();
 
   if (!tripId) {
     return <Navigate to="/register" replace />;
@@ -43,8 +43,18 @@ const Medicine = () => {
 
   const handleDelete = () => {
     if (!window.confirm('이 여행을 삭제하시겠어요?')) return;
-    removeTrip(tripId);
-    navigate('/register');
+
+    deleteTripMutation.mutate(tripId, {
+      onSuccess: () => navigate('/register'),
+      onError: (deleteError) => {
+        const status = (deleteError as AxiosError)?.response?.status;
+        window.alert(
+          status === 403
+            ? '본인 여행만 삭제할 수 있어요.'
+            : '여행을 삭제하지 못했어요. 다시 시도해 주세요.'
+        );
+      },
+    });
   };
 
   const handleSaveRename = (name: string) => {
@@ -112,7 +122,10 @@ const Medicine = () => {
       <div className="relative mt-[68px]">
         <div className="absolute -top-[43px] right-0 z-10 flex gap-[10px]">
           <EditButton onClick={() => setIsRenameOpen(true)} />
-          <DeleteButton onClick={handleDelete} />
+          <DeleteButton
+            onClick={handleDelete}
+            disabled={deleteTripMutation.isPending}
+          />
         </div>
         <Ticket
           id={trip.tripId}
