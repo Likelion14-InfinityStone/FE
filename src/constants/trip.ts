@@ -9,5 +9,4 @@ export type Trip = {
   arrivalCountry: string;
   arrivalLocation: string;
   departureDate: string;
-  medicines?: Record<string, number>;
 };

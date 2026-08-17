@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import BottomButton from '@/components/button/BottomButton';
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import { AIRPORTS } from '@/constants/airport';
-import type { AirportSelection } from '@/types/register';
+import type { AirportSelection, SelectedMedication } from '@/types/register';
 import AirportListItem from './components/AirportListItem';
 
 type AirportSelectionState = {
@@ -12,7 +12,7 @@ type AirportSelectionState = {
   departure?: AirportSelection;
   arrival?: AirportSelection;
   travelPeriod?: string;
-  medicineQuantities?: Record<string, number>;
+  selectedMedications?: SelectedMedication[];
 };
 
 const AirportSearchPage = () => {
@@ -52,7 +52,7 @@ const AirportSearchPage = () => {
         departure: field === 'departure' ? selection : navState?.departure,
         arrival: field === 'arrival' ? selection : navState?.arrival,
         travelPeriod: navState?.travelPeriod,
-        medicineQuantities: navState?.medicineQuantities,
+        selectedMedications: navState?.selectedMedications,
       },
     });
   };

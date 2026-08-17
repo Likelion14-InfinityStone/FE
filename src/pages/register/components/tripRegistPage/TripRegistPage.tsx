@@ -1,21 +1,38 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import BottomButton from '@/components/button/BottomButton';
-import { useSavedTrips } from '@/hooks/useSavedTrips';
-import { computeDDay } from '@/utils/dDay';
+import { formatDDay, formatIsoDate } from '@/utils/dDay';
+import { useTripChecklog } from '@/pages/register/services/useTripDetail';
 import CheckNaion from './components/CheckNaion';
 import Ticket from './components/Ticket';
 import TripRegistEmptyState from './components/TripRegistEmptyState';
 
 const TripRegister = () => {
-  const { trips: allTrips } = useSavedTrips();
   const navigate = useNavigate();
-  const countries = Array.from(new Set(allTrips.map((trip) => trip.country)));
-  const [activeCountry, setActiveCountry] = useState(countries[0] ?? '');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const countryCode = searchParams.get('country') ?? undefined;
 
-  if (allTrips.length === 0) {
+  const { data, isPending } = useTripChecklog(countryCode);
+
+  const handleSelectCountry = (code: string) => {
+    setSearchParams({ country: code });
+  };
+
+  if (isPending) {
+    return (
+      <div className="flex h-full w-full flex-col">
+        <Header title="여행 체크로그함" />
+        <div className="flex flex-1 items-center justify-center">
+          <p className="font-Pretendard text-base text-[#848B9C]">
+            불러오는 중이에요...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data || data.countries.length === 0) {
     return (
       <div className="flex h-full w-full flex-col">
         <Header title="여행 체크로그함" />
@@ -30,40 +47,35 @@ const TripRegister = () => {
     );
   }
 
-  const filteredTrips = allTrips.filter(
-    (trip) => trip.country === activeCountry
-  );
-
   return (
     <div className="flex h-full w-full flex-col">
       <Header title="여행 체크로그함" />
 
       <div className="mt-12 flex flex-wrap items-center gap-2.5">
-        {countries.map((country) => (
+        {data.countries.map((country) => (
           <CheckNaion
-            key={country}
-            label={country}
-            active={activeCountry === country}
-            onClick={() => setActiveCountry(country)}
+            key={country.countryCode}
+            label={country.nameKo}
+            active={data.selectedCountryCode === country.countryCode}
+            onClick={() => handleSelectCountry(country.countryCode)}
           />
         ))}
       </div>
 
       <div className="mt-6 flex flex-1 flex-col gap-6">
-        {filteredTrips.map((trip) => (
+        {data.trips.map((trip) => (
           <Ticket
-            key={trip.id}
-            id={trip.id}
-            dDay={computeDDay(trip.departureDate)}
+            key={trip.tripId}
+            id={trip.tripId}
+            dDay={formatDDay(trip.dday)}
             title={trip.title}
-            departureCode={trip.departureCode}
-            departureCountry={trip.departureCountry}
-            departureLocation={trip.departureLocation}
-            arrivalCode={trip.arrivalCode}
-            arrivalCountry={trip.arrivalCountry}
-            arrivalLocation={trip.arrivalLocation}
-            departureDate={trip.departureDate}
-            medicines={trip.medicines}
+            departureCode={trip.origin.airportCode}
+            departureCountry={trip.origin.countryNameKo}
+            departureLocation={`${trip.origin.countryNameKo} / ${trip.origin.city}`}
+            arrivalCode={trip.destination.airportCode}
+            arrivalCountry={trip.destination.countryNameKo}
+            arrivalLocation={`${trip.destination.countryNameKo} / ${trip.destination.city}`}
+            departureDate={`${formatIsoDate(trip.departOn)} - ${formatIsoDate(trip.returnOn)}`}
           />
         ))}
       </div>

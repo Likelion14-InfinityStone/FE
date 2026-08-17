@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import DetailTabBar from '@/pages/register/components/medicineDetailPage/components/DetailTabBar';
@@ -7,22 +8,18 @@ import MedicationPassportCard from '@/pages/register/components/medicineDetailPa
 import ChecklistBox from '@/pages/register/components/medicineDetailPage/components/button/ChecklistBox';
 import ActionButton from '@/pages/register/components/medicineDetailPage/components/button/ActionButton';
 import DocumentConfirmRow from '@/pages/register/components/medicineDetailPage/components/button/DocumentConfirmRow';
-
-import {
-  MEDICINE_INFO,
-  DESTINATION_RULES,
-  CHECKLIST_ITEMS,
-  SUMMARY_REASON,
-  DETAIL_TABS,
-  type ChecklistItemKey,
-  type DestinationRuleStatus,
-} from '@/constants/medicine';
+import { useMedicationDestination } from '@/pages/register/services/useTripDetail';
+import { DOSE_UNIT_LABEL } from '@/constants/doseUnit';
+import { PREPARATION_LEVEL_ICON } from '@/constants/preparationLevel';
+import type {
+  MedicationDestinationDetail,
+  PreparationLevel,
+} from '@/types/register';
 
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
 import pillIcon from '@/assets/images/register/medicineDetail/pillIcon.svg';
 import calinderIcon from '@/assets/images/register/medicineDetail/calinderIcon.svg';
 import placeIcon from '@/assets/images/register/medicineDetail/placeIcon.svg';
-import stopStemp from '@/assets/images/register/medicineDetail/stopStemp.svg';
 import check from '@/assets/images/register/medicineDetail/check.svg';
 import discheck from '@/assets/images/register/medicineDetail/discheck.svg';
 import downArrowIcon from '@/assets/images/register/medicineDetail/downArrowIcon.svg';
@@ -32,28 +29,97 @@ import trashIcon from '@/assets/images/register/medicineDetail/trashIcon.svg';
 import glassIcon from '@/assets/images/register/medicineDetail/glassIcon.svg';
 import reasonPUFIIcon from '@/assets/images/register/medicineDetail/reasonPUFIIcon.svg';
 
-type UploadableKey = Extract<ChecklistItemKey, 'prescription' | 'opinion'>;
-
-const isUploadableKey = (key: ChecklistItemKey): key is UploadableKey =>
-  key === 'prescription' || key === 'opinion';
-
-const UPLOADABLE_KEYS = ['prescription', 'opinion'] as const;
-
-const DESTINATION_RULE_STATUS_STYLES: Record<DestinationRuleStatus, string> = {
-  warning: 'text-[#EF5050]',
-  safe: 'text-[#23408F]',
+type MedicineDetailState = {
+  tripId?: number;
+  tripMedicationId?: number;
+  preparationLevel?: PreparationLevel;
 };
+
+const DETAIL_TABS = [
+  { key: 'destination', label: '목적지' },
+  { key: 'checklist', label: '체크리스트' },
+  { key: 'summary', label: '요약 근거' },
+] as const;
 
 const MedicineDetailPage = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<string>(DETAIL_TABS[0].key);
-  const [openItems, setOpenItems] = useState<Record<ChecklistItemKey, boolean>>(
-    {
-      prescription: false,
-      opinion: false,
-      preApproval: false,
-    }
+  const location = useLocation();
+  const navState = location.state as MedicineDetailState | null;
+  const { tripId, tripMedicationId, preparationLevel } = navState ?? {};
+
+  const {
+    data: medication,
+    isPending,
+    isError,
+    error,
+  } = useMedicationDestination(
+    tripId ?? 0,
+    tripMedicationId ?? 0,
+    Boolean(tripId && tripMedicationId)
   );
+
+  if (!tripId || !tripMedicationId) {
+    return <Navigate to="/register" replace />;
+  }
+
+  if (isPending) {
+    return (
+      <div className="flex min-h-dvh w-full items-center justify-center bg-[#FAFAF6]">
+        <p className="font-Pretendard text-base text-[#848B9C]">
+          약 정보를 불러오는 중이에요...
+        </p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    const message =
+      (error as AxiosError<{ message?: string }>)?.response?.data?.message ??
+      '약 정보를 불러오지 못했어요.';
+
+    return (
+      <div className="flex min-h-dvh w-full flex-col items-center justify-center gap-4 bg-[#FAFAF6] px-6">
+        <p className="font-Pretendard text-base text-[#848B9C]">{message}</p>
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="font-Pretendard text-base font-semibold text-[#23408F]"
+        >
+          돌아가기
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <MedicineDetailContent
+      medication={medication}
+      preparationLevel={preparationLevel}
+      onBack={() => navigate(-1)}
+    />
+  );
+};
+
+type MedicineDetailContentProps = {
+  medication: MedicationDestinationDetail;
+  preparationLevel?: PreparationLevel;
+  onBack: () => void;
+};
+
+const MedicineDetailContent = ({
+  medication,
+  preparationLevel,
+  onBack,
+}: MedicineDetailContentProps) => {
+  const [activeTab, setActiveTab] = useState<string>(DETAIL_TABS[0].key);
+  const [openTemplateId, setOpenTemplateId] = useState<number | null>(null);
+
+  const documentKeyFor = (templateId: number) =>
+    `${medication.tripMedicationId}-${templateId}`;
+
+  const uploadTemplateIds = medication.requirements
+    .filter((requirement) => requirement.kind === 'UPLOAD')
+    .map((requirement) => documentKeyFor(requirement.templateId));
 
   const {
     documents: uploadedDocuments,
@@ -63,11 +129,10 @@ const MedicineDetailPage = () => {
     handleFileSelected,
     confirmDocument: handleConfirmDocument,
     deleteDocument: handleDeleteDocument,
-  } = useDocumentUpload(UPLOADABLE_KEYS);
+  } = useDocumentUpload(uploadTemplateIds);
 
-  const toggleItem = (key: ChecklistItemKey) => {
-    setOpenItems((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  const stampIcon =
+    PREPARATION_LEVEL_ICON[preparationLevel ?? 'ALLOWED'];
 
   return (
     <div className="min-h-dvh w-full bg-[#FAFAF6] pb-10">
@@ -75,7 +140,7 @@ const MedicineDetailPage = () => {
         <button
           type="button"
           aria-label="뒤로가기"
-          onClick={() => navigate(-1)}
+          onClick={onBack}
           className="absolute left-0 flex h-6 w-6 items-center justify-center"
         >
           <img src={backIcon} alt="" className="h-5 w-[10px]" />
@@ -87,30 +152,32 @@ const MedicineDetailPage = () => {
 
       <div className="mt-[30px]">
         <MedicationPassportCard
-          name={MEDICINE_INFO.name}
-          ingredient={MEDICINE_INFO.ingredient}
+          name={medication.productKoName}
+          ingredient={
+            medication.ingredients.join(', ') +
+            (medication.contentMg ? ` · ${medication.contentMg}mg` : '')
+          }
           stats={[
             {
               icon: <img src={pillIcon} alt="" className="h-6 w-6" />,
               label: '소지 수량',
-              value: MEDICINE_INFO.possessionQuantity,
+              value: `${medication.carryQuantity}${DOSE_UNIT_LABEL[medication.carryQuantityUnit]}`,
             },
             {
               icon: <img src={calinderIcon} alt="" className="h-6 w-6" />,
               label: '복용 기간',
-              value: MEDICINE_INFO.dosagePeriod,
+              value: `${medication.carryDays}일분`,
             },
             {
               icon: <img src={placeIcon} alt="" className="h-6 w-6" />,
               label: '대상 국가',
-              value: MEDICINE_INFO.destinationCountry,
+              value: medication.destinationNameKo,
             },
           ]}
-          // TODO: API 응답 결과에 따라 스탬프 아이콘 바뀔 예정
           stampImage={
             <img
-              src={stopStemp}
-              alt="기관문의 필요"
+              src={stampIcon.src}
+              alt={stampIcon.alt}
               className="h-full w-full object-contain"
             />
           }
@@ -132,21 +199,28 @@ const MedicineDetailPage = () => {
               목적지 규정
             </h2>
             <div className="flex flex-col divide-y divide-[#E2E2E2]">
-              {DESTINATION_RULES.map((rule) => (
-                <div
-                  key={rule.label}
-                  className="flex items-center justify-between py-[13px] first:pt-0 last:pb-0"
+              <div className="flex items-center justify-between py-[13px] first:pt-0">
+                <span className="text-[16px] font-medium tracking-[0.384px] text-[#848B9C]">
+                  통제 성분 여부
+                </span>
+                <span
+                  className={`text-[16px] font-semibold tracking-[0.384px] ${
+                    medication.regulated ? 'text-[#EF5050]' : 'text-[#23408F]'
+                  }`}
                 >
-                  <span className="text-[16px] font-medium tracking-[0.384px] text-[#848B9C]">
-                    {rule.label}
-                  </span>
-                  <span
-                    className={`text-[16px] font-semibold tracking-[0.384px] ${DESTINATION_RULE_STATUS_STYLES[rule.status]}`}
-                  >
-                    {rule.value}
-                  </span>
-                </div>
-              ))}
+                  {medication.regulated
+                    ? (medication.categoryName ?? '포함')
+                    : '해당 없음'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-[13px] last:pb-0">
+                <span className="text-[16px] font-medium tracking-[0.384px] text-[#848B9C]">
+                  수량 조건
+                </span>
+                <span className="text-[16px] font-semibold tracking-[0.384px] text-[#191919]">
+                  {medication.quantityCondition ?? '제한 없음'}
+                </span>
+              </div>
             </div>
           </div>
         )}
@@ -157,86 +231,96 @@ const MedicineDetailPage = () => {
               준비 체크 리스트
             </h2>
 
-            <input
-              ref={registerInput('prescription')}
-              type="file"
-              accept=".pdf,application/pdf"
-              className="hidden"
-              onChange={handleFileSelected('prescription')}
-            />
-            <input
-              ref={registerInput('opinion')}
-              type="file"
-              accept=".pdf,application/pdf"
-              className="hidden"
-              onChange={handleFileSelected('opinion')}
-            />
+            {uploadTemplateIds.map((key) => (
+              <input
+                key={key}
+                ref={registerInput(key)}
+                type="file"
+                accept=".pdf,application/pdf"
+                className="hidden"
+                onChange={handleFileSelected(key)}
+              />
+            ))}
 
-            <div className="flex flex-col gap-[12px]">
-              {CHECKLIST_ITEMS.map((item) => {
-                const uploadKey: UploadableKey | null = isUploadableKey(
-                  item.key
-                )
-                  ? item.key
-                  : null;
-                const isChecked = uploadKey
-                  ? uploadedDocuments[uploadKey] !== null
-                  : item.checked;
+            {medication.requirements.length === 0 ? (
+              <p className="text-[14px] tracking-[0.336px] text-[#848B9C]">
+                추가로 준비할 서류가 없어요.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-[12px]">
+                {medication.requirements.map((requirement) => {
+                  const key = documentKeyFor(requirement.templateId);
+                  const isUpload = requirement.kind === 'UPLOAD';
+                  const isChecked = isUpload
+                    ? uploadedDocuments[key] !== null
+                    : false;
 
-                return (
-                  <ChecklistBox
-                    key={item.key}
-                    title={item.title}
-                    checked={isChecked}
-                    isOpen={openItems[item.key]}
-                    onToggle={() => toggleItem(item.key)}
-                    checkIcon={
-                      <img src={isChecked ? check : discheck} alt="" />
-                    }
-                    chevronIcon={<img src={downArrowIcon} alt="" />}
-                  >
-                    {uploadKey && (
+                  return (
+                    <ChecklistBox
+                      key={requirement.templateId}
+                      title={requirement.label}
+                      checked={isChecked}
+                      isOpen={openTemplateId === requirement.templateId}
+                      onToggle={() =>
+                        setOpenTemplateId((prev) =>
+                          prev === requirement.templateId
+                            ? null
+                            : requirement.templateId
+                        )
+                      }
+                      checkIcon={
+                        <img src={isChecked ? check : discheck} alt="" />
+                      }
+                      chevronIcon={<img src={downArrowIcon} alt="" />}
+                    >
                       <div className="flex flex-col gap-[10px]">
-                        {uploadedDocuments[uploadKey] ? (
-                          <DocumentConfirmRow
-                            documentIcon={<img src={documentIcon} alt="" />}
-                            trashIcon={<img src={trashIcon} alt="" />}
-                            onConfirmDocument={handleConfirmDocument(uploadKey)}
-                            onDelete={handleDeleteDocument(uploadKey)}
-                          />
-                        ) : (
-                          <div className="flex flex-col gap-[10px]">
+                        <p className="text-[13px] tracking-[0.312px] text-[#848B9C]">
+                          {requirement.description}
+                        </p>
+
+                        {isUpload ? (
+                          uploadedDocuments[key] ? (
+                            <DocumentConfirmRow
+                              documentIcon={<img src={documentIcon} alt="" />}
+                              trashIcon={<img src={trashIcon} alt="" />}
+                              onConfirmDocument={handleConfirmDocument(key)}
+                              onDelete={handleDeleteDocument(key)}
+                            />
+                          ) : (
                             <ActionButton
                               variant="dashed"
                               label="PDF 업로드"
                               icon={<img src={pdfIcon} alt="" />}
-                              onClick={() => handleOpenFilePicker(uploadKey)}
+                              onClick={() => handleOpenFilePicker(key)}
                             />
-                          </div>
+                          )
+                        ) : (
+                          <ActionButton
+                            label="기관 안내 확인"
+                            icon={<img src={glassIcon} alt="" />}
+                            onClick={() => {
+                              if (requirement.formUrl) {
+                                window.open(requirement.formUrl, '_blank');
+                              }
+                            }}
+                          />
                         )}
-                        {uploadErrors[uploadKey] && (
+
+                        {isUpload && uploadErrors[key] && (
                           <p className="text-[13px] text-[#EF5050]">
-                            {uploadErrors[uploadKey]}
+                            {uploadErrors[key]}
                           </p>
                         )}
                       </div>
-                    )}
-
-                    {item.key === 'preApproval' && (
-                      // TODO: 추후 DB 연동 후 실제 사전 허가 신청 상태 페이지로 이동
-                      <ActionButton
-                        label="신청 상태 보러가기"
-                        icon={<img src={glassIcon} alt="" />}
-                        onClick={() => {}}
-                      />
-                    )}
-                  </ChecklistBox>
-                );
-              })}
-            </div>
+                    </ChecklistBox>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
+        {/* TODO: 요약 근거 API 연동 예정 */}
         {activeTab === 'summary' && (
           <div className="flex flex-col gap-[17px]">
             <h2 className="text-[18px] font-semibold tracking-[0.432px] text-[#191919]">
@@ -249,13 +333,9 @@ const MedicineDetailPage = () => {
                 className="absolute right-0 top-0 z-10 h-[52px] w-[70px] object-contain"
               />
               <div className="relative z-0 box-border rounded-[20px] border-2 border-[#23408F] bg-[#FCFCFC] p-[16px_13px] shadow-[0px_2px_2px_0px_rgba(113,112,113,0.2)]">
-                <p className="text-[14px] tracking-[0.336px] text-[#191919]">
-                  {SUMMARY_REASON.description}
+                <p className="text-[14px] tracking-[0.336px] text-[#848B9C]">
+                  요약 근거를 준비하고 있어요. 곧 만나보실 수 있어요.
                 </p>
-                <div className="mt-3 flex flex-col text-right text-[12px] tracking-[0.288px] text-[#6D6D6D]">
-                  <p>{SUMMARY_REASON.source}</p>
-                  <p>{SUMMARY_REASON.lastUpdated}</p>
-                </div>
               </div>
             </div>
           </div>

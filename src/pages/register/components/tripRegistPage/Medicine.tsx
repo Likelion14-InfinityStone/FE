@@ -1,45 +1,97 @@
 import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 
 import { useSavedTrips } from '@/hooks/useSavedTrips';
+import { formatDDay, formatIsoDate } from '@/utils/dDay';
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
-import Ticket, { type TicketData } from './components/Ticket';
+import {
+  useTripDetail,
+  useUpdateTripTitle,
+} from '@/pages/register/services/useTripDetail';
+import Ticket from './components/Ticket';
 import EditButton from './components/EditButton';
 import DeleteButton from './components/DeleteButton';
 import MedicinePassportButton from './components/MedicinePassportButton';
 import RenameTripSheet from './components/RenameTripSheet';
 
+type MedicineState = {
+  tripId?: number;
+};
+
 const Medicine = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const stateTrip = (location.state as { trip?: TicketData } | null)?.trip;
+  const tripId = (location.state as MedicineState | null)?.tripId;
 
-  const [trip, setTrip] = useState<TicketData | undefined>(stateTrip);
   const [isRenameOpen, setIsRenameOpen] = useState(false);
-  const { trips, updateTrip, removeTrip } = useSavedTrips();
+  const [renameError, setRenameError] = useState<string | null>(null);
+  const { removeTrip } = useSavedTrips();
 
-  if (!trip) {
+  const {
+    data: trip,
+    isPending,
+    isError,
+    error,
+  } = useTripDetail(tripId ?? 0, Boolean(tripId));
+
+  const updateTripTitleMutation = useUpdateTripTitle(tripId ?? 0);
+
+  if (!tripId) {
     return <Navigate to="/register" replace />;
   }
 
-  const tripCountry = trips.find((t) => t.id === trip.id)?.country;
-
-  const isDuplicateName = (name: string) =>
-    trips.some(
-      (t) => t.id !== trip.id && t.country === tripCountry && t.title === name
-    );
-
   const handleDelete = () => {
     if (!window.confirm('이 여행을 삭제하시겠어요?')) return;
-    removeTrip(trip.id);
+    removeTrip(tripId);
     navigate('/register');
   };
 
   const handleSaveRename = (name: string) => {
-    setTrip({ ...trip, title: name });
-    updateTrip(trip.id, { title: name });
-    setIsRenameOpen(false);
+    setRenameError(null);
+    updateTripTitleMutation.mutate(name, {
+      onSuccess: () => setIsRenameOpen(false),
+      onError: (mutationError) => {
+        const status = (mutationError as AxiosError)?.response?.status;
+        if (status === 409) {
+          setRenameError('중복된 이름입니다. 다른 이름을 입력해 주세요.');
+        } else {
+          setRenameError('여행 이름을 수정하지 못했어요.');
+        }
+      },
+    });
   };
+
+  if (isPending) {
+    return (
+      <div className="flex min-h-dvh w-full items-center justify-center bg-[#FAFAF6]">
+        <p className="font-Pretendard text-base text-[#848B9C]">
+          여행 정보를 불러오는 중이에요...
+        </p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    const status = (error as AxiosError)?.response?.status;
+    const message =
+      status === 403
+        ? '본인 여행만 확인할 수 있어요.'
+        : '여행을 찾을 수 없어요.';
+
+    return (
+      <div className="flex min-h-dvh w-full flex-col items-center justify-center gap-4 bg-[#FAFAF6] px-6">
+        <p className="font-Pretendard text-base text-[#848B9C]">{message}</p>
+        <button
+          type="button"
+          onClick={() => navigate('/register')}
+          className="font-Pretendard text-base font-semibold text-[#23408F]"
+        >
+          체크로그함으로 돌아가기
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh w-full bg-[#FAFAF6] pb-10">
@@ -62,20 +114,43 @@ const Medicine = () => {
           <EditButton onClick={() => setIsRenameOpen(true)} />
           <DeleteButton onClick={handleDelete} />
         </div>
-        <Ticket {...trip} interactive={false} />
+        <Ticket
+          id={trip.tripId}
+          dDay={formatDDay(trip.dday)}
+          title={trip.title}
+          departureCode={trip.origin.airportCode}
+          departureCountry={trip.origin.countryNameKo}
+          departureLocation={`${trip.origin.countryNameKo} / ${trip.origin.city}`}
+          arrivalCode={trip.destination.airportCode}
+          arrivalCountry={trip.destination.countryNameKo}
+          arrivalLocation={`${trip.destination.countryNameKo} / ${trip.destination.city}`}
+          departureDate={`${formatIsoDate(trip.departOn)} - ${formatIsoDate(trip.returnOn)}`}
+          interactive={false}
+        />
       </div>
 
       <div className="mt-[26px] flex flex-col gap-3">
-        {Object.entries(trip.medicines ?? {}).map(([name, quantity]) => (
-          <MedicinePassportButton key={name} name={name} quantity={quantity} />
+        {trip.medications.map((medication) => (
+          <MedicinePassportButton
+            key={medication.tripMedicationId}
+            tripId={tripId}
+            tripMedicationId={medication.tripMedicationId}
+            productKoName={medication.productKoName}
+            carryDays={medication.carryDays}
+            preparationLevel={medication.preparationLevel}
+          />
         ))}
       </div>
 
       {isRenameOpen && (
         <RenameTripSheet
           currentName={trip.title}
-          isDuplicate={isDuplicateName}
-          onClose={() => setIsRenameOpen(false)}
+          errorMessage={renameError}
+          isSaving={updateTripTitleMutation.isPending}
+          onClose={() => {
+            setRenameError(null);
+            setIsRenameOpen(false);
+          }}
           onSave={handleSaveRename}
         />
       )}

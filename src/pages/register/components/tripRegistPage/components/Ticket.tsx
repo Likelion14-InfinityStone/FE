@@ -16,12 +16,9 @@ type TicketProps = {
   arrivalCountry: string;
   arrivalLocation: string;
   departureDate: string;
-  medicines?: Record<string, number>;
   calenderIcon?: React.ReactNode;
   interactive?: boolean;
 };
-
-export type TicketData = Omit<TicketProps, 'calenderIcon' | 'interactive'>;
 
 const Ticket = ({
   id,
@@ -35,7 +32,6 @@ const Ticket = ({
   arrivalCountry,
   arrivalLocation,
   departureDate,
-  medicines,
   interactive = true,
 }: TicketProps) => {
   const navigate = useNavigate();
@@ -43,22 +39,7 @@ const Ticket = ({
   const handleClick = () => {
     if (!interactive) return;
 
-    const trip: TicketData = {
-      id,
-      dDay,
-      title,
-      flagImage,
-      departureCode,
-      departureCountry,
-      departureLocation,
-      arrivalCode,
-      arrivalCountry,
-      arrivalLocation,
-      departureDate,
-      medicines,
-    };
-
-    navigate('/medicine', { state: { trip } });
+    navigate('/medicine', { state: { tripId: id } });
   };
 
   return (

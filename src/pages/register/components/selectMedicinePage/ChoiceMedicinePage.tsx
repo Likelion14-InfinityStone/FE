@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
-import { MY_MEDICINES } from '@/constants/medicine';
-import type { AirportSelection } from '@/types/register';
+import type { AirportSelection, SelectedMedication } from '@/types/register';
 import MedicineChip from '@/pages/register/components/lodingPage/components/MedicineChip';
 import MedicineQuantityCard from '@/pages/register/components/lodingPage/components/MedicineQuantityCard';
 import PageDots from '@/pages/register/components/lodingPage/components/PageDots';
+import { useTripMedications } from '@/pages/register/services/useTripMedications';
 import SmallButton from './components/SmallButton';
 
 const TOTAL_STEPS = 3;
@@ -16,7 +16,7 @@ type ChoiceMedicineState = {
   departure?: AirportSelection;
   arrival?: AirportSelection;
   travelPeriod?: string;
-  medicineQuantities?: Record<string, number>;
+  selectedMedications?: SelectedMedication[];
 };
 
 const ChoiceMedicinePage = () => {
@@ -24,38 +24,64 @@ const ChoiceMedicinePage = () => {
   const location = useLocation();
   const navState = location.state as ChoiceMedicineState | null;
 
-  const [quantities, setQuantities] = useState<Record<string, number>>(
-    navState?.medicineQuantities ?? {}
+  const { data: myMedications = [] } = useTripMedications();
+
+  const [quantities, setQuantities] = useState<Record<number, number>>(() =>
+    Object.fromEntries(
+      (navState?.selectedMedications ?? []).map((medication) => [
+        medication.medicationId,
+        medication.quantity,
+      ])
+    )
   );
+
+  const buildSelectedMedications = (
+    quantityMap: Record<number, number>
+  ): SelectedMedication[] =>
+    myMedications
+      .filter((medication) => medication.medicationId in quantityMap)
+      .map((medication) => ({
+        medicationId: medication.medicationId,
+        productKoName: medication.productKoName,
+        quantity: quantityMap[medication.medicationId],
+      }));
 
   const handleBack = () => {
     navigate('/selectMedicine', {
-      state: { ...navState, medicineQuantities: quantities },
+      state: {
+        ...navState,
+        selectedMedications: buildSelectedMedications(quantities),
+      },
     });
   };
 
-  const selectedMedicines = MY_MEDICINES.filter((name) => name in quantities);
+  const selectedMedicines = myMedications.filter(
+    (medication) => medication.medicationId in quantities
+  );
 
-  const toggleMedicine = (name: string) => {
+  const toggleMedicine = (medicationId: number) => {
     setQuantities((prev) => {
-      if (name in prev) {
+      if (medicationId in prev) {
         const next = { ...prev };
-        delete next[name];
+        delete next[medicationId];
         return next;
       }
 
-      return { ...prev, [name]: 1 };
+      return { ...prev, [medicationId]: 1 };
     });
   };
 
-  const handleIncrease = (name: string) => {
-    setQuantities((prev) => ({ ...prev, [name]: prev[name] + 1 }));
-  };
-
-  const handleDecrease = (name: string) => {
+  const handleIncrease = (medicationId: number) => {
     setQuantities((prev) => ({
       ...prev,
-      [name]: Math.max(1, prev[name] - 1),
+      [medicationId]: prev[medicationId] + 1,
+    }));
+  };
+
+  const handleDecrease = (medicationId: number) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [medicationId]: Math.max(1, prev[medicationId] - 1),
     }));
   };
 
@@ -85,12 +111,12 @@ const ChoiceMedicinePage = () => {
       </p>
 
       <div className="mt-4 flex flex-wrap gap-2.5">
-        {MY_MEDICINES.map((name) => (
+        {myMedications.map(({ medicationId, productKoName }) => (
           <MedicineChip
-            key={name}
-            label={name}
-            variant={name in quantities ? 'selected' : 'default'}
-            onClick={() => toggleMedicine(name)}
+            key={medicationId}
+            label={productKoName}
+            variant={medicationId in quantities ? 'selected' : 'default'}
+            onClick={() => toggleMedicine(medicationId)}
           />
         ))}
         <MedicineChip
@@ -102,13 +128,13 @@ const ChoiceMedicinePage = () => {
 
       {selectedMedicines.length > 0 && (
         <div className="mt-6 flex flex-col gap-4">
-          {selectedMedicines.map((name) => (
+          {selectedMedicines.map(({ medicationId, productKoName }) => (
             <MedicineQuantityCard
-              key={name}
-              label={name}
-              quantity={quantities[name]}
-              onIncrease={() => handleIncrease(name)}
-              onDecrease={() => handleDecrease(name)}
+              key={medicationId}
+              label={productKoName}
+              quantity={quantities[medicationId]}
+              onIncrease={() => handleIncrease(medicationId)}
+              onDecrease={() => handleDecrease(medicationId)}
             />
           ))}
         </div>
@@ -124,7 +150,10 @@ const ChoiceMedicinePage = () => {
           disabled={selectedMedicines.length === 0}
           onClick={() =>
             navigate('/loding', {
-              state: { ...navState, medicineQuantities: quantities },
+              state: {
+                ...navState,
+                selectedMedications: buildSelectedMedications(quantities),
+              },
             })
           }
         />

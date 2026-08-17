@@ -1,63 +1,123 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import savePUFIIcon from '@/assets/images/register/tripTicket/savePUFIIcon.svg';
 import BottomButton from '@/components/button/BottomButton';
-import { useSavedTrips } from '@/hooks/useSavedTrips';
-import type { Trip } from '@/constants/trip';
-import type { AirportSelection } from '@/types/register';
+import { createTrip } from '@/apis/register/trip.api';
+import { COUNTRY_ALPHA3 } from '@/constants/airport';
+import { parseTravelPeriod } from '@/utils/dDay';
+import type {
+  AirportSelection,
+  CreateTripRequest,
+  CreateTripResult,
+  TripMedicationResultItem,
+} from '@/types/register';
 
 type SaveMedicineState = {
   departure?: AirportSelection;
   arrival?: AirportSelection;
   travelPeriod?: string;
-  medicineQuantities?: Record<string, number>;
-  selectedMedicines?: string[];
+  medications?: TripMedicationResultItem[];
+  selectedMedications?: TripMedicationResultItem[];
+};
+
+type SaveStatus = 'pending' | 'success' | 'error';
+
+// AirportSelection.location은 "국가/지역 / 도시" 형식이라 마지막 구간이 도시명
+const cityOf = (location: string) => location.split(' / ').at(-1) ?? location;
+
+const buildCreateTripPayload = (
+  navState: SaveMedicineState
+): CreateTripRequest | null => {
+  const { departure, arrival, travelPeriod } = navState;
+  const medications = navState.selectedMedications ?? [];
+  const dateRange = parseTravelPeriod(travelPeriod);
+  const originAlpha3 = departure ? COUNTRY_ALPHA3[departure.country] : undefined;
+  const destinationAlpha3 = arrival
+    ? COUNTRY_ALPHA3[arrival.country]
+    : undefined;
+
+  if (
+    !departure ||
+    !arrival ||
+    !dateRange ||
+    !originAlpha3 ||
+    !destinationAlpha3 ||
+    medications.length === 0
+  ) {
+    return null;
+  }
+
+  return {
+    origin: {
+      airportCode: departure.code,
+      city: cityOf(departure.location),
+      codeAlpha3: originAlpha3,
+    },
+    destination: {
+      airportCode: arrival.code,
+      city: cityOf(arrival.location),
+      codeAlpha3: destinationAlpha3,
+    },
+    departOn: dateRange.departOn,
+    returnOn: dateRange.returnOn,
+    medications: medications.map((medication) => ({
+      medicationId: medication.medicationId,
+      carryDays: medication.quantity,
+      preparationLevel: medication.preparationLevel,
+      regulated: medication.regulated,
+      categoryCode: medication.categoryCode,
+      categoryName: medication.categoryName,
+      quantityCondition: medication.quantityCondition,
+      requirementTemplateIds: medication.requirements.map(
+        (requirement) => requirement.templateId
+      ),
+    })),
+  };
 };
 
 const SaveMedicinePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navState = location.state as SaveMedicineState | null;
-  const { addTrip } = useSavedTrips();
-  const hasSavedRef = useRef(false);
+  const requestRef = useRef<ReturnType<typeof createTrip> | null>(null);
+
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('pending');
+  const [savedTrip, setSavedTrip] = useState<CreateTripResult | null>(null);
 
   const destinationLabel = navState?.arrival
     ? `${navState.arrival.code}(${navState.arrival.location})`
     : '';
 
-  const savedMedicines = navState?.selectedMedicines ?? [];
+  const savedMedicines = navState?.selectedMedications ?? [];
 
   useEffect(() => {
-    if (hasSavedRef.current || !navState?.arrival) return;
-    hasSavedRef.current = true;
+    if (!navState) return;
+    const payload = buildCreateTripPayload(navState);
 
-    const departureCountry = navState?.departure?.country ?? '';
-    const arrivalCountry = navState?.arrival?.country ?? '';
+    if (!payload) {
+      Promise.resolve().then(() => setSaveStatus('error'));
+      return;
+    }
 
-    const medicines = Object.fromEntries(
-      (navState?.selectedMedicines ?? []).map((name) => [
-        name,
-        navState?.medicineQuantities?.[name] ?? 1,
-      ])
-    );
+    if (!requestRef.current) {
+      requestRef.current = createTrip(payload);
+    }
 
-    const trip: Trip = {
-      id: Date.now(),
-      country: arrivalCountry || '기타',
-      title: `${arrivalCountry || '여행지'} 여행`,
-      departureCode: navState?.departure?.code ?? '',
-      departureCountry,
-      departureLocation: navState?.departure?.location ?? '',
-      arrivalCode: navState?.arrival?.code ?? '',
-      arrivalCountry,
-      arrivalLocation: navState?.arrival?.location ?? '',
-      departureDate: navState?.travelPeriod ?? '',
-      medicines,
-    };
+    requestRef.current
+      .then((response) => {
+        if (!response.isSuccess || !response.result) {
+          setSaveStatus('error');
+          return;
+        }
 
-    addTrip(trip);
+        setSavedTrip(response.result);
+        setSaveStatus('success');
+      })
+      .catch(() => {
+        setSaveStatus('error');
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -66,10 +126,13 @@ const SaveMedicinePage = () => {
   }
 
   const handleBack = () => {
-    const remainingQuantities = Object.fromEntries(
-      Object.entries(navState?.medicineQuantities ?? {}).filter(
-        ([name]) => !(navState?.selectedMedicines ?? []).includes(name)
+    const savedIds = new Set(
+      (navState?.selectedMedications ?? []).map(
+        (medication) => medication.medicationId
       )
+    );
+    const remainingMedications = (navState?.medications ?? []).filter(
+      (medication) => !savedIds.has(medication.medicationId)
     );
 
     navigate('/registerResult', {
@@ -77,7 +140,7 @@ const SaveMedicinePage = () => {
         departure: navState?.departure,
         arrival: navState?.arrival,
         travelPeriod: navState?.travelPeriod,
-        medicineQuantities: remainingQuantities,
+        medications: remainingMedications,
       },
     });
   };
@@ -109,14 +172,24 @@ const SaveMedicinePage = () => {
         className="mt-23 size-[170px] self-center"
       />
 
-      <p className="font-Pretendard mt-8.5 text-center text-xl leading-[1.4] font-bold tracking-[0.48px] text-[#23408F]">
-        {savedMedicines.map((name) => (
-          <span key={name} className="block">
-            {name}
+      {saveStatus === 'error' ? (
+        <p className="font-Pretendard mt-8.5 text-center text-base font-medium tracking-[0.384px] text-[#EF5050]">
+          저장에 실패했어요. 다시 시도해 주세요.
+        </p>
+      ) : (
+        <p className="font-Pretendard mt-8.5 text-center text-xl leading-[1.4] font-bold tracking-[0.48px] text-[#23408F]">
+          {savedMedicines.map((medication) => (
+            <span key={medication.medicationId} className="block">
+              {medication.productKoName}
+            </span>
+          ))}
+          <span className="block">
+            {saveStatus === 'success'
+              ? `${savedTrip?.title ?? '새로운'} 체크로그함에 저장 완료!`
+              : '저장하는 중이에요...'}
           </span>
-        ))}
-        <span className="block">새로운 체크로그함에 저장 완료!</span>
-      </p>
+        </p>
+      )}
 
       <div className="flex-1" />
 

@@ -1,28 +1,38 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import loadingRing from '@/assets/images/register/lodingpage/loadingRing.svg';
 import pufiLogo from '@/assets/images/register/lodingpage/lodingPUFI.svg';
-import type { AirportSelection } from '@/types/register';
+import { COUNTRY_ALPHA3 } from '@/constants/airport';
+import type { AirportSelection, SelectedMedication } from '@/types/register';
+import { useTripMedicationPreview } from '@/pages/register/services/useTripMedications';
 import PageDots from './components/PageDots';
 
 const TOTAL_STEPS = 3;
 const CURRENT_STEP = 2;
-const NAVIGATE_DELAY_MS = 2000;
 const NEXT_PATH = '/registerResult';
+const FALLBACK_TIMEOUT_MS = 15000;
 
 type LodingPageState = {
   departure?: AirportSelection;
   arrival?: AirportSelection;
   travelPeriod?: string;
-  medicineQuantities?: Record<string, number>;
+  selectedMedications?: SelectedMedication[];
 };
 
 const LodingPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navState = location.state as LodingPageState | null;
+  const hasNavigatedRef = useRef(false);
+
+  const {
+    mutate: previewMedications,
+    status: previewStatus,
+    data: previewData,
+    error: previewError,
+  } = useTripMedicationPreview();
 
   const countryLabel =
     [navState?.departure?.location, navState?.arrival?.location]
@@ -33,12 +43,87 @@ const LodingPage = () => {
     navigate('/choiceMedicine', { state: navState });
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate(NEXT_PATH, { replace: true, state: navState });
-    }, NAVIGATE_DELAY_MS);
+  const goToResult = (state: unknown) => {
+    if (hasNavigatedRef.current) return;
+    hasNavigatedRef.current = true;
+    navigate(NEXT_PATH, { replace: true, state });
+  };
 
-    return () => clearTimeout(timer);
+  // 1) 마운트 시 판정 요청 시작 (선택된 약이 없거나 목적지 코드가 없으면 건너뜀)
+  // Strict Mode에서 effect가 두 번 실행될 때, useMutation은 useQuery와 달리
+  // 전역 캐시를 공유하지 않아 첫 번째 호출의 상태 갱신이 화면에 반영되지 않는
+  // 문제가 있다. 그래서 ref로 재호출을 막지 않고 매번 실제로 호출한다
+  // (프로덕션에서는 effect가 한 번만 실행되므로 중복 호출되지 않는다).
+  useEffect(() => {
+    const destinationCodeAlpha3 = navState?.arrival
+      ? COUNTRY_ALPHA3[navState.arrival.country]
+      : undefined;
+    const selectedMedications = navState?.selectedMedications ?? [];
+
+    if (!destinationCodeAlpha3 || selectedMedications.length === 0) {
+      goToResult(navState);
+      return;
+    }
+
+    previewMedications({
+      destinationCodeAlpha3,
+      medications: selectedMedications.map((medication) => ({
+        medicationId: medication.medicationId,
+        carryDays: medication.quantity,
+      })),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 2) 판정 요청 상태(성공/실패)를 지켜보다가 결과 화면으로 이동
+  useEffect(() => {
+    if (hasNavigatedRef.current) return;
+
+    if (previewStatus === 'success') {
+      if (!previewData.isSuccess || !previewData.result?.medications) {
+        console.error(
+          '약 판정에 실패했어요:',
+          previewData.message,
+          previewData.code
+        );
+        goToResult(navState);
+        return;
+      }
+
+      const selectedMedications = navState?.selectedMedications ?? [];
+      const quantityByMedicationId = new Map(
+        selectedMedications.map((medication) => [
+          medication.medicationId,
+          medication.quantity,
+        ])
+      );
+
+      goToResult({
+        ...navState,
+        medications: previewData.result.medications.map((medication) => ({
+          ...medication,
+          quantity: quantityByMedicationId.get(medication.medicationId) ?? 1,
+        })),
+      });
+      return;
+    }
+
+    if (previewStatus === 'error') {
+      console.error('약 판정 요청이 실패했어요:', previewError);
+      goToResult(navState);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewStatus, previewData, previewError]);
+
+  // 3) 응답이 비정상적으로 오래 걸릴 때를 대비한 안전장치
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      if (hasNavigatedRef.current) return;
+      console.error('약 판정 요청이 시간 내에 끝나지 않았어요.');
+      goToResult(navState);
+    }, FALLBACK_TIMEOUT_MS);
+
+    return () => clearTimeout(fallbackTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

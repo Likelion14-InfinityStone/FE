@@ -5,6 +5,17 @@ export type Airport = {
   location: string;
 };
 
+// ISO 3166-1 alpha-3 국가 코드
+export const COUNTRY_ALPHA3: Record<string, string> = {
+  프랑스: 'FRA',
+  태국: 'THA',
+  체코: 'CZE',
+  대한민국: 'KOR',
+  미국: 'USA',
+  일본: 'JPN',
+  중국: 'CHN',
+};
+
 export const AIRPORTS: Airport[] = [
   {
     code: 'CDG',
