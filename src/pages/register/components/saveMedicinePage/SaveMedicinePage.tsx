@@ -6,7 +6,7 @@ import savePUFIIcon from '@/assets/images/register/tripTicket/savePUFIIcon.svg';
 import BottomButton from '@/components/button/BottomButton';
 import { useSavedTrips } from '@/hooks/useSavedTrips';
 import type { Trip } from '@/constants/trip';
-import type { AirportSelection } from '@/types/register';
+import type { AirportSelection } from '@/types/scan/register/register';
 
 type SaveMedicineState = {
   departure?: AirportSelection;

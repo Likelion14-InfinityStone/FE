@@ -4,8 +4,8 @@ import medicineStempComplete from '@/assets/images/scan/inputCompleteStemp.svg';
 import {
   isMedicineComplete,
   REQUIRED_MEDICINE_FIELDS,
-  type MedicineFields,
-} from './medicineFields.types';
+} from '@/types/scan/medicineFields';
+import type { MedicineFields } from '@/types/scan/scan.type';
 
 type MedicineAccordionCardProps = {
   medicine: MedicineFields;

@@ -1,14 +1,4 @@
-export type MedicineFields = {
-  productInfo: string;
-  frequency: string;
-  duration: string;
-  dosePerTime: string;
-};
-
-export type PassportFields = {
-  dispensedDate: string;
-  issuer: string;
-};
+import type { MedicineFields, PassportFields } from './scan.type';
 
 export const REQUIRED_MEDICINE_FIELDS: (keyof MedicineFields)[] = [
   'productInfo',

@@ -2,8 +2,10 @@ import chevronIcon from '@/assets/images/register/medicineDetail/downArrowIcon.s
 import inputCompleteStemp from '@/assets/images/scan/inputCompleteStemp.svg';
 import medicineStampIncomplete from '@/assets/images/scan/medicineStampIncomplete.svg';
 import type { DoseUnit } from '@/types/home/medicationCard.type';
-import type { ScanMedicationResult } from '@/types/scan/scan.type';
-import type { QuantityField } from '../services/useScanResultForm';
+import type {
+  QuantityField,
+  ScanMedicationResult,
+} from '@/types/scan/scan.type';
 
 const DOSE_UNIT_LABEL: Record<DoseUnit, string> = {
   TABLET: '정',

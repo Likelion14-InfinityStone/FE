@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import { MY_MEDICINES } from '@/constants/medicine';
-import type { AirportSelection } from '@/types/register';
+import type { AirportSelection } from '@/types/scan/register/register';
 import MedicineChip from '@/pages/register/components/lodingPage/components/MedicineChip';
 import MedicineQuantityCard from '@/pages/register/components/lodingPage/components/MedicineQuantityCard';
 import PageDots from '@/pages/register/components/lodingPage/components/PageDots';

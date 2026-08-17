@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import BottomButton from '@/components/button/BottomButton';
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
-import type { AirportSelection } from '@/types/register';
+import type { AirportSelection } from '@/types/scan/register/register';
 import AirportSelectCard from './components/AirportSelectCard';
 import DateSelectCard from './components/DateSelectCard';
 import DateRangeModal from './components/DateRangeModal';

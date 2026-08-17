@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import loadingRing from '@/assets/images/register/lodingpage/loadingRing.svg';
 import pufiLogo from '@/assets/images/register/lodingpage/lodingPUFI.svg';
-import type { AirportSelection } from '@/types/register';
+import type { AirportSelection } from '@/types/scan/register/register';
 import PageDots from './components/PageDots';
 
 const TOTAL_STEPS = 3;

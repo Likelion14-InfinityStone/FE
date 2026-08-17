@@ -1,4 +1,4 @@
-import type { PassportDraft } from '../services/useScanResultForm';
+import type { PassportDraft } from '@/types/scan/scan.type';
 
 type ScanPassportCardProps = {
   passport: PassportDraft;

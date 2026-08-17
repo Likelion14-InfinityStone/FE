@@ -5,12 +5,8 @@ import {
   findDuplicateMedicine,
   isMedicineExpired,
 } from '@/utils/medicineChecks';
-import {
-  EMPTY_MEDICINE_FIELDS,
-  isMedicineComplete,
-  type MedicineFields,
-  type PassportFields,
-} from '../components/medicineFields.types';
+import { EMPTY_MEDICINE_FIELDS, isMedicineComplete } from '@/types/scan/medicineFields';
+import type { MedicineFields, PassportFields } from '@/types/scan/scan.type';
 
 type SaveException = 'duplicate' | 'expired' | null;
 

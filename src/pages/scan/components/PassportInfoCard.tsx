@@ -1,4 +1,4 @@
-import type { PassportFields } from './medicineFields.types';
+import type { PassportFields } from '@/types/scan/scan.type';
 
 type PassportInfoCardProps = {
   passport: PassportFields;

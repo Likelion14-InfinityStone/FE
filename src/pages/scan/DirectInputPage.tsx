@@ -10,7 +10,7 @@ import MedicineExceptionPage from './components/MedicineExceptionPage';
 import {
   EMPTY_MEDICINE_FIELDS,
   EMPTY_PASSPORT_FIELDS,
-} from './components/medicineFields.types';
+} from '@/types/scan/medicineFields';
 import PassportInfoCard from './components/PassportInfoCard';
 import SavePage from './SavePage';
 import { useMedicineForm } from './services/useMedicineForm';

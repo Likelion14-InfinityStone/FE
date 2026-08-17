@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import BottomButton from '@/components/button/BottomButton';
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import { AIRPORTS } from '@/constants/airport';
-import type { AirportSelection } from '@/types/register';
+import type { AirportSelection } from '@/types/scan/register/register';
 import AirportListItem from './components/AirportListItem';
 
 type AirportSelectionState = {

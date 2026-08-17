@@ -2,14 +2,11 @@ import { isAxiosError } from 'axios';
 import { useState } from 'react';
 
 import { saveMedications } from '@/apis/medication/medication.api';
-import type { ScanMedicationResult } from '@/types/scan/scan.type';
-
-export type PassportDraft = {
-  dispensedAt: string;
-  issuer: string;
-};
-
-export type QuantityField = 'intakesPerDay' | 'totalDays' | 'dosePerIntake';
+import type {
+  PassportDraft,
+  QuantityField,
+  ScanMedicationResult,
+} from '@/types/scan/scan.type';
 
 const isMedicineDraftComplete = (medicine: ScanMedicationResult): boolean =>
   medicine.intakesPerDay != null &&
