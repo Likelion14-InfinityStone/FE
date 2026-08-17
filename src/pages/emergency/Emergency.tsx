@@ -10,8 +10,10 @@ import EmergencyBanner from './components/EmergencyBanner';
 import EmergencyForm from './components/EmergencyForm';
 import EmergencyResult from './components/EmergencyResult';
 import EmergencyTranslation from './components/EmergencyTranslation';
+import { useMedicationList } from '@/pages/home/services/useMedicationCards';
 import {
   EMERGENCY_CONFIG,
+  EMERGENCY_MOCK_OPTIONS,
   createEmergencyTranslation,
   type EmergencyAnswers,
   isEmergencyReason,
@@ -22,11 +24,19 @@ const Emergency = () => {
   const [searchParams] = useSearchParams();
   const [view, setView] = useState<'form' | 'result' | 'translation'>('form');
   const [answers, setAnswers] = useState<EmergencyAnswers>({});
+  const { data: medications = [] } = useMedicationList(true);
   const pageRef = useRef<HTMLDivElement>(null);
   const reasonParam = searchParams.get('reason');
   const reason = isEmergencyReason(reasonParam) ? reasonParam : 'lost';
   const config = EMERGENCY_CONFIG[reason];
   const translationData = createEmergencyTranslation(reason, answers);
+  const emergencyOptions = {
+    ...EMERGENCY_MOCK_OPTIONS,
+    medication: medications.map((medication) => ({
+      value: String(medication.medicationId),
+      label: medication.productKoName,
+    })),
+  };
 
   return (
     <div ref={pageRef} className="flex flex-col min-h-full">
@@ -46,8 +56,9 @@ const Emergency = () => {
             <EmergencyForm
               questions={config.questions}
               answers={answers}
-              onAnswerChange={(index, value) =>
-                setAnswers((current) => ({ ...current, [index]: value }))
+              options={emergencyOptions}
+              onAnswerChange={(field, answer) =>
+                setAnswers((current) => ({ ...current, [field]: answer }))
               }
             />
           )}

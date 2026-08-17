@@ -4,13 +4,17 @@ import {
   EMERGENCY_MOCK_OPTIONS,
   type EmergencyAnswers,
   type EmergencyConfig,
+  type EmergencyField,
+  type EmergencyOption,
+  type EmergencyOptionMap,
 } from '@/constants/emergency';
 import SosQuestion from './SosQuestion';
 
 interface EmergencyFormProps {
   questions: EmergencyConfig['questions'];
   answers: EmergencyAnswers;
-  onAnswerChange: (index: number, value: string) => void;
+  options?: EmergencyOptionMap;
+  onAnswerChange: (field: EmergencyField, answer: EmergencyOption) => void;
 }
 
 interface ReverseGeocodeResponse {
@@ -29,22 +33,21 @@ const getCurrentPosition = () =>
 const EmergencyForm = ({
   questions,
   answers,
+  options = EMERGENCY_MOCK_OPTIONS,
   onAnswerChange,
 }: EmergencyFormProps) => {
-  const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(
-    null
-  );
-  const [locatingQuestionIndex, setLocatingQuestionIndex] = useState<
-    number | null
-  >(null);
+  const [openQuestion, setOpenQuestion] = useState<EmergencyField | null>(null);
+  const [locatingQuestion, setLocatingQuestion] =
+    useState<EmergencyField | null>(null);
 
-  const handleLocation = async (index: number) => {
+  const handleLocation = async (field: EmergencyField) => {
     if (!navigator.geolocation) {
-      onAnswerChange(index, '위치 정보를 지원하지 않는 브라우저입니다');
+      const message = '위치 정보를 지원하지 않는 브라우저입니다';
+      onAnswerChange(field, { value: message, label: message });
       return;
     }
 
-    setLocatingQuestionIndex(index);
+    setLocatingQuestion(field);
 
     try {
       const { coords } = await getCurrentPosition();
@@ -67,36 +70,38 @@ const EmergencyForm = ({
         throw new Error('국가 정보를 확인하지 못했습니다.');
       }
 
-      onAnswerChange(index, data.countryName);
+      onAnswerChange(field, {
+        value: data.countryName,
+        label: data.countryName,
+      });
     } catch {
-      onAnswerChange(index, '위치 확인에 실패했습니다');
+      const message = '위치 확인에 실패했습니다';
+      onAnswerChange(field, { value: message, label: message });
     } finally {
-      setLocatingQuestionIndex(null);
+      setLocatingQuestion(null);
     }
   };
 
   return (
     <div className="flex flex-col gap-6.5">
-      {questions.map(({ label, placeholder, type }, index) => (
+      {questions.map(({ field, label, placeholder, type }) => (
         <SosQuestion
-          key={label}
+          key={field}
           label={label}
           placeholder={placeholder}
           type={type}
-          isOpen={openQuestionIndex === index}
-          selectedValue={answers[index]}
-          options={EMERGENCY_MOCK_OPTIONS}
+          isOpen={openQuestion === field}
+          selectedValue={answers[field]?.label}
+          options={options[field] ?? []}
           onToggle={() =>
-            setOpenQuestionIndex((current) =>
-              current === index ? null : index
-            )
+            setOpenQuestion((current) => (current === field ? null : field))
           }
-          onSelect={(value) => {
-            onAnswerChange(index, value);
-            setOpenQuestionIndex(null);
+          onSelect={(answer) => {
+            onAnswerChange(field, answer);
+            if (type !== 'text') setOpenQuestion(null);
           }}
-          onLocation={() => void handleLocation(index)}
-          isLocating={locatingQuestionIndex === index}
+          onLocation={() => void handleLocation(field)}
+          isLocating={locatingQuestion === field}
         />
       ))}
     </div>

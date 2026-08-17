@@ -5,11 +5,24 @@ import WSosEmergencyIcon from '@/assets/images/sos/wsosEmergencyIcon.svg';
 
 export type EmergencyReason = 'lost' | 'police' | 'shortage' | 'symptom';
 export type SosQuestionType = 'select' | 'location' | 'text';
+export type EmergencyField =
+  'trip' | 'medication' | 'location' | 'status' | 'request' | 'medicalHistory';
+
+export interface EmergencyOption {
+  value: string;
+  label: string;
+}
+
+export type EmergencyAnswers = Partial<Record<EmergencyField, EmergencyOption>>;
+export type EmergencyOptionMap = Partial<
+  Record<EmergencyField, readonly EmergencyOption[]>
+>;
 
 export interface EmergencyConfig {
   icon: string;
   title: string;
   questions: Array<{
+    field: EmergencyField;
     label: string;
     placeholder: string;
     type?: SosQuestionType;
@@ -24,34 +37,25 @@ export interface EmergencyTranslationData {
   translatedText: string;
 }
 
-export type EmergencyAnswers = Record<number, string>;
+export const EMERGENCY_MOCK_OPTIONS: EmergencyOptionMap = {
+  trip: [
+    { value: 'mock-trip-1', label: '일본 여행' },
+    { value: 'mock-trip-2', label: '미국 여행' },
+  ],
+};
 
-export const EMERGENCY_MOCK_OPTIONS = [
-  '선택지 1',
-  '선택지 2',
-  '선택지 3',
-  '선택지 4',
-] as const;
-
-const EMERGENCY_REASON_TEXT: Record<
-  EmergencyReason,
-  { text: string; statusIndex: number }
-> = {
+const EMERGENCY_REASON_TEXT: Record<EmergencyReason, { text: string }> = {
   lost: {
     text: '여행 중 복용하던 약을 분실했습니다.',
-    statusIndex: 3,
   },
   police: {
     text: '현재 세관 혹은 경찰의 확인을 받고 있습니다.',
-    statusIndex: 2,
   },
   shortage: {
     text: '여행 중 복용할 약이 부족합니다.',
-    statusIndex: 3,
   },
   symptom: {
     text: '현재 응급 증상이 있습니다.',
-    statusIndex: 3,
   },
 };
 
@@ -60,7 +64,7 @@ export const createEmergencyTranslation = (
   answers: EmergencyAnswers
 ): EmergencyTranslationData => {
   const reasonText = EMERGENCY_REASON_TEXT[reason];
-  const status = answers[reasonText.statusIndex]?.trim() || '괜찮음';
+  const status = answers.status?.label.trim() || '괜찮음';
 
   return {
     sourceLanguage: '한국어',
@@ -88,14 +92,24 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
     icon: WSosLostIcon,
     title: '약을 잃어버렸어요',
     questions: [
-      { label: '현재 어떤 여행지인가요?', placeholder: '선택해 주세요' },
-      { label: '어떤 약을 분실하셨나요?', placeholder: '선택해 주세요' },
       {
+        field: 'trip',
+        label: '현재 어떤 여행지인가요?',
+        placeholder: '선택해 주세요',
+      },
+      {
+        field: 'medication',
+        label: '어떤 약을 분실하셨나요?',
+        placeholder: '선택해 주세요',
+      },
+      {
+        field: 'location',
         label: '현재 위치가 어디인가요?',
         placeholder: '현위치 확인',
         type: 'location',
       },
       {
+        field: 'status',
         label: '현재 상태는 어떠신가요?',
         placeholder: '직접 입력하기',
         type: 'text',
@@ -114,14 +128,24 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
     icon: WSosPoliceIcon,
     title: '세관 혹은 경찰의 확인을 받고 있어요',
     questions: [
-      { label: '현재 어떤 여행지인가요?', placeholder: '선택해 주세요' },
-      { label: '어떤 약을 확인받으시나요?', placeholder: '선택해 주세요' },
       {
+        field: 'trip',
+        label: '현재 어떤 여행지인가요?',
+        placeholder: '선택해 주세요',
+      },
+      {
+        field: 'medication',
+        label: '어떤 약을 확인받으시나요?',
+        placeholder: '선택해 주세요',
+      },
+      {
+        field: 'status',
         label: '어떤 상황인가요?',
         placeholder: '직접 입력하기',
         type: 'text',
       },
       {
+        field: 'request',
         label: '무엇을 요구받았나요?',
         placeholder: '직접 입력하기',
         type: 'text',
@@ -138,14 +162,24 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
     icon: WSosShortageIcon,
     title: '가져온 약이 부족해요',
     questions: [
-      { label: '현재 어떤 여행지인가요?', placeholder: '선택해 주세요' },
-      { label: '어떤 약이 부족한가요?', placeholder: '선택해 주세요' },
       {
+        field: 'trip',
+        label: '현재 어떤 여행지인가요?',
+        placeholder: '선택해 주세요',
+      },
+      {
+        field: 'medication',
+        label: '어떤 약이 부족한가요?',
+        placeholder: '선택해 주세요',
+      },
+      {
+        field: 'location',
         label: '현재 위치가 어디인가요?',
         placeholder: '현위치 확인',
         type: 'location',
       },
       {
+        field: 'status',
         label: '현재 상태는 어떠신가요?',
         placeholder: '직접 입력하기',
         type: 'text',
@@ -164,19 +198,30 @@ export const EMERGENCY_CONFIG: Record<EmergencyReason, EmergencyConfig> = {
     icon: WSosEmergencyIcon,
     title: '응급 증상이 있어요',
     questions: [
-      { label: '현재 어떤 여행지인가요?', placeholder: '선택해 주세요' },
-      { label: '어떤 약을 복용 중인가요?', placeholder: '선택해 주세요' },
       {
+        field: 'trip',
+        label: '현재 어떤 여행지인가요?',
+        placeholder: '선택해 주세요',
+      },
+      {
+        field: 'medication',
+        label: '어떤 약을 복용 중인가요?',
+        placeholder: '선택해 주세요',
+      },
+      {
+        field: 'location',
         label: '현재 위치가 어디인가요?',
         placeholder: '현위치 확인',
         type: 'location',
       },
       {
+        field: 'status',
         label: '현재 상태는 어떠신가요?',
         placeholder: '직접 입력하기',
         type: 'text',
       },
       {
+        field: 'medicalHistory',
         label: '알레르기나 기저질환이 있으신가요?',
         placeholder: '직접 입력하기',
         type: 'text',
