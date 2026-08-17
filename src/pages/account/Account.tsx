@@ -7,10 +7,12 @@ import LogoutIcon from '@/assets/images/account/logoutIcon.svg';
 import { contents } from '@/constants/more';
 import MoreMenuGroup from './components/MoreMenuGroup';
 import ProfileCard from './components/ProfileCard';
+import { useUserMe } from './services/useAccount';
 
 const Account = () => {
   const navigate = useNavigate();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const { data: userMe } = useUserMe();
 
   return (
     <div className="w-full h-full">
@@ -21,8 +23,8 @@ const Account = () => {
           내 계정
         </p>
         <ProfileCard
-          name={contents.profile.name}
-          email={contents.profile.email}
+          name={userMe?.nickName ?? contents.profile.name}
+          email={userMe?.email ?? contents.profile.email}
         />
       </div>
 
