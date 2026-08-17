@@ -24,6 +24,8 @@ export interface EmergencyTranslationData {
   translatedText: string;
 }
 
+export type EmergencyAnswers = Record<number, string>;
+
 export const EMERGENCY_MOCK_OPTIONS = [
   '선택지 1',
   '선택지 2',
@@ -31,13 +33,48 @@ export const EMERGENCY_MOCK_OPTIONS = [
   '선택지 4',
 ] as const;
 
-export const EMERGENCY_TRANSLATION_MOCK: EmergencyTranslationData = {
-  sourceLanguage: '한국어',
-  targetLanguage: '일본어',
-  sourceText:
-    '안녕하세요. 저는 대한민국에서 온 여행객입니다. 여행 중 복용하던 약을 분실했습니다. 지금 상황은 ‘괜찮음’ 상황입니다. 이 약은 제 건강 관리를 위해 복용하고 있는 약입니다. 동일한 성분의 약을 구하거나 필요한 조치를 안내받고 싶습니다. 제가 추가로 해당 약의 서류와 약 정보를 보여드릴게요.',
-  translatedText:
-    'こんにちは。私は韓国から来た旅行者です。旅行中に服用していた薬を紛失しました。現在の体調は「問題ありません」。 この薬は健康管理のために服用しているものです。 同じ成分の薬を入手したいので、必要な対応についてご案内いただけますでしょうか。 この後、薬に関する書類と詳しい情報をお見せします。',
+const EMERGENCY_REASON_TEXT: Record<
+  EmergencyReason,
+  { text: string; statusIndex: number }
+> = {
+  lost: {
+    text: '여행 중 복용하던 약을 분실했습니다.',
+    statusIndex: 3,
+  },
+  police: {
+    text: '현재 세관 혹은 경찰의 확인을 받고 있습니다.',
+    statusIndex: 2,
+  },
+  shortage: {
+    text: '여행 중 복용할 약이 부족합니다.',
+    statusIndex: 3,
+  },
+  symptom: {
+    text: '현재 응급 증상이 있습니다.',
+    statusIndex: 3,
+  },
+};
+
+export const createEmergencyTranslation = (
+  reason: EmergencyReason,
+  answers: EmergencyAnswers
+): EmergencyTranslationData => {
+  const reasonText = EMERGENCY_REASON_TEXT[reason];
+  const status = answers[reasonText.statusIndex]?.trim() || '괜찮음';
+
+  return {
+    sourceLanguage: '한국어',
+    targetLanguage: '일본어',
+    sourceText: [
+      '안녕하세요. 저는 대한민국에서 온 여행객입니다.',
+      reasonText.text,
+      `지금 상황은 ‘${status}’ 상황입니다.`,
+      '이 약은 제 건강 관리를 위해 복용하고 있는 약입니다.',
+      '동일한 성분의 약을 구하거나 필요한 조치를 안내받고 싶습니다.',
+      '제가 추가로 해당 약의 서류와 약 정보를 보여드릴게요.',
+    ].join('\n'),
+    translatedText: '',
+  };
 };
 
 export const EMERGENCY_CONTACTS = [

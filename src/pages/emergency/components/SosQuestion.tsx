@@ -36,6 +36,8 @@ const SosQuestion = ({
       {type === 'text' ? (
         <input
           type="text"
+          value={selectedValue ?? ''}
+          onChange={(event) => onSelect(event.target.value)}
           placeholder={placeholder}
           className="h-15.5 rounded-[18px] border border-[#23408F] bg-transparent px-5 font-Pretendard text-[1rem] outline-none placeholder:text-[#555555]"
         />

@@ -2,12 +2,15 @@ import { useState } from 'react';
 
 import {
   EMERGENCY_MOCK_OPTIONS,
+  type EmergencyAnswers,
   type EmergencyConfig,
 } from '@/constants/emergency';
 import SosQuestion from './SosQuestion';
 
 interface EmergencyFormProps {
   questions: EmergencyConfig['questions'];
+  answers: EmergencyAnswers;
+  onAnswerChange: (index: number, value: string) => void;
 }
 
 interface ReverseGeocodeResponse {
@@ -23,12 +26,13 @@ const getCurrentPosition = () =>
     });
   });
 
-const EmergencyForm = ({ questions }: EmergencyFormProps) => {
+const EmergencyForm = ({
+  questions,
+  answers,
+  onAnswerChange,
+}: EmergencyFormProps) => {
   const [openQuestionIndex, setOpenQuestionIndex] = useState<number | null>(
     null
-  );
-  const [selectedValues, setSelectedValues] = useState<Record<number, string>>(
-    {}
   );
   const [locatingQuestionIndex, setLocatingQuestionIndex] = useState<
     number | null
@@ -36,10 +40,7 @@ const EmergencyForm = ({ questions }: EmergencyFormProps) => {
 
   const handleLocation = async (index: number) => {
     if (!navigator.geolocation) {
-      setSelectedValues((current) => ({
-        ...current,
-        [index]: '위치 정보를 지원하지 않는 브라우저입니다',
-      }));
+      onAnswerChange(index, '위치 정보를 지원하지 않는 브라우저입니다');
       return;
     }
 
@@ -66,15 +67,9 @@ const EmergencyForm = ({ questions }: EmergencyFormProps) => {
         throw new Error('국가 정보를 확인하지 못했습니다.');
       }
 
-      setSelectedValues((current) => ({
-        ...current,
-        [index]: data.countryName as string,
-      }));
+      onAnswerChange(index, data.countryName);
     } catch {
-      setSelectedValues((current) => ({
-        ...current,
-        [index]: '위치 확인에 실패했습니다',
-      }));
+      onAnswerChange(index, '위치 확인에 실패했습니다');
     } finally {
       setLocatingQuestionIndex(null);
     }
@@ -89,7 +84,7 @@ const EmergencyForm = ({ questions }: EmergencyFormProps) => {
           placeholder={placeholder}
           type={type}
           isOpen={openQuestionIndex === index}
-          selectedValue={selectedValues[index]}
+          selectedValue={answers[index]}
           options={EMERGENCY_MOCK_OPTIONS}
           onToggle={() =>
             setOpenQuestionIndex((current) =>
@@ -97,10 +92,7 @@ const EmergencyForm = ({ questions }: EmergencyFormProps) => {
             )
           }
           onSelect={(value) => {
-            setSelectedValues((current) => ({
-              ...current,
-              [index]: value,
-            }));
+            onAnswerChange(index, value);
             setOpenQuestionIndex(null);
           }}
           onLocation={() => void handleLocation(index)}

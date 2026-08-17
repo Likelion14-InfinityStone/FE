@@ -12,7 +12,8 @@ import EmergencyResult from './components/EmergencyResult';
 import EmergencyTranslation from './components/EmergencyTranslation';
 import {
   EMERGENCY_CONFIG,
-  EMERGENCY_TRANSLATION_MOCK,
+  createEmergencyTranslation,
+  type EmergencyAnswers,
   isEmergencyReason,
 } from '@/constants/emergency';
 
@@ -20,10 +21,12 @@ const Emergency = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [view, setView] = useState<'form' | 'result' | 'translation'>('form');
+  const [answers, setAnswers] = useState<EmergencyAnswers>({});
   const pageRef = useRef<HTMLDivElement>(null);
   const reasonParam = searchParams.get('reason');
   const reason = isEmergencyReason(reasonParam) ? reasonParam : 'lost';
   const config = EMERGENCY_CONFIG[reason];
+  const translationData = createEmergencyTranslation(reason, answers);
 
   return (
     <div ref={pageRef} className="flex flex-col min-h-full">
@@ -38,9 +41,15 @@ const Emergency = () => {
           {view === 'result' ? (
             <EmergencyResult config={config} />
           ) : view === 'translation' ? (
-            <EmergencyTranslation data={EMERGENCY_TRANSLATION_MOCK} />
+            <EmergencyTranslation data={translationData} />
           ) : (
-            <EmergencyForm questions={config.questions} />
+            <EmergencyForm
+              questions={config.questions}
+              answers={answers}
+              onAnswerChange={(index, value) =>
+                setAnswers((current) => ({ ...current, [index]: value }))
+              }
+            />
           )}
 
           <div className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-100.5 overflow-y-auto bg-[#FAFAF6] px-6.5 pt-4 pb-[max(20px,env(safe-area-inset-bottom))]">
