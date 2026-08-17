@@ -30,7 +30,7 @@ const MedicinePassportButton = ({
           state: { tripId, tripMedicationId, preparationLevel },
         })
       }
-      className="flex h-[74px] w-full items-center gap-4 rounded-2xl border border-[#848B9C] bg-[#FCFCFC] px-4 shadow-[0px_2px_2px_0px_rgba(113,112,113,0.2)]"
+      className="flex w-full items-center gap-4 rounded-2xl border border-[#848B9C] bg-[#FCFCFC] px-4 py-[10px] shadow-[0px_2px_2px_0px_rgba(113,112,113,0.2)]"
     >
       <img
         src={levelIcon.src}
