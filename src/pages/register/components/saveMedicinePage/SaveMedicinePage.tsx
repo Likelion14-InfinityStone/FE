@@ -24,7 +24,6 @@ type SaveMedicineState = {
 
 type SaveStatus = 'pending' | 'success' | 'error';
 
-// AirportSelection.location은 "국가/지역 / 도시" 형식이라 마지막 구간이 도시명
 const cityOf = (location: string) => location.split(' / ').at(-1) ?? location;
 
 const buildCreateTripPayload = (

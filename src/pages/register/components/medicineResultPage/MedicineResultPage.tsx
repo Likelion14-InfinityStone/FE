@@ -26,7 +26,6 @@ const MedicineResultPage = () => {
   const location = useLocation();
   const navState = location.state as MedicineResultState | null;
 
-  // 약별 선택 여부: 처음에는 아무것도 선택되지 않은 상태로 시작
   const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>(
     {}
   );

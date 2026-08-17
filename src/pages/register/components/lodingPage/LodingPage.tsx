@@ -49,11 +49,6 @@ const LodingPage = () => {
     navigate(NEXT_PATH, { replace: true, state });
   };
 
-  // 1) 마운트 시 판정 요청 시작 (선택된 약이 없거나 목적지 코드가 없으면 건너뜀)
-  // Strict Mode에서 effect가 두 번 실행될 때, useMutation은 useQuery와 달리
-  // 전역 캐시를 공유하지 않아 첫 번째 호출의 상태 갱신이 화면에 반영되지 않는
-  // 문제가 있다. 그래서 ref로 재호출을 막지 않고 매번 실제로 호출한다
-  // (프로덕션에서는 effect가 한 번만 실행되므로 중복 호출되지 않는다).
   useEffect(() => {
     const destinationCodeAlpha3 = navState?.arrival
       ? COUNTRY_ALPHA3[navState.arrival.country]
@@ -75,7 +70,6 @@ const LodingPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 2) 판정 요청 상태(성공/실패)를 지켜보다가 결과 화면으로 이동
   useEffect(() => {
     if (hasNavigatedRef.current) return;
 
@@ -115,7 +109,6 @@ const LodingPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [previewStatus, previewData, previewError]);
 
-  // 3) 응답이 비정상적으로 오래 걸릴 때를 대비한 안전장치
   useEffect(() => {
     const fallbackTimer = setTimeout(() => {
       if (hasNavigatedRef.current) return;
