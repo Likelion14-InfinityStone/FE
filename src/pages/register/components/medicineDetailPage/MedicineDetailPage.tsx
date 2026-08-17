@@ -1,19 +1,25 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 
-import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import DetailTabBar from '@/pages/register/components/medicineDetailPage/components/DetailTabBar';
 import MedicationPassportCard from '@/pages/register/components/medicineDetailPage/components/MedicinePassportCard';
 import ChecklistBox from '@/pages/register/components/medicineDetailPage/components/button/ChecklistBox';
 import ActionButton from '@/pages/register/components/medicineDetailPage/components/button/ActionButton';
-import DocumentConfirmRow from '@/pages/register/components/medicineDetailPage/components/button/DocumentConfirmRow';
-import { useMedicationDestination } from '@/pages/register/services/useTripDetail';
+import {
+  useMedicationDestination,
+  useTripMedicationChecklist,
+  useUpdateTripMedicationChecklistItem,
+  useUploadChecklistDocument,
+} from '@/pages/register/services/useTripDetail';
 import { DOSE_UNIT_LABEL } from '@/constants/doseUnit';
 import { PREPARATION_LEVEL_ICON } from '@/constants/preparationLevel';
 import type {
+  ChecklistDocumentType,
   MedicationDestinationDetail,
   PreparationLevel,
+  TripMedicationChecklistItem,
+  TripMedicationChecklistResult,
 } from '@/types/register';
 
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
@@ -25,9 +31,13 @@ import discheck from '@/assets/images/register/medicineDetail/discheck.svg';
 import downArrowIcon from '@/assets/images/register/medicineDetail/downArrowIcon.svg';
 import pdfIcon from '@/assets/images/register/medicineDetail/pdfIcon.svg';
 import documentIcon from '@/assets/images/register/medicineDetail/documentIcon.svg';
-import trashIcon from '@/assets/images/register/medicineDetail/trashIcon.svg';
 import glassIcon from '@/assets/images/register/medicineDetail/glassIcon.svg';
 import reasonPUFIIcon from '@/assets/images/register/medicineDetail/reasonPUFIIcon.svg';
+
+const MAX_DOCUMENT_FILE_SIZE = 10 * 1024 * 1024;
+
+const getChecklistDocumentType = (label: string): ChecklistDocumentType =>
+  label.includes('처방전') ? 'EN_PRESCRIPTION' : 'DOCTOR_NOTE';
 
 type MedicineDetailState = {
   tripId?: number;
@@ -53,6 +63,16 @@ const MedicineDetailPage = () => {
     isError,
     error,
   } = useMedicationDestination(
+    tripId ?? 0,
+    tripMedicationId ?? 0,
+    Boolean(tripId && tripMedicationId)
+  );
+
+  const {
+    data: checklist,
+    isPending: isChecklistPending,
+    isError: isChecklistError,
+  } = useTripMedicationChecklist(
     tripId ?? 0,
     tripMedicationId ?? 0,
     Boolean(tripId && tripMedicationId)
@@ -93,46 +113,39 @@ const MedicineDetailPage = () => {
 
   return (
     <MedicineDetailContent
+      tripId={tripId}
       medication={medication}
       preparationLevel={preparationLevel}
+      checklist={checklist}
+      isChecklistPending={isChecklistPending}
+      isChecklistError={isChecklistError}
       onBack={() => navigate(-1)}
     />
   );
 };
 
 type MedicineDetailContentProps = {
+  tripId: number;
   medication: MedicationDestinationDetail;
   preparationLevel?: PreparationLevel;
+  checklist?: TripMedicationChecklistResult;
+  isChecklistPending: boolean;
+  isChecklistError: boolean;
   onBack: () => void;
 };
 
 const MedicineDetailContent = ({
+  tripId,
   medication,
   preparationLevel,
+  checklist,
+  isChecklistPending,
+  isChecklistError,
   onBack,
 }: MedicineDetailContentProps) => {
   const [activeTab, setActiveTab] = useState<string>(DETAIL_TABS[0].key);
-  const [openTemplateId, setOpenTemplateId] = useState<number | null>(null);
 
-  const documentKeyFor = (templateId: number) =>
-    `${medication.tripMedicationId}-${templateId}`;
-
-  const uploadTemplateIds = medication.requirements
-    .filter((requirement) => requirement.kind === 'UPLOAD')
-    .map((requirement) => documentKeyFor(requirement.templateId));
-
-  const {
-    documents: uploadedDocuments,
-    errors: uploadErrors,
-    registerInput,
-    openFilePicker: handleOpenFilePicker,
-    handleFileSelected,
-    confirmDocument: handleConfirmDocument,
-    deleteDocument: handleDeleteDocument,
-  } = useDocumentUpload(uploadTemplateIds);
-
-  const stampIcon =
-    PREPARATION_LEVEL_ICON[preparationLevel ?? 'ALLOWED'];
+  const stampIcon = PREPARATION_LEVEL_ICON[preparationLevel ?? 'ALLOWED'];
 
   return (
     <div className="min-h-dvh w-full bg-[#FAFAF6] pb-10">
@@ -226,98 +239,23 @@ const MedicineDetailContent = ({
         )}
 
         {activeTab === 'checklist' && (
-          <div className="flex flex-col gap-[26px]">
-            <h2 className="text-[18px] font-semibold tracking-[0.432px] text-[#191919]">
-              준비 체크 리스트
-            </h2>
-
-            {uploadTemplateIds.map((key) => (
-              <input
-                key={key}
-                ref={registerInput(key)}
-                type="file"
-                accept=".pdf,application/pdf"
-                className="hidden"
-                onChange={handleFileSelected(key)}
-              />
-            ))}
-
-            {medication.requirements.length === 0 ? (
+          <>
+            {isChecklistPending && (
               <p className="text-[14px] tracking-[0.336px] text-[#848B9C]">
-                추가로 준비할 서류가 없어요.
+                체크리스트를 불러오는 중이에요...
               </p>
-            ) : (
-              <div className="flex flex-col gap-[12px]">
-                {medication.requirements.map((requirement) => {
-                  const key = documentKeyFor(requirement.templateId);
-                  const isUpload = requirement.kind === 'UPLOAD';
-                  const isChecked = isUpload
-                    ? uploadedDocuments[key] !== null
-                    : false;
-
-                  return (
-                    <ChecklistBox
-                      key={requirement.templateId}
-                      title={requirement.label}
-                      checked={isChecked}
-                      isOpen={openTemplateId === requirement.templateId}
-                      onToggle={() =>
-                        setOpenTemplateId((prev) =>
-                          prev === requirement.templateId
-                            ? null
-                            : requirement.templateId
-                        )
-                      }
-                      checkIcon={
-                        <img src={isChecked ? check : discheck} alt="" />
-                      }
-                      chevronIcon={<img src={downArrowIcon} alt="" />}
-                    >
-                      <div className="flex flex-col gap-[10px]">
-                        <p className="text-[13px] tracking-[0.312px] text-[#848B9C]">
-                          {requirement.description}
-                        </p>
-
-                        {isUpload ? (
-                          uploadedDocuments[key] ? (
-                            <DocumentConfirmRow
-                              documentIcon={<img src={documentIcon} alt="" />}
-                              trashIcon={<img src={trashIcon} alt="" />}
-                              onConfirmDocument={handleConfirmDocument(key)}
-                              onDelete={handleDeleteDocument(key)}
-                            />
-                          ) : (
-                            <ActionButton
-                              variant="dashed"
-                              label="PDF 업로드"
-                              icon={<img src={pdfIcon} alt="" />}
-                              onClick={() => handleOpenFilePicker(key)}
-                            />
-                          )
-                        ) : (
-                          <ActionButton
-                            label="기관 안내 확인"
-                            icon={<img src={glassIcon} alt="" />}
-                            onClick={() => {
-                              if (requirement.formUrl) {
-                                window.open(requirement.formUrl, '_blank');
-                              }
-                            }}
-                          />
-                        )}
-
-                        {isUpload && uploadErrors[key] && (
-                          <p className="text-[13px] text-[#EF5050]">
-                            {uploadErrors[key]}
-                          </p>
-                        )}
-                      </div>
-                    </ChecklistBox>
-                  );
-                })}
-              </div>
             )}
-          </div>
+
+            {!isChecklistPending && (isChecklistError || !checklist) && (
+              <p className="text-[14px] tracking-[0.336px] text-[#848B9C]">
+                체크리스트를 불러오지 못했어요.
+              </p>
+            )}
+
+            {!isChecklistPending && checklist && (
+              <ChecklistTabContent tripId={tripId} checklist={checklist} />
+            )}
+          </>
         )}
 
         {/* TODO: 요약 근거 API 연동 예정 */}
@@ -341,6 +279,207 @@ const MedicineDetailContent = ({
           </div>
         )}
       </div>
+    </div>
+  );
+};
+
+type ChecklistTabContentProps = {
+  tripId: number;
+  checklist: TripMedicationChecklistResult;
+};
+
+const ChecklistTabContent = ({ tripId, checklist }: ChecklistTabContentProps) => {
+  const [openItemId, setOpenItemId] = useState<number | null>(null);
+  const [uploadErrors, setUploadErrors] = useState<
+    Record<number, string | null>
+  >({});
+  const [uploadedFilenames, setUploadedFilenames] = useState<
+    Record<number, string>
+  >({});
+  const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+
+  const updateChecklistItemMutation = useUpdateTripMedicationChecklistItem(
+    tripId,
+    checklist.tripMedicationId
+  );
+  const pendingChecklistItemId =
+    updateChecklistItemMutation.variables?.checklistItemId ?? null;
+
+  const uploadDocumentMutation = useUploadChecklistDocument(
+    tripId,
+    checklist.tripMedicationId
+  );
+  const uploadingChecklistItemId = uploadDocumentMutation.isPending
+    ? (uploadDocumentMutation.variables?.checklistItemId ?? null)
+    : null;
+
+  const handleFileSelected =
+    (item: TripMedicationChecklistItem) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0] ?? null;
+      event.target.value = '';
+      if (!file) return;
+
+      setUploadErrors((prev) => ({ ...prev, [item.checklistItemId]: null }));
+
+      if (file.type !== 'application/pdf') {
+        setUploadErrors((prev) => ({
+          ...prev,
+          [item.checklistItemId]: 'PDF 파일만 업로드할 수 있습니다.',
+        }));
+        return;
+      }
+
+      if (file.size > MAX_DOCUMENT_FILE_SIZE) {
+        setUploadErrors((prev) => ({
+          ...prev,
+          [item.checklistItemId]: '파일 크기는 최대 10MB까지 가능합니다.',
+        }));
+        return;
+      }
+
+      uploadDocumentMutation.mutate(
+        {
+          checklistItemId: item.checklistItemId,
+          type: getChecklistDocumentType(item.label),
+          file,
+        },
+        {
+          onSuccess: (response) => {
+            setUploadedFilenames((prev) => ({
+              ...prev,
+              [item.checklistItemId]: response.result.originalFilename,
+            }));
+          },
+          onError: (uploadError) => {
+            const message =
+              (uploadError as AxiosError<{ message?: string }>)?.response
+                ?.data?.message ?? '파일 업로드에 실패했습니다.';
+            setUploadErrors((prev) => ({
+              ...prev,
+              [item.checklistItemId]: message,
+            }));
+          },
+        }
+      );
+    };
+
+  return (
+    <div className="flex flex-col gap-[26px]">
+      <div className="flex items-center justify-between">
+        <h2 className="text-[18px] font-semibold tracking-[0.432px] text-[#191919]">
+          준비 체크 리스트
+        </h2>
+        <span className="text-[14px] font-semibold tracking-[0.336px] text-[#23408F]">
+          {checklist.doneCount}/{checklist.totalCount}
+        </span>
+      </div>
+
+      {checklist.items.length === 0 ? (
+        <p className="text-[14px] tracking-[0.336px] text-[#848B9C]">
+          추가로 준비할 서류가 없어요.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-[12px]">
+          {checklist.items.map((item) => {
+            const isUpload = item.kind === 'UPLOAD';
+            const isChecked = item.done;
+            const isUploadingThisItem =
+              uploadingChecklistItemId === item.checklistItemId;
+
+            return (
+              <ChecklistBox
+                key={item.checklistItemId}
+                title={item.label}
+                checked={isChecked}
+                isOpen={openItemId === item.checklistItemId}
+                onToggle={() =>
+                  setOpenItemId((prev) =>
+                    prev === item.checklistItemId ? null : item.checklistItemId
+                  )
+                }
+                checkIcon={<img src={isChecked ? check : discheck} alt="" />}
+                chevronIcon={<img src={downArrowIcon} alt="" />}
+                onCheckClick={
+                  isUpload
+                    ? undefined
+                    : () =>
+                        updateChecklistItemMutation.mutate({
+                          checklistItemId: item.checklistItemId,
+                          done: !item.done,
+                        })
+                }
+                checkDisabled={
+                  isUpload ||
+                  (updateChecklistItemMutation.isPending &&
+                    pendingChecklistItemId === item.checklistItemId)
+                }
+              >
+                <div className="flex flex-col gap-[10px]">
+                  <p className="text-[13px] tracking-[0.312px] text-[#848B9C]">
+                    {item.description}
+                  </p>
+
+                  {isUpload && (
+                    <input
+                      ref={(el) => {
+                        fileInputRefs.current[item.checklistItemId] = el;
+                      }}
+                      type="file"
+                      accept=".pdf,application/pdf"
+                      className="hidden"
+                      onChange={handleFileSelected(item)}
+                    />
+                  )}
+
+                  {isUpload ? (
+                    item.done ? (
+                      <div className="flex h-[54px] items-center gap-[10px] rounded-[10px] border-2 border-[#23408F] bg-[#EAF0FF] px-[10px] text-[#23408F]">
+                        <span className="flex w-5 h-5 shrink-0">
+                          <img src={documentIcon} alt="" />
+                        </span>
+                        <span className="flex-1 truncate text-sm font-semibold tracking-[-0.5px]">
+                          {uploadedFilenames[item.checklistItemId] ??
+                            '업로드 완료'}
+                        </span>
+                      </div>
+                    ) : (
+                      <ActionButton
+                        variant="dashed"
+                        label={
+                          isUploadingThisItem ? '업로드 중...' : 'PDF 업로드'
+                        }
+                        icon={<img src={pdfIcon} alt="" />}
+                        onClick={() =>
+                          fileInputRefs.current[
+                            item.checklistItemId
+                          ]?.click()
+                        }
+                      />
+                    )
+                  ) : (
+                    <ActionButton
+                      label="기관 안내 확인"
+                      icon={<img src={glassIcon} alt="" />}
+                      onClick={() => {
+                        if (item.formUrl) {
+                          window.open(item.formUrl, '_blank');
+                        }
+                      }}
+                    />
+                  )}
+
+                  {isUpload && uploadErrors[item.checklistItemId] && (
+                    <p className="text-[13px] text-[#EF5050]">
+                      {uploadErrors[item.checklistItemId]}
+                    </p>
+                  )}
+                </div>
+              </ChecklistBox>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

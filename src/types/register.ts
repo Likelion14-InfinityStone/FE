@@ -169,3 +169,30 @@ export interface UpdateTripTitleResult {
   tripId: number;
   title: string;
 }
+
+export interface TripMedicationChecklistItem {
+  checklistItemId: number;
+  kind: MedicationRequirementKind;
+  label: string;
+  description: string;
+  formUrl: string | null;
+  done: boolean;
+}
+
+export interface TripMedicationChecklistResult {
+  tripMedicationId: number;
+  doneCount: number;
+  totalCount: number;
+  items: TripMedicationChecklistItem[];
+}
+
+export type ChecklistDocumentType = 'EN_PRESCRIPTION' | 'DOCTOR_NOTE';
+
+export interface ChecklistDocumentUploadResult {
+  documentId: number;
+  checklistItemId: number;
+  type: ChecklistDocumentType;
+  originalFilename: string;
+  fileSize: number;
+  uploadedAt: string;
+}
