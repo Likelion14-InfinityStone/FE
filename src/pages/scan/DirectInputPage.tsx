@@ -10,50 +10,45 @@ import {
   findDuplicateMedicine,
   isMedicineExpired,
 } from '@/utils/medicineChecks';
+import MedicineAccordionCard from './components/MedicineAccordionCard';
 import MedicineExceptionPage from './components/MedicineExceptionPage';
-import MedicineInputCard, {
-  type MedicineFormFields,
-} from './components/MedicineInputCard';
+import {
+  EMPTY_MEDICINE_FIELDS,
+  EMPTY_PASSPORT_FIELDS,
+  isMedicineComplete,
+  type MedicineFields,
+} from './components/medicineFields.types';
+import PassportInfoCard from './components/PassportInfoCard';
 import SavePage from './SavePage';
 
 type SaveException = 'duplicate' | 'expired' | null;
 
-const INITIAL_FORM: MedicineFormFields = {
-  name: '',
-  dispensedDate: '',
-  issuer: '',
-  productInfo: '',
-  frequency: '',
-  duration: '',
-  dosePerTime: '',
-};
-
 const DirectInputPage = () => {
   const navigate = useNavigate();
   const { savedMedicines, addMedicine } = useSavedMedicines();
-  const [form, setForm] = useState<MedicineFormFields>(INITIAL_FORM);
+  const [passport, setPassport] = useState(EMPTY_PASSPORT_FIELDS);
+  const [medicine, setMedicine] = useState<MedicineFields>(
+    EMPTY_MEDICINE_FIELDS
+  );
+  const [isMedicineOpen, setIsMedicineOpen] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [exception, setException] = useState<SaveException>(null);
 
-  const handleChange = (field: keyof MedicineFormFields, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const isComplete = Object.values(form).every((value) => value.trim() !== '');
+  const isComplete = isMedicineComplete(medicine);
 
   const handleSave = () => {
     if (!isComplete) return;
 
-    if (findDuplicateMedicine(savedMedicines, form.productInfo)) {
+    if (findDuplicateMedicine(savedMedicines, medicine.productInfo)) {
       setException('duplicate');
       return;
     }
-    if (isMedicineExpired(form.dispensedDate, form.duration)) {
+    if (isMedicineExpired(passport.dispensedDate, medicine.duration)) {
       setException('expired');
       return;
     }
 
-    addMedicine(form);
+    addMedicine({ name: '', ...passport, ...medicine });
     setIsSaved(true);
   };
 
@@ -61,7 +56,7 @@ const DirectInputPage = () => {
     return (
       <MedicineExceptionPage
         stamp={sameStopStemp}
-        title={form.productInfo}
+        title={medicine.productInfo}
         subtitleLines={[
           '이미 등록된 약이에요.',
           '복약 카드에서 확인할 수 있어요.',
@@ -83,7 +78,7 @@ const DirectInputPage = () => {
     return (
       <MedicineExceptionPage
         stamp={termStopStemp}
-        title={form.productInfo}
+        title={medicine.productInfo}
         subtitleLines={['유효기간이 지난 약이에요.', '반입 금지로 처리돼요.']}
         onBack={() => setException(null)}
         buttons={[
@@ -94,7 +89,7 @@ const DirectInputPage = () => {
   }
 
   if (isSaved) {
-    return <SavePage medicineName={form.productInfo} />;
+    return <SavePage medicineNames={[medicine.productInfo]} />;
   }
 
   return (
@@ -118,12 +113,25 @@ const DirectInputPage = () => {
           직접 입력하기
         </h1>
         <p className="font-Pretendard text-[14px] leading-[140%] tracking-[0.024em] text-[#6D6D6D]">
-          제품명 및 함량, 복용 횟수, 1회 복용량이 필수로 적혀 있어야 해요.
+          제품명, 복용 횟수, 1회 복용량은 꼭 입력해 주세요.
         </p>
       </div>
 
-      <div className="mt-[22px] px-[26px]">
-        <MedicineInputCard form={form} onChange={handleChange} />
+      <div className="mt-[22px] flex flex-col gap-[12px] px-[26px]">
+        <PassportInfoCard
+          passport={passport}
+          onChange={(field, value) =>
+            setPassport((prev) => ({ ...prev, [field]: value }))
+          }
+        />
+        <MedicineAccordionCard
+          medicine={medicine}
+          isOpen={isMedicineOpen}
+          onToggle={() => setIsMedicineOpen((prev) => !prev)}
+          onChange={(field, value) =>
+            setMedicine((prev) => ({ ...prev, [field]: value }))
+          }
+        />
       </div>
 
       <div className="mt-auto px-[26px] pt-[40px] pb-[40px]">
