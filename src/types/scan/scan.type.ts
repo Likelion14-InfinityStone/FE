@@ -16,18 +16,6 @@ export interface ScanResult {
   medications: ScanMedicationResult[];
 }
 
-export type MedicineFields = {
-  productInfo: string;
-  frequency: string;
-  duration: string;
-  dosePerTime: string;
-};
-
-export type PassportFields = {
-  dispensedDate: string;
-  issuer: string;
-};
-
 export type PassportDraft = {
   dispensedAt: string;
   issuer: string;

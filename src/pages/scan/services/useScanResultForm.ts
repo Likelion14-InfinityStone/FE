@@ -2,6 +2,8 @@ import { isAxiosError } from 'axios';
 import { useState } from 'react';
 
 import { saveMedications } from '@/apis/medication/medication.api';
+import type { DoseUnit } from '@/types/home/medicationCard.type';
+import type { MedicationCandidate } from '@/types/medication/medication.type';
 import type {
   PassportDraft,
   QuantityField,
@@ -9,12 +11,30 @@ import type {
 } from '@/types/scan/scan.type';
 
 const isMedicineDraftComplete = (medicine: ScanMedicationResult): boolean =>
+  medicine.productKoName.trim() !== '' &&
+  medicine.mfdsProductCode.trim() !== '' &&
+  medicine.productEnName.trim() !== '' &&
   medicine.intakesPerDay != null &&
   medicine.intakesPerDay >= 1 &&
   medicine.totalDays != null &&
   medicine.totalDays >= 1 &&
   medicine.dosePerIntake != null &&
   medicine.dosePerIntake > 0;
+
+export const EMPTY_MEDICATION_DRAFT: ScanMedicationResult = {
+  mfdsProductCode: '',
+  productKoName: '',
+  productEnName: '',
+  intakesPerDay: null,
+  totalDays: null,
+  dosePerIntake: null,
+  doseUnit: 'TABLET',
+};
+
+export const EMPTY_PASSPORT_DRAFT: PassportDraft = {
+  dispensedAt: '',
+  issuer: '',
+};
 
 const firstOpenIndex = (medicines: ScanMedicationResult[]): number => {
   const firstIncomplete = medicines.findIndex(
@@ -60,6 +80,50 @@ export const useScanResultForm = (
     setMedicines((prev) =>
       prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     );
+  };
+
+  const updateMedicineIdentity = (
+    index: number,
+    patch: Pick<
+      ScanMedicationResult,
+      'mfdsProductCode' | 'productKoName' | 'productEnName'
+    >
+  ) => {
+    setMedicines((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, ...patch } : item))
+    );
+  };
+
+  const updateMedicineName = (index: number, productKoName: string) => {
+    updateMedicineIdentity(index, {
+      mfdsProductCode: '',
+      productKoName,
+      productEnName: '',
+    });
+  };
+
+  const selectMedicineCandidate = (
+    index: number,
+    candidate: MedicationCandidate
+  ) => {
+    updateMedicineIdentity(index, {
+      mfdsProductCode: candidate.mfdsProductCode,
+      productKoName: candidate.productKoName,
+      productEnName: candidate.productEnName ?? '',
+    });
+  };
+
+  const updateMedicineDoseUnit = (index: number, doseUnit: DoseUnit) => {
+    setMedicines((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, doseUnit } : item))
+    );
+  };
+
+  const addMedicine = () => {
+    setMedicines((prev) => {
+      setOpenIndexes((prevOpen) => new Set(prevOpen).add(prev.length));
+      return [...prev, EMPTY_MEDICATION_DRAFT];
+    });
   };
 
   const toggleMedicine = (index: number) => {
@@ -138,6 +202,10 @@ export const useScanResultForm = (
     saveError,
     updatePassport,
     updateMedicineQuantity,
+    updateMedicineName,
+    selectMedicineCandidate,
+    updateMedicineDoseUnit,
+    addMedicine,
     toggleMedicine,
     removeMedicine,
     clearDuplicate,

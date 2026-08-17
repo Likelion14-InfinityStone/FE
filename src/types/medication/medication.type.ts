@@ -24,3 +24,15 @@ export interface SavedMedicationSummary {
 export interface MedicationSaveResult {
   medications: SavedMedicationSummary[];
 }
+
+export interface MedicationCandidate {
+  mfdsProductCode: string;
+  productKoName: string;
+  productEnName: string | null;
+}
+
+export interface MedicationCandidateSearchResult {
+  searchKeyword: string;
+  totalCount: number;
+  candidates: MedicationCandidate[];
+}

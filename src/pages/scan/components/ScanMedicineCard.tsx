@@ -2,10 +2,12 @@ import chevronIcon from '@/assets/images/register/medicineDetail/downArrowIcon.s
 import inputCompleteStemp from '@/assets/images/scan/inputCompleteStemp.svg';
 import medicineStampIncomplete from '@/assets/images/scan/medicineStampIncomplete.svg';
 import type { DoseUnit } from '@/types/home/medicationCard.type';
+import type { MedicationCandidate } from '@/types/medication/medication.type';
 import type {
   QuantityField,
   ScanMedicationResult,
 } from '@/types/scan/scan.type';
+import MedicineNameSearchInput from './MedicineNameSearchInput';
 
 const DOSE_UNIT_LABEL: Record<DoseUnit, string> = {
   TABLET: '정',
@@ -16,12 +18,17 @@ const DOSE_UNIT_LABEL: Record<DoseUnit, string> = {
   MG: 'mg',
 };
 
+const DOSE_UNIT_OPTIONS = Object.keys(DOSE_UNIT_LABEL) as DoseUnit[];
+
 type ScanMedicineCardProps = {
   medicine: ScanMedicationResult;
   isOpen: boolean;
   onToggle: () => void;
   onChangeQuantity: (field: QuantityField, value: number | null) => void;
   onRemove?: () => void;
+  onChangeName?: (value: string) => void;
+  onSelectCandidate?: (candidate: MedicationCandidate) => void;
+  onChangeDoseUnit?: (unit: DoseUnit) => void;
 };
 
 const QUANTITY_ROWS: { key: QuantityField; label: string; suffix?: string }[] = [
@@ -44,8 +51,13 @@ const ScanMedicineCard = ({
   onToggle,
   onChangeQuantity,
   onRemove,
+  onChangeName,
+  onSelectCandidate,
+  onChangeDoseUnit,
 }: ScanMedicineCardProps) => {
   const complete = isComplete(medicine);
+  const isNameEditable = Boolean(onChangeName && onSelectCandidate);
+  const title = medicine.productKoName.trim() || '제품명을 입력해 주세요';
 
   return (
     <div
@@ -67,8 +79,14 @@ const ScanMedicineCard = ({
             className="h-full w-full object-contain"
           />
         </span>
-        <span className="flex-1 truncate text-left font-Pretendard text-[16px] font-medium tracking-[0.384px] text-[#191919]">
-          {medicine.productKoName}
+        <span
+          className={`flex-1 truncate text-left font-Pretendard text-[16px] font-medium tracking-[0.384px] ${
+            isNameEditable && !medicine.productKoName.trim()
+              ? 'text-[#EF5050]'
+              : 'text-[#191919]'
+          }`}
+        >
+          {title}
         </span>
         <img
           src={chevronIcon}
@@ -79,7 +97,27 @@ const ScanMedicineCard = ({
 
       {isOpen && (
         <div className="mt-[20px] flex flex-col gap-[20px]">
-          {medicine.productEnName && (
+          {isNameEditable ? (
+            <div className="flex items-center justify-between gap-[12px] border-b border-[#E2E2E2] pb-[4px]">
+              <label className="shrink-0 whitespace-nowrap font-Pretendard text-[14px] font-medium tracking-[0.336px] text-[#848B9C]">
+                제품명
+              </label>
+              <MedicineNameSearchInput
+                value={medicine.productKoName}
+                onChangeText={(text) => onChangeName?.(text)}
+                onSelectCandidate={(candidate) => onSelectCandidate?.(candidate)}
+                required
+              />
+            </div>
+          ) : null}
+
+          {isNameEditable && medicine.mfdsProductCode.trim() && (
+            <p className="font-Pretendard text-[13px] tracking-[0.312px] text-[#848B9C]">
+              {medicine.productEnName.trim() || '이 제품은 영문명이 등록되어 있지 않아 저장할 수 없어요.'}
+            </p>
+          )}
+
+          {!isNameEditable && medicine.productEnName && (
             <p className="font-Pretendard text-[13px] tracking-[0.312px] text-[#848B9C]">
               {medicine.productEnName}
             </p>
@@ -109,11 +147,27 @@ const ScanMedicineCard = ({
                     placeholder="입력해 주세요"
                     className="min-w-0 flex-1 bg-transparent text-right font-Pretendard text-[14px] font-normal tracking-[0.336px] text-[#191919] outline-none placeholder:text-[#EF5050]"
                   />
-                  <span className="shrink-0 whitespace-nowrap font-Pretendard text-[14px] tracking-[0.336px] text-[#191919]">
-                    {row.key === 'dosePerIntake'
-                      ? DOSE_UNIT_LABEL[medicine.doseUnit]
-                      : row.suffix}
-                  </span>
+                  {row.key === 'dosePerIntake' && onChangeDoseUnit ? (
+                    <select
+                      value={medicine.doseUnit}
+                      onChange={(event) =>
+                        onChangeDoseUnit(event.target.value as DoseUnit)
+                      }
+                      className="shrink-0 bg-transparent font-Pretendard text-[14px] tracking-[0.336px] text-[#191919] outline-none"
+                    >
+                      {DOSE_UNIT_OPTIONS.map((unit) => (
+                        <option key={unit} value={unit}>
+                          {DOSE_UNIT_LABEL[unit]}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span className="shrink-0 whitespace-nowrap font-Pretendard text-[14px] tracking-[0.336px] text-[#191919]">
+                      {row.key === 'dosePerIntake'
+                        ? DOSE_UNIT_LABEL[medicine.doseUnit]
+                        : row.suffix}
+                    </span>
+                  )}
                 </div>
               </div>
             );
