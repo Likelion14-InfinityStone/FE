@@ -1,18 +1,26 @@
 import { useRef, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import DetailTabBar from '@/pages/register/components/medicineDetailPage/components/DetailTabBar';
 import MedicationPassportCard from '@/pages/register/components/medicineDetailPage/components/MedicinePassportCard';
 import ChecklistBox from '@/pages/register/components/medicineDetailPage/components/button/ChecklistBox';
 import ActionButton from '@/pages/register/components/medicineDetailPage/components/button/ActionButton';
+import DocumentConfirmRow from '@/pages/register/components/medicineDetailPage/components/button/DocumentConfirmRow';
 import {
+  tripMedicationChecklistKeys,
   useMedicationBasis,
   useMedicationDestination,
   useTripMedicationChecklist,
   useUpdateTripMedicationChecklistItem,
   useUploadChecklistDocument,
 } from '@/pages/register/services/useTripDetail';
+import {
+  documentKeys,
+  useDocumentDelete,
+  useMedicationDocuments,
+} from '@/pages/documents/services/useDocuments';
 import { DOSE_UNIT_LABEL } from '@/constants/doseUnit';
 import { PREPARATION_LEVEL_ICON } from '@/constants/preparationLevel';
 import type {
@@ -32,6 +40,7 @@ import discheck from '@/assets/images/register/medicineDetail/discheck.svg';
 import downArrowIcon from '@/assets/images/register/medicineDetail/downArrowIcon.svg';
 import pdfIcon from '@/assets/images/register/medicineDetail/pdfIcon.svg';
 import documentIcon from '@/assets/images/register/medicineDetail/documentIcon.svg';
+import trashIcon from '@/assets/images/register/medicineDetail/trashIcon.svg';
 import glassIcon from '@/assets/images/register/medicineDetail/glassIcon.svg';
 import reasonPUFIIcon from '@/assets/images/register/medicineDetail/reasonPUFIIcon.svg';
 
@@ -254,7 +263,11 @@ const MedicineDetailContent = ({
             )}
 
             {!isChecklistPending && checklist && (
-              <ChecklistTabContent tripId={tripId} checklist={checklist} />
+              <ChecklistTabContent
+                tripId={tripId}
+                medicationId={medication.medicationId}
+                checklist={checklist}
+              />
             )}
           </>
         )}
@@ -272,10 +285,17 @@ const MedicineDetailContent = ({
 
 type ChecklistTabContentProps = {
   tripId: number;
+  medicationId: number;
   checklist: TripMedicationChecklistResult;
 };
 
-const ChecklistTabContent = ({ tripId, checklist }: ChecklistTabContentProps) => {
+const ChecklistTabContent = ({
+  tripId,
+  medicationId,
+  checklist,
+}: ChecklistTabContentProps) => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [openItemId, setOpenItemId] = useState<number | null>(null);
   const [uploadErrors, setUploadErrors] = useState<
     Record<number, string | null>
@@ -283,7 +303,20 @@ const ChecklistTabContent = ({ tripId, checklist }: ChecklistTabContentProps) =>
   const [uploadedFilenames, setUploadedFilenames] = useState<
     Record<number, string>
   >({});
+  const [uploadedDocumentIds, setUploadedDocumentIds] = useState<
+    Record<number, number>
+  >({});
   const fileInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+
+  const { data: medicationDocuments } = useMedicationDocuments(
+    medicationId,
+    true
+  );
+  const documentIdByChecklistItem = new Map(
+    (medicationDocuments?.documents ?? [])
+      .filter((document) => document.documentId !== null)
+      .map((document) => [document.checklistItemId, document.documentId as number])
+  );
 
   const updateChecklistItemMutation = useUpdateTripMedicationChecklistItem(
     tripId,
@@ -299,6 +332,8 @@ const ChecklistTabContent = ({ tripId, checklist }: ChecklistTabContentProps) =>
   const uploadingChecklistItemId = uploadDocumentMutation.isPending
     ? (uploadDocumentMutation.variables?.checklistItemId ?? null)
     : null;
+
+  const deleteDocumentMutation = useDocumentDelete();
 
   const handleFileSelected =
     (item: TripMedicationChecklistItem) =>
@@ -337,6 +372,13 @@ const ChecklistTabContent = ({ tripId, checklist }: ChecklistTabContentProps) =>
               ...prev,
               [item.checklistItemId]: response.result.originalFilename,
             }));
+            setUploadedDocumentIds((prev) => ({
+              ...prev,
+              [item.checklistItemId]: response.result.documentId,
+            }));
+            void queryClient.invalidateQueries({
+              queryKey: documentKeys.medication(medicationId),
+            });
           },
           onError: (uploadError) => {
             const message =
@@ -349,6 +391,30 @@ const ChecklistTabContent = ({ tripId, checklist }: ChecklistTabContentProps) =>
           },
         }
       );
+    };
+
+  const handleDeleteDocument =
+    (item: TripMedicationChecklistItem, documentId: number) => () => {
+      deleteDocumentMutation.mutate(documentId, {
+        onSuccess: () => {
+          setUploadedFilenames((prev) => {
+            const next = { ...prev };
+            delete next[item.checklistItemId];
+            return next;
+          });
+          setUploadedDocumentIds((prev) => {
+            const next = { ...prev };
+            delete next[item.checklistItemId];
+            return next;
+          });
+          void queryClient.invalidateQueries({
+            queryKey: tripMedicationChecklistKeys.detail(
+              tripId,
+              checklist.tripMedicationId
+            ),
+          });
+        },
+      });
     };
 
   return (
@@ -373,6 +439,10 @@ const ChecklistTabContent = ({ tripId, checklist }: ChecklistTabContentProps) =>
             const isChecked = item.done;
             const isUploadingThisItem =
               uploadingChecklistItemId === item.checklistItemId;
+            const resolvedDocumentId =
+              uploadedDocumentIds[item.checklistItemId] ??
+              documentIdByChecklistItem.get(item.checklistItemId) ??
+              null;
 
             return (
               <ChecklistBox
@@ -421,15 +491,36 @@ const ChecklistTabContent = ({ tripId, checklist }: ChecklistTabContentProps) =>
 
                   {isUpload ? (
                     item.done ? (
-                      <div className="flex h-[54px] items-center gap-[10px] rounded-[10px] border-2 border-[#23408F] bg-[#EAF0FF] px-[10px] text-[#23408F]">
-                        <span className="flex w-5 h-5 shrink-0">
-                          <img src={documentIcon} alt="" />
-                        </span>
-                        <span className="flex-1 truncate text-sm font-semibold tracking-[-0.5px]">
-                          {uploadedFilenames[item.checklistItemId] ??
-                            '업로드 완료'}
-                        </span>
-                      </div>
+                      resolvedDocumentId !== null ? (
+                        <DocumentConfirmRow
+                          documentIcon={<img src={documentIcon} alt="" />}
+                          trashIcon={<img src={trashIcon} alt="" />}
+                          onConfirmDocument={() =>
+                            navigate(
+                              `/documents/${medicationId}/${resolvedDocumentId}`
+                            )
+                          }
+                          onDelete={handleDeleteDocument(
+                            item,
+                            resolvedDocumentId
+                          )}
+                          isDeleting={
+                            deleteDocumentMutation.isPending &&
+                            deleteDocumentMutation.variables ===
+                              resolvedDocumentId
+                          }
+                        />
+                      ) : (
+                        <div className="flex h-[54px] items-center gap-[10px] rounded-[10px] border-2 border-[#23408F] bg-[#EAF0FF] px-[10px] text-[#23408F]">
+                          <span className="flex w-5 h-5 shrink-0">
+                            <img src={documentIcon} alt="" />
+                          </span>
+                          <span className="flex-1 truncate text-sm font-semibold tracking-[-0.5px]">
+                            {uploadedFilenames[item.checklistItemId] ??
+                              '업로드 완료'}
+                          </span>
+                        </div>
+                      )
                     ) : (
                       <ActionButton
                         variant="dashed"
