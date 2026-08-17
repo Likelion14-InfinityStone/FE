@@ -29,3 +29,14 @@ export interface SosContact {
 export interface SosContactsResult {
   contacts: SosContact[];
 }
+
+export interface SosScriptRequest {
+  tripId: number;
+  text: string;
+}
+
+export interface SosScriptResult {
+  targetLanguage: string;
+  targetLanguageLabel: string;
+  translatedText: string;
+}

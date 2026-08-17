@@ -19,8 +19,12 @@ import {
   type EmergencyAnswers,
   isEmergencyReason,
 } from '@/constants/emergency';
-import { useSosContacts } from './services/useSos';
-import type { SosContact, SosLocation } from '@/types/emergency/sos.type';
+import { useSosContacts, useSosScriptTranslation } from './services/useSos';
+import type {
+  SosContact,
+  SosLocation,
+  SosScriptResult,
+} from '@/types/emergency/sos.type';
 
 const Emergency = () => {
   const navigate = useNavigate();
@@ -29,17 +33,31 @@ const Emergency = () => {
   const [answers, setAnswers] = useState<EmergencyAnswers>({});
   const [location, setLocation] = useState<SosLocation | null>(null);
   const [contacts, setContacts] = useState<SosContact[]>([]);
+  const [translatedScript, setTranslatedScript] =
+    useState<SosScriptResult | null>(null);
   const { data: medications = [] } = useMedicationList(true);
   const {
     mutate: fetchContacts,
     isPending: isContactsPending,
     isError: isContactsError,
   } = useSosContacts();
+  const {
+    mutate: translateScript,
+    isPending: isTranslationPending,
+    isError: isTranslationError,
+  } = useSosScriptTranslation();
   const pageRef = useRef<HTMLDivElement>(null);
   const reasonParam = searchParams.get('reason');
   const reason = isEmergencyReason(reasonParam) ? reasonParam : 'lost';
   const config = EMERGENCY_CONFIG[reason];
   const translationData = createEmergencyTranslation(reason, answers);
+  const displayedTranslationData = translatedScript
+    ? {
+        ...translationData,
+        targetLanguage: translatedScript.targetLanguageLabel,
+        translatedText: translatedScript.translatedText,
+      }
+    : translationData;
   const isFormComplete = config.questions.every(({ field }) => {
     const answer = answers[field]?.label.trim();
 
@@ -77,6 +95,23 @@ const Emergency = () => {
       }
     );
   };
+  const handleTranslation = () => {
+    const tripId = Number(answers.trip?.value);
+    if (!Number.isSafeInteger(tripId) || tripId <= 0) return;
+
+    translateScript(
+      { tripId, text: translationData.sourceText },
+      {
+        onSuccess: (response) => {
+          setTranslatedScript(response.result);
+          setView('translation');
+          requestAnimationFrame(() =>
+            pageRef.current?.scrollIntoView({ block: 'start' })
+          );
+        },
+      }
+    );
+  };
 
   return (
     <div ref={pageRef} className="flex flex-col min-h-full">
@@ -91,7 +126,7 @@ const Emergency = () => {
           {view === 'result' ? (
             <EmergencyResult config={config} contacts={contacts} />
           ) : view === 'translation' ? (
-            <EmergencyTranslation data={translationData} />
+            <EmergencyTranslation data={displayedTranslationData} />
           ) : (
             <EmergencyForm
               questions={config.questions}
@@ -126,15 +161,15 @@ const Emergency = () => {
                   onClick: () => navigate('/documents'),
                 }}
                 rightButton={{
-                  text: '현지어 설명문',
+                  text: isTranslationPending
+                    ? '번역 중'
+                    : isTranslationError
+                      ? '번역 재시도'
+                      : '현지어 설명문',
                   icon: LanguageIcon,
                   backgroundColor: '#23408F',
-                  onClick: () => {
-                    setView('translation');
-                    requestAnimationFrame(() =>
-                      pageRef.current?.scrollIntoView({ block: 'start' })
-                    );
-                  },
+                  onClick: handleTranslation,
+                  disabled: isTranslationPending,
                 }}
               />
             ) : (
