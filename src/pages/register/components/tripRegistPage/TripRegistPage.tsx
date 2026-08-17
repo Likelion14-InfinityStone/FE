@@ -80,7 +80,7 @@ const TripRegister = () => {
         ))}
       </div>
 
-      <div className="fixed bottom-29 left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2">
+      <div className="fixed bottom-29 left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2 ">
         <BottomButton
           text="반입 여부 체크 시작"
           onClick={() => navigate('/selectMedicine')}
