@@ -1,108 +1,47 @@
-import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
 import failStopStemp from '@/assets/images/scan/failStopStemp.svg';
 import sameStopStemp from '@/assets/images/scan/sameStopStemp.svg';
-import termStopStemp from '@/assets/images/scan/termStopStemp.svg';
 import BottomButton from '@/components/button/BottomButton';
-import { useSavedMedicines } from '@/hooks/useSavedMedicines';
-import {
-  findDuplicateMedicine,
-  isMedicineExpired,
-} from '@/utils/medicineChecks';
-import MedicineAccordionCard from './components/MedicineAccordionCard';
+import type { ScanResult } from '@/types/scan/scan.type';
 import MedicineExceptionPage from './components/MedicineExceptionPage';
-import {
-  EMPTY_PASSPORT_FIELDS,
-  isMedicineComplete,
-  type MedicineFields,
-  type PassportFields,
-} from './components/medicineFields.types';
-import PassportInfoCard from './components/PassportInfoCard';
+import ScanMedicineCard from './components/ScanMedicineCard';
+import ScanPassportCard from './components/ScanPassportCard';
 import SavePage from './SavePage';
-
-type SaveException = 'duplicate' | 'expired' | null;
-
-type ScanResultState = {
-  passport: PassportFields;
-  medicines: MedicineFields[];
-};
+import { useScanResultForm } from './services/useScanResultForm';
 
 const ScanResultPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { savedMedicines, addMedicine } = useSavedMedicines();
 
-  const recognized = (location.state as Partial<ScanResultState>) ?? {};
-  const recognizedMedicines = recognized.medicines ?? [];
-  const nothingRecognized = recognizedMedicines.length === 0;
+  const recognized = (location.state as Partial<ScanResult>) ?? {};
 
-  const [passport, setPassport] = useState<PassportFields>(
-    recognized.passport ?? EMPTY_PASSPORT_FIELDS
+  const {
+    passport,
+    medicines,
+    openIndexes,
+    isComplete,
+    isSaving,
+    isSaved,
+    savedMedicineNames,
+    isDuplicate,
+    saveError,
+    updatePassport,
+    updateMedicineQuantity,
+    toggleMedicine,
+    removeMedicine,
+    clearDuplicate,
+    save,
+  } = useScanResultForm(
+    {
+      dispensedAt: recognized.dispensedAt ?? '',
+      issuer: recognized.issuer ?? '',
+    },
+    recognized.medications ?? []
   );
-  const [medicines, setMedicines] =
-    useState<MedicineFields[]>(recognizedMedicines);
-  const [openIndexes, setOpenIndexes] = useState<Set<number>>(() => {
-    const firstIncompleteIndex = recognizedMedicines.findIndex(
-      (item) => !isMedicineComplete(item)
-    );
-    return new Set([firstIncompleteIndex >= 0 ? firstIncompleteIndex : 0]);
-  });
-  const [isSaved, setIsSaved] = useState(false);
-  const [exception, setException] = useState<SaveException>(null);
-  const [exceptionMedicineName, setExceptionMedicineName] = useState('');
 
-  const toggleMedicine = (index: number) => {
-    setOpenIndexes((prev) => {
-      const next = new Set(prev);
-      if (next.has(index)) {
-        next.delete(index);
-      } else {
-        next.add(index);
-      }
-      return next;
-    });
-  };
-
-  const handleMedicineChange = (
-    index: number,
-    field: keyof MedicineFields,
-    value: string
-  ) => {
-    setMedicines((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
-    );
-  };
-
-  const isComplete = medicines.length > 0 && medicines.every(isMedicineComplete);
-
-  const handleSave = () => {
-    if (!isComplete) return;
-
-    const duplicate = medicines.find((item) =>
-      findDuplicateMedicine(savedMedicines, item.productInfo)
-    );
-    if (duplicate) {
-      setExceptionMedicineName(duplicate.productInfo);
-      setException('duplicate');
-      return;
-    }
-
-    const expired = medicines.find((item) =>
-      isMedicineExpired(passport.dispensedDate, item.duration)
-    );
-    if (expired) {
-      setExceptionMedicineName(expired.productInfo);
-      setException('expired');
-      return;
-    }
-
-    medicines.forEach((item) => addMedicine({ name: '', ...passport, ...item }));
-    setIsSaved(true);
-  };
-
-  if (nothingRecognized) {
+  if (medicines.length === 0) {
     return (
       <MedicineExceptionPage
         stamp={failStopStemp}
@@ -121,16 +60,16 @@ const ScanResultPage = () => {
     );
   }
 
-  if (exception === 'duplicate') {
+  if (isDuplicate) {
     return (
       <MedicineExceptionPage
         stamp={sameStopStemp}
-        title={exceptionMedicineName}
+        title="이미 등록된 의약품이 있어요"
         subtitleLines={[
-          '이미 등록된 약이에요.',
           '복약 카드에서 확인할 수 있어요.',
+          '내용을 확인하고 다시 시도해 주세요.',
         ]}
-        onBack={() => setException(null)}
+        onBack={clearDuplicate}
         buttons={[
           { text: '홈으로', onClick: () => navigate('/home') },
           {
@@ -143,22 +82,8 @@ const ScanResultPage = () => {
     );
   }
 
-  if (exception === 'expired') {
-    return (
-      <MedicineExceptionPage
-        stamp={termStopStemp}
-        title={exceptionMedicineName}
-        subtitleLines={['유효기간이 지난 약이에요.', '반입 금지로 처리돼요.']}
-        onBack={() => setException(null)}
-        buttons={[
-          { text: '홈으로', onClick: () => navigate('/home'), primary: true },
-        ]}
-      />
-    );
-  }
-
   if (isSaved) {
-    return <SavePage medicineNames={medicines.map((item) => item.productInfo)} />;
+    return <SavePage medicineNames={savedMedicineNames} />;
   }
 
   return (
@@ -188,28 +113,34 @@ const ScanResultPage = () => {
       </div>
 
       <div className="mt-[22px] flex flex-col gap-[12px] px-[26px]">
-        <PassportInfoCard
-          passport={passport}
-          onChange={(field, value) =>
-            setPassport((prev) => ({ ...prev, [field]: value }))
-          }
-        />
+        <ScanPassportCard passport={passport} onChange={updatePassport} />
         {medicines.map((medicine, index) => (
-          <MedicineAccordionCard
-            key={index}
+          <ScanMedicineCard
+            key={medicine.mfdsProductCode + index}
             medicine={medicine}
             isOpen={openIndexes.has(index)}
             onToggle={() => toggleMedicine(index)}
-            onChange={(field, value) => handleMedicineChange(index, field, value)}
+            onChangeQuantity={(field, value) =>
+              updateMedicineQuantity(index, field, value)
+            }
+            onRemove={
+              medicines.length > 1 ? () => removeMedicine(index) : undefined
+            }
           />
         ))}
       </div>
 
+      {saveError && (
+        <p className="mt-[12px] text-center font-Pretendard text-[14px] tracking-[0.336px] text-[#EF5050]">
+          {saveError}
+        </p>
+      )}
+
       <div className="mt-auto px-[26px] pt-[40px] pb-[40px]">
         <BottomButton
-          text="저장하기"
-          onClick={handleSave}
-          disabled={!isComplete}
+          text={isSaving ? '저장 중...' : '저장하기'}
+          onClick={save}
+          disabled={!isComplete || isSaving}
         />
       </div>
     </div>

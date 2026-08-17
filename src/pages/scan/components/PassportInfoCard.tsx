@@ -26,7 +26,7 @@ const PassportInfoCard = ({ passport, onChange }: PassportInfoCardProps) => {
               value={passport[row.key]}
               onChange={(event) => onChange(row.key, event.target.value)}
               placeholder="입력해 주세요"
-              className="min-w-0 flex-1 bg-transparent text-right font-Pretendard text-[16px] font-normal tracking-[0.384px] text-[#191919] outline-none placeholder:text-[#848B9C]"
+              className="min-w-0 flex-1 bg-transparent text-right font-Pretendard text-[16px] font-normal tracking-[0.384px] text-[#191919] outline-none placeholder:text-[#EF5050]"
             />
           </div>
         ))}

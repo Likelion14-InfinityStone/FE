@@ -15,6 +15,7 @@ type SelectedImage = {
 const GalleryModal = ({ onClose, onConfirm }: GalleryModalProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<SelectedImage[]>([]);
+  const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
   const createdUrlsRef = useRef<string[]>([]);
 
   useEffect(() => {
@@ -38,8 +39,9 @@ const GalleryModal = ({ onClose, onConfirm }: GalleryModalProps) => {
   };
 
   const handleConfirm = () => {
-    if (images.length === 0) return;
-    onConfirm(images.map((image) => image.file));
+    const selected = images.find((image) => image.previewUrl === selectedUrl);
+    if (!selected) return;
+    onConfirm([selected.file]);
   };
 
   return (
@@ -68,14 +70,27 @@ const GalleryModal = ({ onClose, onConfirm }: GalleryModalProps) => {
             >
               +
             </button>
-            {images.map((image, index) => (
-              <img
-                key={image.previewUrl}
-                src={image.previewUrl}
-                alt={`선택한 이미지 ${index + 1}`}
-                className="aspect-square w-full rounded-[12px] object-cover"
-              />
-            ))}
+            {images.map((image, index) => {
+              const isSelected = image.previewUrl === selectedUrl;
+
+              return (
+                <button
+                  key={image.previewUrl}
+                  type="button"
+                  onClick={() => setSelectedUrl(image.previewUrl)}
+                  className="relative aspect-square w-full overflow-hidden rounded-[12px]"
+                >
+                  <img
+                    src={image.previewUrl}
+                    alt={`선택한 이미지 ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                  {isSelected && (
+                    <div className="absolute inset-0 bg-[#23408F]/35" />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -83,7 +98,7 @@ const GalleryModal = ({ onClose, onConfirm }: GalleryModalProps) => {
           <BottomButton
             text="선택 완료"
             onClick={handleConfirm}
-            disabled={images.length === 0}
+            disabled={!selectedUrl}
           />
         </div>
 

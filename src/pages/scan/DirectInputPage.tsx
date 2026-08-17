@@ -1,67 +1,49 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
 import sameStopStemp from '@/assets/images/scan/sameStopStemp.svg';
 import termStopStemp from '@/assets/images/scan/termStopStemp.svg';
 import BottomButton from '@/components/button/BottomButton';
-import { useSavedMedicines } from '@/hooks/useSavedMedicines';
-import {
-  findDuplicateMedicine,
-  isMedicineExpired,
-} from '@/utils/medicineChecks';
+import AddMedicineButton from './components/AddMedicineButton';
 import MedicineAccordionCard from './components/MedicineAccordionCard';
 import MedicineExceptionPage from './components/MedicineExceptionPage';
 import {
   EMPTY_MEDICINE_FIELDS,
   EMPTY_PASSPORT_FIELDS,
-  isMedicineComplete,
-  type MedicineFields,
 } from './components/medicineFields.types';
 import PassportInfoCard from './components/PassportInfoCard';
 import SavePage from './SavePage';
-
-type SaveException = 'duplicate' | 'expired' | null;
+import { useMedicineForm } from './services/useMedicineForm';
 
 const DirectInputPage = () => {
   const navigate = useNavigate();
-  const { savedMedicines, addMedicine } = useSavedMedicines();
-  const [passport, setPassport] = useState(EMPTY_PASSPORT_FIELDS);
-  const [medicine, setMedicine] = useState<MedicineFields>(
-    EMPTY_MEDICINE_FIELDS
-  );
-  const [isMedicineOpen, setIsMedicineOpen] = useState(true);
-  const [isSaved, setIsSaved] = useState(false);
-  const [exception, setException] = useState<SaveException>(null);
-
-  const isComplete = isMedicineComplete(medicine);
-
-  const handleSave = () => {
-    if (!isComplete) return;
-
-    if (findDuplicateMedicine(savedMedicines, medicine.productInfo)) {
-      setException('duplicate');
-      return;
-    }
-    if (isMedicineExpired(passport.dispensedDate, medicine.duration)) {
-      setException('expired');
-      return;
-    }
-
-    addMedicine({ name: '', ...passport, ...medicine });
-    setIsSaved(true);
-  };
+  const {
+    passport,
+    medicines,
+    openIndexes,
+    isComplete,
+    isSaved,
+    exception,
+    exceptionMedicineName,
+    updatePassport,
+    updateMedicine,
+    toggleMedicine,
+    addMedicineRow,
+    removeMedicineRow,
+    resetException,
+    save,
+  } = useMedicineForm(EMPTY_PASSPORT_FIELDS, [EMPTY_MEDICINE_FIELDS]);
 
   if (exception === 'duplicate') {
     return (
       <MedicineExceptionPage
         stamp={sameStopStemp}
-        title={medicine.productInfo}
+        title={exceptionMedicineName}
         subtitleLines={[
           '이미 등록된 약이에요.',
           '복약 카드에서 확인할 수 있어요.',
         ]}
-        onBack={() => setException(null)}
+        onBack={resetException}
         buttons={[
           { text: '홈으로', onClick: () => navigate('/home') },
           {
@@ -78,9 +60,9 @@ const DirectInputPage = () => {
     return (
       <MedicineExceptionPage
         stamp={termStopStemp}
-        title={medicine.productInfo}
+        title={exceptionMedicineName}
         subtitleLines={['유효기간이 지난 약이에요.', '반입 금지로 처리돼요.']}
-        onBack={() => setException(null)}
+        onBack={resetException}
         buttons={[
           { text: '홈으로', onClick: () => navigate('/home'), primary: true },
         ]}
@@ -89,7 +71,7 @@ const DirectInputPage = () => {
   }
 
   if (isSaved) {
-    return <SavePage medicineNames={[medicine.productInfo]} />;
+    return <SavePage medicineNames={medicines.map((item) => item.productInfo)} />;
   }
 
   return (
@@ -118,28 +100,24 @@ const DirectInputPage = () => {
       </div>
 
       <div className="mt-[22px] flex flex-col gap-[12px] px-[26px]">
-        <PassportInfoCard
-          passport={passport}
-          onChange={(field, value) =>
-            setPassport((prev) => ({ ...prev, [field]: value }))
-          }
-        />
-        <MedicineAccordionCard
-          medicine={medicine}
-          isOpen={isMedicineOpen}
-          onToggle={() => setIsMedicineOpen((prev) => !prev)}
-          onChange={(field, value) =>
-            setMedicine((prev) => ({ ...prev, [field]: value }))
-          }
-        />
+        <PassportInfoCard passport={passport} onChange={updatePassport} />
+        {medicines.map((medicine, index) => (
+          <MedicineAccordionCard
+            key={index}
+            medicine={medicine}
+            isOpen={openIndexes.has(index)}
+            onToggle={() => toggleMedicine(index)}
+            onChange={(field, value) => updateMedicine(index, field, value)}
+            onRemove={
+              medicines.length > 1 ? () => removeMedicineRow(index) : undefined
+            }
+          />
+        ))}
+        <AddMedicineButton onClick={addMedicineRow} />
       </div>
 
       <div className="mt-auto px-[26px] pt-[40px] pb-[40px]">
-        <BottomButton
-          text="저장하기"
-          onClick={handleSave}
-          disabled={!isComplete}
-        />
+        <BottomButton text="저장하기" onClick={save} disabled={!isComplete} />
       </div>
     </div>
   );

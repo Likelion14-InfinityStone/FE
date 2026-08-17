@@ -7,13 +7,11 @@ import BottomButton from '@/components/button/BottomButton';
 import BottomButton2 from './components/BottomButton2';
 import LoadMethodModal from './components/LoadMethodModal';
 import GalleryModal from './components/GalleryModal';
-import {
-  MOCK_RECOGNIZED_MEDICINES,
-  MOCK_RECOGNIZED_PASSPORT,
-} from './mockRecognizedMedicine';
+import { useMedicationScan } from './services/useMedicationScan';
 
 const Scan = () => {
   const navigate = useNavigate();
+  const { scan, isScanning, scanError } = useMedicationScan();
   const [isLoadMethodModalOpen, setIsLoadMethodModalOpen] = useState(false);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
 
@@ -40,12 +38,27 @@ const Scan = () => {
         <BottomButton
           text="촬영하기"
           onClick={() => navigate('/scanCapture')}
+          disabled={isScanning}
         />
         <BottomButton2
           text="다른 방법으로 불러오기"
           onClick={() => setIsLoadMethodModalOpen(true)}
         />
       </div>
+
+      {scanError && (
+        <p className="mt-[10px] text-center font-Pretendard text-[14px] tracking-[0.336px] text-[#EF5050]">
+          {scanError}
+        </p>
+      )}
+
+      {isScanning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#161615]/60">
+          <p className="font-Pretendard text-[16px] tracking-[0.384px] text-[#FAFAF6]">
+            약 봉투를 분석하고 있어요...
+          </p>
+        </div>
+      )}
 
       {isLoadMethodModalOpen && (
         <LoadMethodModal
@@ -64,15 +77,9 @@ const Scan = () => {
       {isGalleryModalOpen && (
         <GalleryModal
           onClose={() => setIsGalleryModalOpen(false)}
-          onConfirm={() => {
+          onConfirm={(files) => {
             setIsGalleryModalOpen(false);
-            // TODO: OCR API 연동 후 선택한 갤러리 파일을 전달하고 실제 인식 결과로 교체
-            navigate('/scanResult', {
-              state: {
-                passport: MOCK_RECOGNIZED_PASSPORT,
-                medicines: MOCK_RECOGNIZED_MEDICINES,
-              },
-            });
+            scan(files[0]);
           }}
         />
       )}

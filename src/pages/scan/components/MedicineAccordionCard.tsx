@@ -1,8 +1,6 @@
 import chevronIcon from '@/assets/images/register/medicineDetail/downArrowIcon.svg';
-import medicineStampIcon from '@/assets/images/scan/medicineStampIcon.svg';
 import medicineStampIncomplete from '@/assets/images/scan/medicineStampIncomplete.svg';
-import medicineStampRingInner from '@/assets/images/scan/medicineStampRingInner.svg';
-import medicineStampRingOuter from '@/assets/images/scan/medicineStampRingOuter.svg';
+import medicineStempComplete from '@/assets/images/scan/inputCompleteStemp.svg';
 import {
   isMedicineComplete,
   REQUIRED_MEDICINE_FIELDS,
@@ -14,6 +12,7 @@ type MedicineAccordionCardProps = {
   isOpen: boolean;
   onToggle: () => void;
   onChange: (field: keyof MedicineFields, value: string) => void;
+  onRemove?: () => void;
 };
 
 const FIELD_ROWS: { key: keyof MedicineFields; label: string }[] = [
@@ -28,6 +27,7 @@ const MedicineAccordionCard = ({
   isOpen,
   onToggle,
   onChange,
+  onRemove,
 }: MedicineAccordionCardProps) => {
   const complete = isMedicineComplete(medicine);
   const title = medicine.productInfo.trim() || '제품명을 입력해 주세요';
@@ -47,23 +47,11 @@ const MedicineAccordionCard = ({
       >
         <span className="relative h-[54px] w-[54px] shrink-0">
           {complete ? (
-            <>
-              <img
-                src={medicineStampRingOuter}
-                alt=""
-                className="absolute inset-0 h-full w-full"
-              />
-              <img
-                src={medicineStampRingInner}
-                alt=""
-                className="absolute left-[5.76px] top-[5.76px] h-[43.5px] w-[43.5px]"
-              />
-              <img
-                src={medicineStampIcon}
-                alt=""
-                className="absolute left-[13.7px] top-[17.3px] h-[20.16px] w-[27.4px]"
-              />
-            </>
+            <img
+              src={medicineStempComplete}
+              alt=""
+              className="h-full w-full object-contain"
+            />
           ) : (
             <img
               src={medicineStampIncomplete}
@@ -85,6 +73,18 @@ const MedicineAccordionCard = ({
           className={`h-6 w-6 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
+
+      {isOpen && onRemove && (
+        <div className="mt-[12px] flex justify-end">
+          <button
+            type="button"
+            onClick={onRemove}
+            className="font-Pretendard text-[13px] tracking-[0.312px] text-[#848B9C] underline"
+          >
+            이 약 삭제
+          </button>
+        </div>
+      )}
 
       {isOpen && (
         <div className="mt-[20px] flex flex-col gap-[20px]">
