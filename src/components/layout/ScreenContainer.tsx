@@ -11,7 +11,7 @@ const ScreenContainer = ({
 }: ScreenContainerProps) => {
   return (
     <div
-      className={`relative flex min-h-dvh w-full flex-col items-start justify-start px-6.5 bg-[#FAFAF6] ${
+      className={`relative flex h-dvh w-full flex-col items-start justify-start overflow-y-auto px-6.5 bg-[#FAFAF6] ${
         hasBottomNav ? 'pb-35' : 'pb-6'
       }`}
     >

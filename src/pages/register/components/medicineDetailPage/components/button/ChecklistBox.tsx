@@ -25,7 +25,7 @@ const ChecklistBox = ({
 }: ChecklistBoxProps) => {
   return (
     <div className="w-full box-border flex flex-col gap-5 p-5 bg-[#FCFCFC] border-2 border-[#23408F] rounded-[20px] shadow-[0px_2px_2px_0px_rgba(0,0,0,0.04)]">
-      <div className="h-6 w-full flex items-center justify-between">
+      <div className="w-full flex items-center justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center">
           <button
             type="button"

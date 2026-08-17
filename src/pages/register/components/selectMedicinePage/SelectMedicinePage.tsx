@@ -81,7 +81,7 @@ const SelectMedicinePage = () => {
   };
 
   return (
-    <div className="flex min-h-dvh w-full flex-col bg-[#FAFAF6] pb-10">
+    <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-10">
       <div className="relative flex items-center pt-16.5">
         <button
           type="button"

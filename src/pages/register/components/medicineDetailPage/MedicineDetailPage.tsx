@@ -94,7 +94,7 @@ const MedicineDetailPage = () => {
 
   if (isPending) {
     return (
-      <div className="flex min-h-dvh w-full items-center justify-center bg-[#FAFAF6]">
+      <div className="flex h-full w-full items-center justify-center bg-[#FAFAF6]">
         <p className="font-Pretendard text-base text-[#848B9C]">
           약 정보를 불러오는 중이에요...
         </p>
@@ -108,7 +108,7 @@ const MedicineDetailPage = () => {
       '약 정보를 불러오지 못했어요.';
 
     return (
-      <div className="flex min-h-dvh w-full flex-col items-center justify-center gap-4 bg-[#FAFAF6] px-6">
+      <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-[#FAFAF6] px-6">
         <p className="font-Pretendard text-base text-[#848B9C]">{message}</p>
         <button
           type="button"
@@ -158,7 +158,7 @@ const MedicineDetailContent = ({
   const stampIcon = PREPARATION_LEVEL_ICON[preparationLevel ?? 'ALLOWED'];
 
   return (
-    <div className="min-h-dvh w-full bg-[#FAFAF6] pb-10">
+    <div className="h-full w-full bg-[#FAFAF6] pb-10">
       <div className="relative flex items-center pt-5">
         <button
           type="button"
