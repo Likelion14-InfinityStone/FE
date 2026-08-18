@@ -65,7 +65,7 @@ const router = createBrowserRouter([
       // 프라이빗 루트 설정
       { path: '/home', element: <Home /> },
       { path: '/register', element: <Register /> },
-      { path: '/medicine', element: <Medicine /> },
+      { path: '/medicine/:tripId', element: <Medicine /> },
       { path: '/documents', element: <Documents /> },
       {
         path: '/documents/:medicationId',

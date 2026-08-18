@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 
 import { formatDDay, formatIsoDate } from '@/utils/dDay';
@@ -15,14 +15,11 @@ import DeleteButton from './components/DeleteButton';
 import MedicinePassportButton from './components/MedicinePassportButton';
 import RenameTripSheet from './components/RenameTripSheet';
 
-type MedicineState = {
-  tripId?: number;
-};
-
 const Medicine = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const tripId = (location.state as MedicineState | null)?.tripId;
+  const { tripId: tripIdParam } = useParams<{ tripId: string }>();
+  const tripId = Number(tripIdParam);
+  const isValidTripId = Boolean(tripIdParam) && !Number.isNaN(tripId);
 
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [renameError, setRenameError] = useState<string | null>(null);
@@ -32,12 +29,12 @@ const Medicine = () => {
     isPending,
     isError,
     error,
-  } = useTripDetail(tripId ?? 0, Boolean(tripId));
+  } = useTripDetail(tripId, isValidTripId);
 
-  const updateTripTitleMutation = useUpdateTripTitle(tripId ?? 0);
+  const updateTripTitleMutation = useUpdateTripTitle(tripId);
   const deleteTripMutation = useDeleteTrip();
 
-  if (!tripId) {
+  if (!isValidTripId) {
     return <Navigate to="/register" replace />;
   }
 

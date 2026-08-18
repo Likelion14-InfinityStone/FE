@@ -39,7 +39,7 @@ const Ticket = ({
   const handleClick = () => {
     if (!interactive) return;
 
-    navigate('/medicine', { state: { tripId: id } });
+    navigate(`/medicine/${id}`);
   };
 
   return (
