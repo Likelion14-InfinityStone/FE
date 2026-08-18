@@ -17,8 +17,10 @@ export const isMedicineDraftComplete = (
   medicine.mfdsProductCode.trim() !== '' &&
   medicine.productEnName.trim() !== '' &&
   medicine.intakesPerDay != null &&
+  Number.isInteger(medicine.intakesPerDay) &&
   medicine.intakesPerDay >= 1 &&
   medicine.totalDays != null &&
+  Number.isInteger(medicine.totalDays) &&
   medicine.totalDays >= 1 &&
   medicine.dosePerIntake != null &&
   medicine.dosePerIntake > 0;
