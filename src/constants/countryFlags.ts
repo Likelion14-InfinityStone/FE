@@ -65,4 +65,4 @@ export const COUNTRY_FLAGS: Record<string, string> = {
 };
 
 export const getCountryFlag = (countryNameKo: string): string =>
-  COUNTRY_FLAGS[countryNameKo] ?? Japan;
+  COUNTRY_FLAGS[countryNameKo] ?? Korea;

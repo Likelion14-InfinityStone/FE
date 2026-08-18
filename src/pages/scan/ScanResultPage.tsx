@@ -33,7 +33,6 @@ const ScanResultPage = () => {
     selectMedicineCandidate,
     updateMedicineDoseUnit,
     toggleMedicine,
-    removeMedicine,
     clearDuplicate,
     save,
   } = useScanResultForm(
@@ -131,9 +130,6 @@ const ScanResultPage = () => {
               selectMedicineCandidate(index, candidate)
             }
             onChangeDoseUnit={(unit) => updateMedicineDoseUnit(index, unit)}
-            onRemove={
-              medicines.length > 1 ? () => removeMedicine(index) : undefined
-            }
           />
         ))}
       </div>
