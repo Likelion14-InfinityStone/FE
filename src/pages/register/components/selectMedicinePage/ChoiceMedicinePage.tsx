@@ -126,6 +126,10 @@ const ChoiceMedicinePage = () => {
         />
       </div>
 
+      <p className="font-Pretendard mt-9 text-base font-medium tracking-[0.384px] text-[#848B9C]">
+        복용 일수를 설정해 주세요
+      </p>
+
       {selectedMedicines.length > 0 && (
         <div className="mt-6 flex flex-col gap-4">
           {selectedMedicines.map(({ medicationId, productKoName }) => (
