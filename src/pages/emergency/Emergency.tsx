@@ -37,7 +37,12 @@ const Emergency = () => {
   const [translatedScript, setTranslatedScript] =
     useState<SosScriptResult | null>(null);
   const { data: medications = [] } = useMedicationList(true);
-  const { data: trips = [] } = useAllTrips();
+  const {
+    data: trips = [],
+    isPending: isTripsPending,
+    isError: isTripsError,
+    refetch: refetchTrips,
+  } = useAllTrips();
   const {
     mutate: fetchContacts,
     isPending: isContactsPending,
@@ -138,6 +143,13 @@ const Emergency = () => {
               questions={config.questions}
               answers={answers}
               options={emergencyOptions}
+              optionStates={{
+                trip: {
+                  isLoading: isTripsPending,
+                  isError: isTripsError,
+                  onRetry: () => void refetchTrips(),
+                },
+              }}
               onLocationChange={setLocation}
               onAnswerChange={(field, answer) =>
                 setAnswers((current) => ({ ...current, [field]: answer }))

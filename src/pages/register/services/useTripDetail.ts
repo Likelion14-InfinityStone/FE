@@ -199,16 +199,19 @@ export const useAllTrips = () =>
       const remainingCountries = initialResult.countries.filter(
         (country) => country.countryCode !== initialResult.selectedCountryCode
       );
-      const countryResponses = await Promise.all(
+      const countryResponses = await Promise.allSettled(
         remainingCountries.map((country) =>
           fetchTripChecklog(country.countryCode)
         )
       );
+      const additionalTrips = countryResponses.flatMap((response) =>
+        response.status === 'fulfilled' ? response.value.result.trips : []
+      );
       const tripsById = new Map(
-        [
-          ...initialResult.trips,
-          ...countryResponses.flatMap((response) => response.result.trips),
-        ].map((trip) => [trip.tripId, trip])
+        [...initialResult.trips, ...additionalTrips].map((trip) => [
+          trip.tripId,
+          trip,
+        ])
       );
 
       return [...tripsById.values()];

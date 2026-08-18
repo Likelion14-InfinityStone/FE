@@ -128,7 +128,7 @@ const MedicineCardBack = ({
             displayedMedicine.connectedCountries.length > 0 && (
               <div className="flex flex-col gap-1.25">
                 <p className="font-Pretendard text-[0.875rem] leading-4.9 tracking-[0.3px] font-medium text-[#767676]">
-                  연결된 여행
+                  {isEnglishDisplayed ? 'Linked trips' : '연결된 여행'}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {displayedMedicine.connectedCountries.map((country) => (
