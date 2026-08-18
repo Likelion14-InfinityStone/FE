@@ -11,7 +11,7 @@ import EmergencyForm from './components/EmergencyForm';
 import EmergencyResult from './components/EmergencyResult';
 import EmergencyTranslation from './components/EmergencyTranslation';
 import { useMedicationList } from '@/pages/home/services/useMedicationCards';
-import { useTripChecklog } from '@/pages/register/services/useTripDetail';
+import { useAllTrips } from '@/pages/register/services/useTripDetail';
 import {
   EMERGENCY_CONFIG,
   EMERGENCY_MOCK_OPTIONS,
@@ -37,7 +37,7 @@ const Emergency = () => {
   const [translatedScript, setTranslatedScript] =
     useState<SosScriptResult | null>(null);
   const { data: medications = [] } = useMedicationList(true);
-  const { data: tripChecklog } = useTripChecklog();
+  const { data: trips = [] } = useAllTrips();
   const {
     mutate: fetchContacts,
     isPending: isContactsPending,
@@ -71,11 +71,10 @@ const Emergency = () => {
   });
   const emergencyOptions = {
     ...EMERGENCY_MOCK_OPTIONS,
-    trip:
-      tripChecklog?.trips.map((trip) => ({
-        value: String(trip.tripId),
-        label: trip.title,
-      })) ?? [],
+    trip: trips.map((trip) => ({
+      value: String(trip.tripId),
+      label: trip.title,
+    })),
     medication: medications.map((medication) => ({
       value: String(medication.medicationId),
       label: medication.productKoName,

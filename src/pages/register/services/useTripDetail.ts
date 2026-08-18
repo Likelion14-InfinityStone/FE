@@ -180,6 +180,7 @@ export const tripChecklogKeys = {
   all: ['tripChecklog'] as const,
   list: (countryCode?: string) =>
     [...tripChecklogKeys.all, countryCode ?? null] as const,
+  fullList: () => [...tripChecklogKeys.all, 'fullList'] as const,
 };
 
 export const useTripChecklog = (countryCode?: string) =>
@@ -187,4 +188,29 @@ export const useTripChecklog = (countryCode?: string) =>
     queryKey: tripChecklogKeys.list(countryCode),
     queryFn: () => fetchTripChecklog(countryCode),
     select: (response) => response.result,
+  });
+
+export const useAllTrips = () =>
+  useQuery({
+    queryKey: tripChecklogKeys.fullList(),
+    queryFn: async () => {
+      const initialResponse = await fetchTripChecklog();
+      const initialResult = initialResponse.result;
+      const remainingCountries = initialResult.countries.filter(
+        (country) => country.countryCode !== initialResult.selectedCountryCode
+      );
+      const countryResponses = await Promise.all(
+        remainingCountries.map((country) =>
+          fetchTripChecklog(country.countryCode)
+        )
+      );
+      const tripsById = new Map(
+        [
+          ...initialResult.trips,
+          ...countryResponses.flatMap((response) => response.result.trips),
+        ].map((trip) => [trip.tripId, trip])
+      );
+
+      return [...tripsById.values()];
+    },
   });
