@@ -3,6 +3,7 @@ type DocumentConfirmRowProps = {
   trashIcon: React.ReactNode;
   onConfirmDocument: () => void;
   onDelete: () => void;
+  isDeleting?: boolean;
 };
 
 const DocumentConfirmRow = ({
@@ -10,6 +11,7 @@ const DocumentConfirmRow = ({
   trashIcon,
   onConfirmDocument,
   onDelete,
+  isDeleting = false,
 }: DocumentConfirmRowProps) => {
   return (
     <div className="h-[54px] flex gap-[10px]">
@@ -25,8 +27,9 @@ const DocumentConfirmRow = ({
       <button
         type="button"
         onClick={onDelete}
+        disabled={isDeleting}
         aria-label="삭제"
-        className="w-[54px] h-[54px] shrink-0 flex items-center justify-center p-[10px] border-2 border-[#23408F] rounded-[10px]"
+        className="w-[54px] h-[54px] shrink-0 flex items-center justify-center p-[10px] border-2 border-[#23408F] rounded-[10px] disabled:opacity-50"
       >
         {trashIcon}
       </button>

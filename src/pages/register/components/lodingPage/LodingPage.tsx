@@ -1,28 +1,38 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import loadingRing from '@/assets/images/register/lodingpage/loadingRing.svg';
 import pufiLogo from '@/assets/images/register/lodingpage/lodingPUFI.svg';
-import type { AirportSelection } from '@/types/scan/register/register';
+import { COUNTRY_ALPHA3 } from '@/constants/airport';
+import type { AirportSelection, SelectedMedication } from '@/types/register';
+import { useTripMedicationPreview } from '@/pages/register/services/useTripMedications';
 import PageDots from './components/PageDots';
 
 const TOTAL_STEPS = 3;
 const CURRENT_STEP = 2;
-const NAVIGATE_DELAY_MS = 2000;
 const NEXT_PATH = '/registerResult';
+const FALLBACK_TIMEOUT_MS = 15000;
 
 type LodingPageState = {
   departure?: AirportSelection;
   arrival?: AirportSelection;
   travelPeriod?: string;
-  medicineQuantities?: Record<string, number>;
+  selectedMedications?: SelectedMedication[];
 };
 
 const LodingPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const navState = location.state as LodingPageState | null;
+  const hasNavigatedRef = useRef(false);
+
+  const {
+    mutate: previewMedications,
+    status: previewStatus,
+    data: previewData,
+    error: previewError,
+  } = useTripMedicationPreview();
 
   const countryLabel =
     [navState?.departure?.location, navState?.arrival?.location]
@@ -33,17 +43,85 @@ const LodingPage = () => {
     navigate('/choiceMedicine', { state: navState });
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate(NEXT_PATH, { replace: true, state: navState });
-    }, NAVIGATE_DELAY_MS);
+  const goToResult = (state: unknown) => {
+    if (hasNavigatedRef.current) return;
+    hasNavigatedRef.current = true;
+    navigate(NEXT_PATH, { replace: true, state });
+  };
 
-    return () => clearTimeout(timer);
+  useEffect(() => {
+    const destinationCodeAlpha3 = navState?.arrival
+      ? COUNTRY_ALPHA3[navState.arrival.country]
+      : undefined;
+    const selectedMedications = navState?.selectedMedications ?? [];
+
+    if (!destinationCodeAlpha3 || selectedMedications.length === 0) {
+      goToResult(navState);
+      return;
+    }
+
+    previewMedications({
+      destinationCodeAlpha3,
+      medications: selectedMedications.map((medication) => ({
+        medicationId: medication.medicationId,
+        carryDays: medication.quantity,
+      })),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (hasNavigatedRef.current) return;
+
+    if (previewStatus === 'success') {
+      if (!previewData.isSuccess || !previewData.result?.medications) {
+        console.error(
+          '약 판정에 실패했어요:',
+          previewData.message,
+          previewData.code
+        );
+        goToResult(navState);
+        return;
+      }
+
+      const selectedMedications = navState?.selectedMedications ?? [];
+      const quantityByMedicationId = new Map(
+        selectedMedications.map((medication) => [
+          medication.medicationId,
+          medication.quantity,
+        ])
+      );
+
+      goToResult({
+        ...navState,
+        medications: previewData.result.medications.map((medication) => ({
+          ...medication,
+          quantity: quantityByMedicationId.get(medication.medicationId) ?? 1,
+        })),
+      });
+      return;
+    }
+
+    if (previewStatus === 'error') {
+      console.error('약 판정 요청이 실패했어요:', previewError);
+      goToResult(navState);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewStatus, previewData, previewError]);
+
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      if (hasNavigatedRef.current) return;
+      console.error('약 판정 요청이 시간 내에 끝나지 않았어요.');
+      goToResult(navState);
+    }, FALLBACK_TIMEOUT_MS);
+
+    return () => clearTimeout(fallbackTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="flex min-h-dvh w-full flex-col bg-[#FAFAF6] pb-10">
+    <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-10">
       <div className="relative flex items-center pt-16.5">
         <button
           type="button"

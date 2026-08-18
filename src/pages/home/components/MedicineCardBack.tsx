@@ -86,7 +86,7 @@ const MedicineCardBack = ({
     <div className="h-full w-full pt-6 pb-5 px-5.5 rounded-[20px] shadow-[0_2px_2px_0_rgba(0,0,0,0.04)] bg-[#FCFCFC] border-2 border-[#23408F]">
       <div className="flex flex-col gap-6">
         <div className="flex items-start gap-3">
-          <p className="min-w-0 flex-1 [overflow-wrap:anywhere] font-Pretendard text-[1rem] leading-5.6 tracking-[0.4px] font-semibold text-[#000000]">
+          <p className="min-w-0 flex-1 wrap-anywhere font-Pretendard text-[1rem] leading-5.6 tracking-[0.4px] font-semibold text-[#000000]">
             {displayedMedicine.productInfo}
           </p>
           <button

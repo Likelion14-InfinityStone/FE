@@ -1,15 +1,14 @@
-import {
-  EMERGENCY_CONTACTS,
-  type EmergencyConfig,
-} from '@/constants/emergency';
+import type { EmergencyConfig } from '@/constants/emergency';
+import type { SosContact } from '@/types/emergency/sos.type';
 import ResultRow from './ResultRow';
 import ResultTable from './ResultTable';
 
 interface EmergencyResultProps {
   config: EmergencyConfig;
+  contacts: SosContact[];
 }
 
-const EmergencyResult = ({ config }: EmergencyResultProps) => {
+const EmergencyResult = ({ config, contacts }: EmergencyResultProps) => {
   const handleFindHospital = () => {
     window.open(
       'https://www.google.com/maps/search/?api=1&query=hospitals+near+me',
@@ -35,17 +34,21 @@ const EmergencyResult = ({ config }: EmergencyResultProps) => {
               step === '현지 의료기관 방문하기' ? '기관 찾기' : undefined
             }
             onAction={
-              step === '현지 의료기관 방문하기'
-                ? handleFindHospital
-                : undefined
+              step === '현지 의료기관 방문하기' ? handleFindHospital : undefined
             }
           />
         ))}
       </ResultTable>
 
       <ResultTable title="연락처">
-        {EMERGENCY_CONTACTS.map(({ name, phone }, index) => (
-          <ResultRow key={name} index={index + 1} label={name} value={phone} />
+        {contacts.map(({ order, type, name, phone, note }) => (
+          <ResultRow
+            key={`${type}-${order}`}
+            index={order}
+            label={name}
+            value={phone}
+            note={note}
+          />
         ))}
       </ResultTable>
     </div>

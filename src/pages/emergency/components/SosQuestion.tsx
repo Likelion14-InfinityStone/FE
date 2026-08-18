@@ -1,6 +1,6 @@
 import DropdownIcon from '@/assets/images/sos/dropdownIcon.svg';
 import SosLocationIcon from '@/assets/images/sos/sosLocationIcon.svg';
-import type { SosQuestionType } from '@/constants/emergency';
+import type { EmergencyOption, SosQuestionType } from '@/constants/emergency';
 
 interface SosQuestionProps {
   label: string;
@@ -8,9 +8,9 @@ interface SosQuestionProps {
   type?: SosQuestionType;
   isOpen: boolean;
   selectedValue?: string;
-  options: readonly string[];
+  options: readonly EmergencyOption[];
   onToggle: () => void;
-  onSelect: (value: string) => void;
+  onSelect: (option: EmergencyOption) => void;
   onLocation?: () => void;
   isLocating?: boolean;
 }
@@ -36,6 +36,10 @@ const SosQuestion = ({
       {type === 'text' ? (
         <input
           type="text"
+          value={selectedValue ?? ''}
+          onChange={(event) =>
+            onSelect({ value: event.target.value, label: event.target.value })
+          }
           placeholder={placeholder}
           className="h-15.5 rounded-[18px] border border-[#23408F] bg-transparent px-5 font-Pretendard text-[1rem] outline-none placeholder:text-[#555555]"
         />
@@ -77,7 +81,7 @@ const SosQuestion = ({
             <div className="flex flex-col gap-1 rounded-[20px] border border-[#23408F] p-3.5 bg-[#FCFCFC]">
               {options.map((option, index) => (
                 <button
-                  key={option}
+                  key={option.value}
                   type="button"
                   onClick={() => onSelect(option)}
                   className={`rounded-[10px] p-2.5 text-left font-Pretendard text-[0.875rem] ${
@@ -86,7 +90,7 @@ const SosQuestion = ({
                       : 'text-[#191919]'
                   }`}
                 >
-                  {option}
+                  {option.label}
                 </button>
               ))}
             </div>
