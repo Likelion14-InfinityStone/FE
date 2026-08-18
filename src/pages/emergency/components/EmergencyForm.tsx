@@ -101,6 +101,7 @@ const EmergencyForm = ({
           type={type}
           isOpen={openQuestion === field}
           selectedValue={answers[field]?.label}
+          selectedOptionValue={answers[field]?.value}
           options={options[field] ?? []}
           onToggle={() =>
             setOpenQuestion((current) => (current === field ? null : field))

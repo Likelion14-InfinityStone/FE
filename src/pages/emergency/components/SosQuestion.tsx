@@ -8,6 +8,7 @@ interface SosQuestionProps {
   type?: SosQuestionType;
   isOpen: boolean;
   selectedValue?: string;
+  selectedOptionValue?: string;
   options: readonly EmergencyOption[];
   onToggle: () => void;
   onSelect: (option: EmergencyOption) => void;
@@ -21,6 +22,7 @@ const SosQuestion = ({
   type = 'select',
   isOpen,
   selectedValue,
+  selectedOptionValue,
   options,
   onToggle,
   onSelect,
@@ -78,16 +80,16 @@ const SosQuestion = ({
           </button>
 
           {isOpen && (
-            <div className="flex flex-col gap-1 rounded-[20px] border border-[#23408F] p-3.5 bg-[#FCFCFC]">
-              {options.map((option, index) => (
+            <div className="flex flex-col gap-1 rounded-[20px] border border-[#23408F] bg-[#FAFAF6] p-3.5">
+              {options.map((option) => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() => onSelect(option)}
                   className={`rounded-[10px] p-2.5 text-left font-Pretendard text-[0.875rem] ${
-                    index === 0
+                    option.value === selectedOptionValue
                       ? 'bg-[#EAF0FF] text-[#23408F]'
-                      : 'text-[#191919]'
+                      : 'bg-[#FAFAF6] text-[#191919]'
                   }`}
                 >
                   {option.label}
