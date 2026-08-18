@@ -55,6 +55,7 @@ const toHomeMedicineCard = (
     frequency: `1일 ${card.back.intakesPerDay}회`,
     duration: `${card.back.totalDays}일`,
     dosePerTime: `${card.back.dosePerIntake}${DOSE_UNIT_LABEL[card.back.doseUnit]}`,
+    connectedCountries: card.back.connectedCountries,
   },
 });
 
