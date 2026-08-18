@@ -4,6 +4,7 @@ interface ResultRowProps {
   index: number;
   label: string;
   value?: string;
+  note?: string | null;
   actionLabel?: string;
   onAction?: () => void;
 }
@@ -12,35 +13,44 @@ const ResultRow = ({
   index,
   label,
   value,
+  note,
   actionLabel,
   onAction,
 }: ResultRowProps) => {
   return (
-    <div className="flex items-center justify-between border-b border-[#E2E2E2] pb-0.5">
-      <div className="flex gap-4.5">
-        <p className="font-Pretendard text-[1rem] leading-5.6 font-medium text-[#6D6D6D]">
-          {index}
-        </p>
-        <p className="font-Pretendard text-[1rem] leading-5.6 font-medium text-[#191919]">
-          {label}
-        </p>
+    <div className="flex flex-col gap-1 border-b border-[#E2E2E2] pb-1.5">
+      <div className="flex items-center justify-between">
+        <div className="flex gap-4.5">
+          <p className="font-Pretendard text-[1rem] leading-5.6 font-medium text-[#6D6D6D]">
+            {index}
+          </p>
+          <p className="font-Pretendard text-[1rem] leading-5.6 font-medium text-[#191919]">
+            {label}
+          </p>
+        </div>
+
+        {value && (
+          <p className="font-Pretendard text-[1rem] leading-5.6 font-medium text-[#191919]">
+            {value}
+          </p>
+        )}
+
+        {actionLabel && (
+          <button
+            type="button"
+            onClick={onAction}
+            className="flex h-7.5 w-22.5 shrink-0 items-center justify-center gap-2.5 rounded-xl bg-[#A1ADCC] px-3 py-1 font-Pretendard text-[0.75rem] leading-[16.8px] font-medium tracking-[0.288px] whitespace-nowrap text-[#FAFAF6]"
+          >
+            {actionLabel}
+            <img src={FindSosArrowIcon} alt="" className="h-2 w-2.5" />
+          </button>
+        )}
       </div>
 
-      {value && (
-        <p className="font-Pretendard text-[1rem] leading-5.6 font-medium text-[#191919]">
-          {value}
+      {note && (
+        <p className="pl-8.5 font-Pretendard text-[0.75rem] leading-4 text-[#EF5050]">
+          {note}
         </p>
-      )}
-
-      {actionLabel && (
-        <button
-          type="button"
-          onClick={onAction}
-          className="flex h-7.5 w-22.5 shrink-0 items-center justify-center gap-2.5 rounded-xl bg-[#A1ADCC] px-3 py-1 font-Pretendard text-[0.75rem] leading-[16.8px] font-medium tracking-[0.288px] whitespace-nowrap text-[#FAFAF6]"
-        >
-          {actionLabel}
-          <img src={FindSosArrowIcon} alt="" className="h-2 w-2.5" />
-        </button>
       )}
     </div>
   );

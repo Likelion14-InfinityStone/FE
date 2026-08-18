@@ -29,7 +29,7 @@ const EmergencyTranslation = ({ data }: EmergencyTranslationProps) => {
           </p>
           <div className="h-px w-full bg-[#E2E2E2]" />
           <p className="whitespace-pre-line font-Pretendard font-regular text-[0.875rem] leading-5.5 text-[#191919]">
-            {data.translatedText}
+            {data.translatedText || '현지어 번역을 준비 중입니다.'}
           </p>
         </div>
       </div>

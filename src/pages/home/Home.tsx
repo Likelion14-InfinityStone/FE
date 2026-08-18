@@ -5,9 +5,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { fetchMedicationCardDetail } from '@/apis/home/medicationCard.api';
 import Header from '@/components/layout/Header';
 import SosButton from '@/components/button/SosButton';
+import { DOSE_UNIT_LABEL } from '@/constants/doseUnit';
 import type { SavedMedicine } from '@/hooks/useSavedMedicines';
 import type {
-  DoseUnit,
   MedicationCard as MedicationCardData,
   MedicationCardDetailResult,
 } from '@/types/home/medicationCard.type';
@@ -21,15 +21,6 @@ import {
 import MoreCardIcon from '@/assets/images/home/moreCardIcon.svg';
 
 const CARD_STEP = 298;
-
-const DOSE_UNIT_LABEL: Record<DoseUnit, string> = {
-  TABLET: '정',
-  CAPSULE: '캡슐',
-  PACKET: '포',
-  ML: 'mL',
-  DROP: '방울',
-  MG: 'mg',
-};
 
 type HomeMedicineCard = {
   id: number;

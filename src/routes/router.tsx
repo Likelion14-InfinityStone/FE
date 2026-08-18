@@ -43,7 +43,10 @@ const router = createBrowserRouter([
       { path: '/login', element: <Login /> },
       { path: '/onboard', element: <Onboard /> },
       { path: '/terms', element: <Terms /> },
-      { path: '/medicineDetail', element: <MedicineDetailPage /> },
+      {
+        path: '/medicineDetail/:tripId/:tripMedicationId',
+        element: <MedicineDetailPage />,
+      },
       { path: '/selectMedicine', element: <SelectMedicinePage /> },
       { path: '/choiceMedicine', element: <ChoiceMedicinePage /> },
       { path: '/loding', element: <LodingPage /> },
@@ -65,7 +68,7 @@ const router = createBrowserRouter([
       // 프라이빗 루트 설정
       { path: '/home', element: <Home /> },
       { path: '/register', element: <Register /> },
-      { path: '/medicine', element: <Medicine /> },
+      { path: '/medicine/:tripId', element: <Medicine /> },
       { path: '/documents', element: <Documents /> },
       {
         path: '/documents/:medicationId',

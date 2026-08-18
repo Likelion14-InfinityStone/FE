@@ -5,14 +5,16 @@ import BottomSheet from '@/components/layout/BottomSheet';
 
 type RenameTripSheetProps = {
   currentName: string;
-  isDuplicate: (name: string) => boolean;
+  errorMessage?: string | null;
+  isSaving?: boolean;
   onClose: () => void;
   onSave: (name: string) => void;
 };
 
 const RenameTripSheet = ({
   currentName,
-  isDuplicate,
+  errorMessage,
+  isSaving,
   onClose,
   onSave,
 }: RenameTripSheetProps) => {
@@ -20,11 +22,9 @@ const RenameTripSheet = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const trimmedName = name.trim();
-  const showDuplicateError =
-    trimmedName !== currentName && isDuplicate(trimmedName);
 
   const handleSave = () => {
-    if (!trimmedName || showDuplicateError) return;
+    if (!trimmedName || isSaving) return;
     onSave(trimmedName);
   };
 
@@ -45,12 +45,12 @@ const RenameTripSheet = ({
           value={name}
           onChange={(event) => setName(event.target.value)}
           className={`h-16 w-full rounded-[20px] border bg-[#FCFCFC] px-4 font-Pretendard text-[1rem] tracking-[0.384px] text-[#191919] outline-none ${
-            showDuplicateError ? 'border-[#EF5050]' : 'border-[#23408F]'
+            errorMessage ? 'border-[#EF5050]' : 'border-[#23408F]'
           }`}
         />
-        {showDuplicateError && (
+        {errorMessage && (
           <p className="mt-2 font-Pretendard text-[0.8125rem] tracking-[0.288px] text-[#EF5050]">
-            중복된 이름입니다. 다른 이름을 입력해 주세요.
+            {errorMessage}
           </p>
         )}
       </div>
@@ -59,7 +59,7 @@ const RenameTripSheet = ({
         <BottomButton
           text="저장하기"
           onClick={handleSave}
-          disabled={!trimmedName || showDuplicateError}
+          disabled={!trimmedName || isSaving}
         />
       </div>
     </BottomSheet>

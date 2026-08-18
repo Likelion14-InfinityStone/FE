@@ -15,10 +15,6 @@ export type FaqItem = {
 };
 
 export const contents = {
-  profile: {
-    name: '피루피루',
-    email: 'pirupiru@medipass.hs',
-  },
   policies: [
     { label: '개인정보 처리방침', path: '/account/privacy' },
     { label: '이용 약관', path: '/account/terms' },
