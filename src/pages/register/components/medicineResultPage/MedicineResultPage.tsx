@@ -119,7 +119,7 @@ const MedicineResultPage = () => {
 
       <div className="flex-1" />
 
-      <div className="flex gap-2.5">
+      <div className="mt-6 flex gap-2.5">
         <SmallButton
           text="나가기"
           variant="primary"

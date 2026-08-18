@@ -142,7 +142,7 @@ const ChoiceMedicinePage = () => {
 
       <div className="flex-1" />
 
-      <div className="flex gap-2.5">
+      <div className="mt-6 flex gap-2.5">
         <SmallButton text="이전" variant="secondary" onClick={handleBack} />
         <SmallButton
           text="다음"
