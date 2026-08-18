@@ -21,8 +21,14 @@ export interface SavedMedicationSummary {
   productKoName: string;
 }
 
+export interface SkippedMedicationSummary {
+  mfdsProductCode: string;
+  productKoName: string;
+}
+
 export interface MedicationSaveResult {
   medications: SavedMedicationSummary[];
+  skippedMedications: SkippedMedicationSummary[];
 }
 
 export interface MedicationCandidate {

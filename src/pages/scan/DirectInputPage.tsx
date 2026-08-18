@@ -24,6 +24,7 @@ const DirectInputPage = () => {
     isSaving,
     isSaved,
     savedMedicineNames,
+    skippedMedicineNames,
     isDuplicate,
     saveError,
     updatePassport,
@@ -61,7 +62,12 @@ const DirectInputPage = () => {
   }
 
   if (isSaved) {
-    return <SavePage medicineNames={savedMedicineNames} />;
+    return (
+      <SavePage
+        medicineNames={savedMedicineNames}
+        skippedMedicineNames={skippedMedicineNames}
+      />
+    );
   }
 
   return (

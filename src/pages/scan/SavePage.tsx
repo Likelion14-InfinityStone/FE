@@ -6,13 +6,18 @@ import BottomButton from '@/components/button/BottomButton';
 
 type SavePageProps = {
   medicineNames: string[];
+  skippedMedicineNames?: string[];
 };
 
-const SavePage = ({ medicineNames }: SavePageProps) => {
+const summarize = (names: string[]) => {
+  const [firstName, ...restNames] = names;
+  return restNames.length > 0 ? `${firstName} 외 ${restNames.length}건` : firstName;
+};
+
+const SavePage = ({ medicineNames, skippedMedicineNames = [] }: SavePageProps) => {
   const navigate = useNavigate();
-  const [firstName, ...restNames] = medicineNames;
-  const displayName =
-    restNames.length > 0 ? `${firstName} 외 ${restNames.length}건` : firstName;
+  const displayName = summarize(medicineNames);
+  const hasSkipped = skippedMedicineNames.length > 0;
 
   return (
     <div className="flex min-h-dvh w-full flex-col bg-[#FAFAF6]">
@@ -42,6 +47,13 @@ const SavePage = ({ medicineNames }: SavePageProps) => {
             <br />
             이제 여행을 준비할 때 이 약을 선택할 수 있어요.
           </p>
+
+          {hasSkipped && (
+            <p className="mt-[6px] text-center font-Pretendard text-[14px] leading-[22px] tracking-[-0.35px] text-[#848B9C]">
+              {summarize(skippedMedicineNames)}은(는) 이미 등록되어 있어 이번
+              저장에서 제외됐어요.
+            </p>
+          )}
         </div>
       </div>
 

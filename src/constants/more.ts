@@ -145,7 +145,33 @@ export const contents = {
   } as NoticeContent,
   openSourceLicense: {
     title: '오픈소스 라이선스',
-    body: ['현재 등록된 오픈소스 라이선스 정보가 없습니다.'],
+    body: [
+      '메디패스(MediPass)는 다음과 같은 오픈소스 소프트웨어를 사용하여 개발되었습니다.',
+
+      'React (19.x) — MIT License',
+      'Copyright (c) Meta Platforms, Inc. and affiliates.',
+
+      'React DOM (19.x) — MIT License',
+      'Copyright (c) Meta Platforms, Inc. and affiliates.',
+
+      'React Router (7.x) — MIT License',
+      'Copyright (c) React Training LLC, Remix Software Inc.',
+
+      'TanStack Query (5.x) — MIT License',
+      'Copyright (c) Tanner Linsley.',
+
+      'Zustand (5.x) — MIT License',
+      'Copyright (c) Paul Henschel.',
+
+      'Axios (1.x) — MIT License',
+      'Copyright (c) 2014-present Matt Zabriskie & Collaborators.',
+
+      'Tailwind CSS (4.x) — MIT License',
+      'Copyright (c) Tailwind Labs, Inc.',
+
+      'Pretendard (1.x) — SIL Open Font License 1.1',
+      'Copyright (c) 2021 Kil Hyung-jin, with Reserved Font Name Pretendard.',
+    ],
   } as NoticeContent,
   faq: [
     {
