@@ -29,6 +29,9 @@ const ScanResultPage = () => {
     saveError,
     updatePassport,
     updateMedicineQuantity,
+    updateMedicineName,
+    selectMedicineCandidate,
+    updateMedicineDoseUnit,
     toggleMedicine,
     removeMedicine,
     clearDuplicate,
@@ -123,6 +126,11 @@ const ScanResultPage = () => {
             onChangeQuantity={(field, value) =>
               updateMedicineQuantity(index, field, value)
             }
+            onChangeName={(text) => updateMedicineName(index, text)}
+            onSelectCandidate={(candidate) =>
+              selectMedicineCandidate(index, candidate)
+            }
+            onChangeDoseUnit={(unit) => updateMedicineDoseUnit(index, unit)}
             onRemove={
               medicines.length > 1 ? () => removeMedicine(index) : undefined
             }
