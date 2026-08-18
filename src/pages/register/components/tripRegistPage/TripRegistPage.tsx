@@ -34,7 +34,7 @@ const TripRegister = () => {
 
   if (!data || data.countries.length === 0) {
     return (
-      <div className="flex h-full w-full flex-col pb-24">
+      <div className="flex h-full w-full flex-col pb-44">
         <Header title="여행 체크로그함" />
         <TripRegistEmptyState />
         <div className="fixed bottom-29 left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2">
@@ -48,7 +48,7 @@ const TripRegister = () => {
   }
 
   return (
-    <div className="flex h-full w-full flex-col pb-24">
+    <div className="flex h-full w-full flex-col pb-44">
       <Header title="여행 체크로그함" />
 
       <div className="mt-12 flex flex-wrap items-center gap-2.5">
