@@ -16,7 +16,19 @@ const Account = () => {
   const queryClient = useQueryClient();
   const logout = useAuthStore((state) => state.logout);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const { data: userMe } = useUserMe();
+  const {
+    data: userMe,
+    isPending: isUserMePending,
+    isError: isUserMeError,
+  } = useUserMe();
+
+  const profileName = isUserMePending
+    ? '불러오는 중...'
+    : isUserMeError
+      ? '사용자 정보를 불러오지 못했어요'
+      : (userMe?.nickName ?? '');
+  const profileEmail =
+    isUserMePending || isUserMeError ? '' : (userMe?.email ?? '');
 
   const handleLogout = () => {
     logout();
@@ -32,10 +44,7 @@ const Account = () => {
         <p className="font-Pretendard text-base tracking-[0.384px] text-[#191919]">
           내 계정
         </p>
-        <ProfileCard
-          name={userMe?.nickName ?? contents.profile.name}
-          email={userMe?.email ?? contents.profile.email}
-        />
+        <ProfileCard name={profileName} email={profileEmail} />
       </div>
 
       <div className="mt-9 flex flex-col gap-3">
