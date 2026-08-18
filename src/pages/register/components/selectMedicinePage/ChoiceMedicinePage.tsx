@@ -85,6 +85,13 @@ const ChoiceMedicinePage = () => {
     }));
   };
 
+  const handleChangeQuantity = (medicationId: number, quantity: number) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [medicationId]: quantity,
+    }));
+  };
+
   return (
     <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-10">
       <div className="relative flex items-center pt-16.5">
@@ -126,6 +133,10 @@ const ChoiceMedicinePage = () => {
         />
       </div>
 
+      <p className="font-Pretendard mt-9 text-base font-medium tracking-[0.384px] text-[#848B9C]">
+        복용 일수를 설정해 주세요
+      </p>
+
       {selectedMedicines.length > 0 && (
         <div className="mt-6 flex flex-col gap-4">
           {selectedMedicines.map(({ medicationId, productKoName }) => (
@@ -135,6 +146,9 @@ const ChoiceMedicinePage = () => {
               quantity={quantities[medicationId]}
               onIncrease={() => handleIncrease(medicationId)}
               onDecrease={() => handleDecrease(medicationId)}
+              onChangeQuantity={(quantity) =>
+                handleChangeQuantity(medicationId, quantity)
+              }
             />
           ))}
         </div>

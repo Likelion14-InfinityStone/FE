@@ -17,13 +17,19 @@ const MedicineChip = ({
   variant = 'default',
   onClick,
 }: MedicineChipProps) => {
+  const parenIndex = label.indexOf('(');
+  const beforeParen = parenIndex === -1 ? label : label.slice(0, parenIndex);
+  const afterParen = parenIndex === -1 ? '' : label.slice(parenIndex);
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex h-10.5 shrink-0 items-center justify-center rounded-full px-4 font-Pretendard text-base tracking-[-0.5px] ${VARIANT_CLASSES[variant]}`}
+      className={`flex min-h-10.5 max-w-full items-center justify-center rounded-full px-4 py-2 text-center font-Pretendard text-base tracking-[-0.5px] break-words ${VARIANT_CLASSES[variant]}`}
     >
-      {label}
+      {beforeParen}
+      {afterParen && <wbr />}
+      {afterParen}
     </button>
   );
 };

@@ -58,7 +58,7 @@ const AirportSearchPage = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-10">
+    <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-24">
       <div className="relative flex items-center pt-16.5">
         <button
           type="button"
@@ -95,12 +95,11 @@ const AirportSearchPage = () => {
         ))}
       </div>
 
-      <div className="flex-1" />
-
       <BottomButton
         text="확인"
         onClick={handleConfirm}
         disabled={!selectedAirport}
+        fixed
       />
     </div>
   );
