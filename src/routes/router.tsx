@@ -43,7 +43,10 @@ const router = createBrowserRouter([
       { path: '/login', element: <Login /> },
       { path: '/onboard', element: <Onboard /> },
       { path: '/terms', element: <Terms /> },
-      { path: '/medicineDetail', element: <MedicineDetailPage /> },
+      {
+        path: '/medicineDetail/:tripId/:tripMedicationId',
+        element: <MedicineDetailPage />,
+      },
       { path: '/selectMedicine', element: <SelectMedicinePage /> },
       { path: '/choiceMedicine', element: <ChoiceMedicinePage /> },
       { path: '/loding', element: <LodingPage /> },

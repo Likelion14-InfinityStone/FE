@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
@@ -12,6 +12,7 @@ import {
   tripMedicationChecklistKeys,
   useMedicationBasis,
   useMedicationDestination,
+  useTripDetail,
   useTripMedicationChecklist,
   useUpdateTripMedicationChecklistItem,
   useUploadChecklistDocument,
@@ -49,12 +50,6 @@ const MAX_DOCUMENT_FILE_SIZE = 10 * 1024 * 1024;
 const getChecklistDocumentType = (label: string): ChecklistDocumentType =>
   label.includes('처방전') ? 'EN_PRESCRIPTION' : 'DOCTOR_NOTE';
 
-type MedicineDetailState = {
-  tripId?: number;
-  tripMedicationId?: number;
-  preparationLevel?: PreparationLevel;
-};
-
 const DETAIL_TABS = [
   { key: 'destination', label: '목적지' },
   { key: 'checklist', label: '체크리스트' },
@@ -63,36 +58,42 @@ const DETAIL_TABS = [
 
 const MedicineDetailPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const navState = location.state as MedicineDetailState | null;
-  const { tripId, tripMedicationId, preparationLevel } = navState ?? {};
+  const params = useParams<{ tripId: string; tripMedicationId: string }>();
+  const tripId = Number(params.tripId);
+  const tripMedicationId = Number(params.tripMedicationId);
+  const hasValidParams =
+    Boolean(params.tripId) &&
+    Boolean(params.tripMedicationId) &&
+    !Number.isNaN(tripId) &&
+    !Number.isNaN(tripMedicationId);
 
   const {
     data: medication,
     isPending,
     isError,
     error,
-  } = useMedicationDestination(
-    tripId ?? 0,
-    tripMedicationId ?? 0,
-    Boolean(tripId && tripMedicationId)
-  );
+  } = useMedicationDestination(tripId, tripMedicationId, hasValidParams);
 
   const {
     data: checklist,
     isPending: isChecklistPending,
     isError: isChecklistError,
-  } = useTripMedicationChecklist(
-    tripId ?? 0,
-    tripMedicationId ?? 0,
-    Boolean(tripId && tripMedicationId)
-  );
+  } = useTripMedicationChecklist(tripId, tripMedicationId, hasValidParams);
 
-  if (!tripId || !tripMedicationId) {
+  const {
+    data: trip,
+    isPending: isTripPending,
+    isError: isTripError,
+  } = useTripDetail(tripId, hasValidParams);
+  const preparationLevel = trip?.medications.find(
+    (item) => item.tripMedicationId === tripMedicationId
+  )?.preparationLevel;
+
+  if (!hasValidParams) {
     return <Navigate to="/register" replace />;
   }
 
-  if (isPending) {
+  if (isPending || isTripPending) {
     return (
       <div className="flex h-full w-full items-center justify-center bg-[#FAFAF6]">
         <p className="font-Pretendard text-base text-[#848B9C]">
@@ -102,7 +103,7 @@ const MedicineDetailPage = () => {
     );
   }
 
-  if (isError) {
+  if (isError || isTripError || !preparationLevel) {
     const message =
       (error as AxiosError<{ message?: string }>)?.response?.data?.message ??
       '약 정보를 불러오지 못했어요.';
@@ -137,7 +138,7 @@ const MedicineDetailPage = () => {
 type MedicineDetailContentProps = {
   tripId: number;
   medication: MedicationDestinationDetail;
-  preparationLevel?: PreparationLevel;
+  preparationLevel: PreparationLevel;
   checklist?: TripMedicationChecklistResult;
   isChecklistPending: boolean;
   isChecklistError: boolean;
@@ -155,7 +156,7 @@ const MedicineDetailContent = ({
 }: MedicineDetailContentProps) => {
   const [activeTab, setActiveTab] = useState<string>(DETAIL_TABS[0].key);
 
-  const stampIcon = PREPARATION_LEVEL_ICON[preparationLevel ?? 'ALLOWED'];
+  const stampIcon = PREPARATION_LEVEL_ICON[preparationLevel];
 
   return (
     <div className="h-full w-full bg-[#FAFAF6] pb-10">
