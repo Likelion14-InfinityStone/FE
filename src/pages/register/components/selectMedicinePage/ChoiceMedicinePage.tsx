@@ -85,6 +85,13 @@ const ChoiceMedicinePage = () => {
     }));
   };
 
+  const handleChangeQuantity = (medicationId: number, quantity: number) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [medicationId]: quantity,
+    }));
+  };
+
   return (
     <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-10">
       <div className="relative flex items-center pt-16.5">
@@ -139,6 +146,9 @@ const ChoiceMedicinePage = () => {
               quantity={quantities[medicationId]}
               onIncrease={() => handleIncrease(medicationId)}
               onDecrease={() => handleDecrease(medicationId)}
+              onChangeQuantity={(quantity) =>
+                handleChangeQuantity(medicationId, quantity)
+              }
             />
           ))}
         </div>
