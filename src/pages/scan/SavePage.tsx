@@ -34,7 +34,7 @@ const SavePage = ({ medicineNames }: SavePageProps) => {
         <img src={doneStemp} alt="저장 완료" className="h-[170px] w-[170px]" />
 
         <div className="flex flex-col items-center gap-[8px]">
-          <p className="font-Pretendard text-[20px] font-bold tracking-[0.48px] text-[#23408F]">
+          <p className="text-center font-Pretendard text-[20px] font-bold tracking-[0.48px] text-[#23408F]">
             {displayName}
           </p>
           <p className="text-center font-Pretendard text-[16px] leading-[24px] tracking-[-0.5px] text-[#191919]">
