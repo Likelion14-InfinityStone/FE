@@ -1,18 +1,28 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 import Header from '@/components/layout/Header';
 import ConfirmModal from '@/components/modal/ConfirmModal';
 import LogoutIcon from '@/assets/images/account/logoutIcon.svg';
 import { contents } from '@/constants/more';
+import { useAuthStore } from '@/stores/useAuthStore';
 import MoreMenuGroup from './components/MoreMenuGroup';
 import ProfileCard from './components/ProfileCard';
-import { useUserMe } from './services/useAccount';
+import { accountKeys, useUserMe } from './services/useAccount';
 
 const Account = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const logout = useAuthStore((state) => state.logout);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const { data: userMe } = useUserMe();
+
+  const handleLogout = () => {
+    logout();
+    queryClient.removeQueries({ queryKey: accountKeys.me() });
+    navigate('/login');
+  };
 
   return (
     <div className="w-full h-full">
@@ -69,7 +79,7 @@ const Account = () => {
           title="로그아웃"
           description="로그아웃 하시겠습니까?"
           onCancel={() => setIsLogoutModalOpen(false)}
-          onConfirm={() => navigate('/login')}
+          onConfirm={handleLogout}
         />
       )}
     </div>
