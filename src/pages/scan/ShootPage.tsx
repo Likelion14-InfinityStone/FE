@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
-import { MOCK_RECOGNIZED_MEDICINE } from './mockRecognizedMedicine';
 import RecognitionHelpModal from './components/RecognitionHelpModal';
+import { useMedicationScan } from './services/useMedicationScan';
 
 const HINT_DELAY_MS = 5000;
 const HELP_MODAL_DELAY_MS = 15000;
@@ -12,6 +12,7 @@ const ShootPage = () => {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const { scan, isScanning, scanError, clearScanError } = useMedicationScan();
 
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
@@ -70,21 +71,28 @@ const ShootPage = () => {
     setShowHint(false);
     setShowHelpModal(false);
     setAttempt((prev) => prev + 1);
+    clearScanError();
   };
 
   const handleCapture = () => {
-    if (cameraError) return;
+    if (cameraError || isScanning) return;
 
     const video = videoRef.current;
-    if (video && video.videoWidth) {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d')?.drawImage(video, 0, 0);
-    }
+    if (!video || !video.videoWidth) return;
 
-    // TODO: OCR API 연동 후 촬영 이미지를 전달하고 실제 인식 결과로 교체
-    navigate('/scanResult', { state: MOCK_RECOGNIZED_MEDICINE });
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d')?.drawImage(video, 0, 0);
+
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        scan(new File([blob], 'scan.jpg', { type: 'image/jpeg' }));
+      },
+      'image/jpeg',
+      0.92
+    );
   };
 
   return (
@@ -118,12 +126,29 @@ const ShootPage = () => {
         </div>
       )}
 
+      {isScanning && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50">
+          <p className="text-center font-Pretendard text-[16px] leading-[1.4] tracking-[0.384px] text-[#FAFAF6]">
+            약 봉투를 분석하고 있어요...
+          </p>
+        </div>
+      )}
+
+      {scanError && !isScanning && (
+        <div className="absolute bottom-[120px] left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2 rounded-[12px] bg-[#161615]/80 px-[20px] py-[14px]">
+          <p className="text-center font-Pretendard text-[14px] leading-[1.4] tracking-[0.336px] text-[#FAFAF6]">
+            {scanError}
+          </p>
+        </div>
+      )}
+
       <div className="relative flex flex-1 flex-col items-center justify-center gap-[20px]">
         <button
           type="button"
           onClick={handleCapture}
+          disabled={isScanning}
           aria-label="촬영하기"
-          className="relative h-[224px] w-[310px]"
+          className="relative h-[224px] w-[310px] disabled:opacity-60"
         >
           <svg
             viewBox="0 0 316 230"

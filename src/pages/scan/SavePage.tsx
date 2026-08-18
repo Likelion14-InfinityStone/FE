@@ -5,11 +5,14 @@ import doneStemp from '@/assets/images/scan/doneStemp.svg';
 import BottomButton from '@/components/button/BottomButton';
 
 type SavePageProps = {
-  medicineName: string;
+  medicineNames: string[];
 };
 
-const SavePage = ({ medicineName }: SavePageProps) => {
+const SavePage = ({ medicineNames }: SavePageProps) => {
   const navigate = useNavigate();
+  const [firstName, ...restNames] = medicineNames;
+  const displayName =
+    restNames.length > 0 ? `${firstName} 외 ${restNames.length}건` : firstName;
 
   return (
     <div className="flex min-h-dvh w-full flex-col bg-[#FAFAF6]">
@@ -32,7 +35,7 @@ const SavePage = ({ medicineName }: SavePageProps) => {
 
         <div className="flex flex-col items-center gap-[8px]">
           <p className="font-Pretendard text-[20px] font-bold tracking-[0.48px] text-[#23408F]">
-            {medicineName}
+            {displayName}
           </p>
           <p className="text-center font-Pretendard text-[16px] leading-[24px] tracking-[-0.5px] text-[#191919]">
             복약 카드에 저장됐어요.
