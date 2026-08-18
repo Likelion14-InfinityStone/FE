@@ -49,6 +49,8 @@ const firstOpenIndex = (medicines: ScanMedicationResult[]): number => {
 
 const DUPLICATE_MESSAGE = '이미 등록된 의약품이 있어요.';
 const DEFAULT_SAVE_ERROR = '저장에 실패했어요. 잠시 후 다시 시도해 주세요.';
+const MISMATCH_SAVE_ERROR =
+  '스캔한 약 목록과 내용이 달라 저장할 수 없어요. 인식된 약은 그대로 두고 이름이나 복용 정보만 고쳐 주세요.';
 
 export const useScanResultForm = (
   initialPassport: PassportDraft,
@@ -186,6 +188,8 @@ export const useScanResultForm = (
 
       if (code === 'MEDICATION_409_1') {
         setIsDuplicate(true);
+      } else if (code === 'MEDICATION_400_1') {
+        setSaveError(MISMATCH_SAVE_ERROR);
       } else {
         setSaveError(DEFAULT_SAVE_ERROR);
       }

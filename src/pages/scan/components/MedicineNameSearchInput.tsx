@@ -76,8 +76,8 @@ const MedicineNameSearchInput = ({
   };
 
   return (
-    <div className="relative w-full">
-      <div className="flex h-[40px] w-full items-center gap-[8px] rounded-full border border-[#E2E2E2] bg-[#FCFCFC] px-[16px]">
+    <div className="relative min-w-0 w-full">
+      <div className="flex h-[40px] w-full min-w-0 items-center gap-[8px] overflow-hidden rounded-full border border-[#E2E2E2] bg-[#FCFCFC] px-[16px]">
         <input
           value={value}
           onChange={handleInputChange}
@@ -92,7 +92,7 @@ const MedicineNameSearchInput = ({
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-10 max-h-[220px] overflow-y-auto rounded-[16px] border border-[#E2E2E2] bg-[#FCFCFC] shadow-[0px_2px_8px_0px_rgba(0,0,0,0.08)]">
+        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-10 max-h-[220px] w-full min-w-0 overflow-x-hidden overflow-y-auto rounded-[16px] border border-[#E2E2E2] bg-[#FCFCFC] shadow-[0px_2px_8px_0px_rgba(0,0,0,0.08)]">
           {isLoading ? (
             <p className="px-[16px] py-[14px] font-Pretendard text-[14px] text-[#848B9C]">
               검색 중...
@@ -108,7 +108,7 @@ const MedicineNameSearchInput = ({
                 type="button"
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => handleSelect(candidate)}
-                className={`block w-full px-[16px] py-[14px] text-left font-Pretendard text-[14px] text-[#191919] ${
+                className={`block w-full min-w-0 break-words px-[16px] py-[14px] text-left font-Pretendard text-[14px] text-[#191919] ${
                   index > 0 ? 'border-t border-[#E2E2E2]' : ''
                 }`}
               >

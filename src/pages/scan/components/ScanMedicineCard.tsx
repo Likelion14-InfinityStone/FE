@@ -75,7 +75,7 @@ const ScanMedicineCard = ({
           />
         </span>
         <span
-          className={`flex-1 truncate text-left font-Pretendard text-[16px] font-medium tracking-[0.384px] ${
+          className={`line-clamp-2 min-w-0 flex-1 text-left font-Pretendard text-[16px] font-medium tracking-[0.384px] ${
             isNameEditable && !medicine.productKoName.trim()
               ? 'text-[#EF5050]'
               : 'text-[#191919]'
@@ -93,7 +93,7 @@ const ScanMedicineCard = ({
       {isOpen && (
         <div className="mt-[20px] flex flex-col gap-[20px]">
           {isNameEditable ? (
-            <div className="flex items-center justify-between gap-[12px] border-b border-[#E2E2E2] pb-[4px]">
+            <div className="flex min-w-0 items-center justify-between gap-[12px] border-b border-[#E2E2E2] pb-[4px]">
               <label className="shrink-0 whitespace-nowrap font-Pretendard text-[14px] font-medium tracking-[0.336px] text-[#848B9C]">
                 제품명
               </label>

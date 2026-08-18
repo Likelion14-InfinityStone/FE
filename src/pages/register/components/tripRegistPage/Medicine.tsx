@@ -4,6 +4,9 @@ import type { AxiosError } from 'axios';
 
 import { formatDDay, formatIsoDate } from '@/utils/dDay';
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
+import DeleteWarningIcon from '@/assets/images/documents/deleteWarningIcon.svg';
+import ConfirmModal from '@/components/modal/ConfirmModal';
+import { getCountryFlag } from '@/constants/countryFlags';
 import {
   useDeleteTrip,
   useTripDetail,
@@ -23,6 +26,8 @@ const Medicine = () => {
 
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [renameError, setRenameError] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const {
     data: trip,
@@ -39,13 +44,11 @@ const Medicine = () => {
   }
 
   const handleDelete = () => {
-    if (!window.confirm('이 여행을 삭제하시겠어요?')) return;
-
     deleteTripMutation.mutate(tripId, {
       onSuccess: () => navigate('/register'),
-      onError: (deleteError) => {
-        const status = (deleteError as AxiosError)?.response?.status;
-        window.alert(
+      onError: (mutationError) => {
+        const status = (mutationError as AxiosError)?.response?.status;
+        setDeleteError(
           status === 403
             ? '본인 여행만 삭제할 수 있어요.'
             : '여행을 삭제하지 못했어요. 다시 시도해 주세요.'
@@ -120,14 +123,17 @@ const Medicine = () => {
         <div className="absolute -top-[43px] right-0 z-10 flex gap-[10px]">
           <EditButton onClick={() => setIsRenameOpen(true)} />
           <DeleteButton
-            onClick={handleDelete}
-            disabled={deleteTripMutation.isPending}
+            onClick={() => {
+              setDeleteError(null);
+              setIsDeleteModalOpen(true);
+            }}
           />
         </div>
         <Ticket
           id={trip.tripId}
           dDay={formatDDay(trip.dday)}
           title={trip.title}
+          flagImage={getCountryFlag(trip.destination.countryNameKo)}
           departureCode={trip.origin.airportCode}
           departureCountry={trip.origin.countryNameKo}
           departureLocation={`${trip.origin.countryNameKo} / ${trip.origin.city}`}
@@ -162,6 +168,24 @@ const Medicine = () => {
             setIsRenameOpen(false);
           }}
           onSave={handleSaveRename}
+        />
+      )}
+
+      {isDeleteModalOpen && (
+        <ConfirmModal
+          icon={DeleteWarningIcon}
+          title="이 여행을 삭제하시겠어요?"
+          description={deleteError ?? '삭제한 여행은 복구할 수 없어요.'}
+          confirmText={
+            deleteTripMutation.isPending
+              ? '삭제 중'
+              : deleteError
+                ? '다시 시도'
+                : '삭제'
+          }
+          isPending={deleteTripMutation.isPending}
+          onCancel={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleDelete}
         />
       )}
     </div>

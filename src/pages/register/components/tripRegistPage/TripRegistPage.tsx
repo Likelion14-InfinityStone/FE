@@ -2,6 +2,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import BottomButton from '@/components/button/BottomButton';
+import { getCountryFlag } from '@/constants/countryFlags';
 import { formatDDay, formatIsoDate } from '@/utils/dDay';
 import { useTripChecklog } from '@/pages/register/services/useTripDetail';
 import CheckNaion from './components/CheckNaion';
@@ -34,7 +35,7 @@ const TripRegister = () => {
 
   if (!data || data.countries.length === 0) {
     return (
-      <div className="flex h-full w-full flex-col pb-24">
+      <div className="flex h-full w-full flex-col pb-44">
         <Header title="여행 체크로그함" />
         <TripRegistEmptyState />
         <div className="fixed bottom-29 left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2">
@@ -48,7 +49,7 @@ const TripRegister = () => {
   }
 
   return (
-    <div className="flex h-full w-full flex-col pb-24">
+    <div className="flex h-full w-full flex-col pb-44">
       <Header title="여행 체크로그함" />
 
       <div className="mt-12 flex flex-wrap items-center gap-2.5">
@@ -69,6 +70,7 @@ const TripRegister = () => {
             id={trip.tripId}
             dDay={formatDDay(trip.dday)}
             title={trip.title}
+            flagImage={getCountryFlag(trip.destination.countryNameKo)}
             departureCode={trip.origin.airportCode}
             departureCountry={trip.origin.countryNameKo}
             departureLocation={`${trip.origin.countryNameKo} / ${trip.origin.city}`}
