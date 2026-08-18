@@ -8,7 +8,11 @@ interface SosQuestionProps {
   type?: SosQuestionType;
   isOpen: boolean;
   selectedValue?: string;
+  selectedOptionValue?: string;
   options: readonly EmergencyOption[];
+  isOptionsLoading?: boolean;
+  isOptionsError?: boolean;
+  onRetryOptions?: () => void;
   onToggle: () => void;
   onSelect: (option: EmergencyOption) => void;
   onLocation?: () => void;
@@ -21,7 +25,11 @@ const SosQuestion = ({
   type = 'select',
   isOpen,
   selectedValue,
+  selectedOptionValue,
   options,
+  isOptionsLoading = false,
+  isOptionsError = false,
+  onRetryOptions,
   onToggle,
   onSelect,
   onLocation,
@@ -78,21 +86,39 @@ const SosQuestion = ({
           </button>
 
           {isOpen && (
-            <div className="flex flex-col gap-1 rounded-[20px] border border-[#23408F] p-3.5 bg-[#FCFCFC]">
-              {options.map((option, index) => (
+            <div className="flex flex-col gap-1 rounded-[20px] border border-[#23408F] bg-[#FAFAF6] p-3.5">
+              {isOptionsLoading ? (
+                <p className="p-2.5 font-Pretendard text-[0.875rem] text-[#555555]">
+                  목록을 불러오는 중이에요.
+                </p>
+              ) : isOptionsError ? (
                 <button
-                  key={option.value}
                   type="button"
-                  onClick={() => onSelect(option)}
-                  className={`rounded-[10px] p-2.5 text-left font-Pretendard text-[0.875rem] ${
-                    index === 0
-                      ? 'bg-[#EAF0FF] text-[#23408F]'
-                      : 'text-[#191919]'
-                  }`}
+                  onClick={onRetryOptions}
+                  className="rounded-[10px] bg-[#FAFAF6] p-2.5 text-left font-Pretendard text-[0.875rem] text-[#23408F]"
                 >
-                  {option.label}
+                  목록을 불러오지 못했어요. 다시 시도
                 </button>
-              ))}
+              ) : options.length === 0 ? (
+                <p className="p-2.5 font-Pretendard text-[0.875rem] text-[#555555]">
+                  선택할 항목이 없어요.
+                </p>
+              ) : (
+                options.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => onSelect(option)}
+                    className={`rounded-[10px] p-2.5 text-left font-Pretendard text-[0.875rem] ${
+                      option.value === selectedOptionValue
+                        ? 'bg-[#EAF0FF] text-[#23408F]'
+                        : 'bg-[#FAFAF6] text-[#191919]'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))
+              )}
             </div>
           )}
         </>

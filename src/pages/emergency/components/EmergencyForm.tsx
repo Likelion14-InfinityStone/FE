@@ -15,6 +15,16 @@ interface EmergencyFormProps {
   questions: EmergencyConfig['questions'];
   answers: EmergencyAnswers;
   options?: EmergencyOptionMap;
+  optionStates?: Partial<
+    Record<
+      EmergencyField,
+      {
+        isLoading?: boolean;
+        isError?: boolean;
+        onRetry?: () => void;
+      }
+    >
+  >;
   onAnswerChange: (field: EmergencyField, answer: EmergencyOption) => void;
   onLocationChange: (location: SosLocation | null) => void;
 }
@@ -36,6 +46,7 @@ const EmergencyForm = ({
   questions,
   answers,
   options = EMERGENCY_MOCK_OPTIONS,
+  optionStates = {},
   onAnswerChange,
   onLocationChange,
 }: EmergencyFormProps) => {
@@ -101,7 +112,11 @@ const EmergencyForm = ({
           type={type}
           isOpen={openQuestion === field}
           selectedValue={answers[field]?.label}
+          selectedOptionValue={answers[field]?.value}
           options={options[field] ?? []}
+          isOptionsLoading={optionStates[field]?.isLoading}
+          isOptionsError={optionStates[field]?.isError}
+          onRetryOptions={optionStates[field]?.onRetry}
           onToggle={() =>
             setOpenQuestion((current) => (current === field ? null : field))
           }

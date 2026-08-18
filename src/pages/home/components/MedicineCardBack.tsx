@@ -45,6 +45,7 @@ const MedicineCardBack = ({
           frequency: `${englishCard.back.intakesPerDay} time(s)/day`,
           duration: `${englishCard.back.totalDays} day(s)`,
           dosePerTime: `${englishCard.back.dosePerIntake} ${DOSE_UNIT_LABEL_EN[englishCard.back.doseUnit]}`,
+          connectedCountries: englishCard.back.connectedCountries,
         }
       : medicine;
 
@@ -123,6 +124,24 @@ const MedicineCardBack = ({
               value={field.value}
             />
           ))}
+          {displayedMedicine.connectedCountries &&
+            displayedMedicine.connectedCountries.length > 0 && (
+              <div className="flex flex-col gap-1.25">
+                <p className="font-Pretendard text-[0.875rem] leading-4.9 tracking-[0.3px] font-medium text-[#767676]">
+                  {isEnglishDisplayed ? 'Linked trips' : '연결된 여행'}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {displayedMedicine.connectedCountries.map((country) => (
+                    <span
+                      key={country.code}
+                      className="w-fit rounded-3xl bg-[#EAF0FF] px-4 py-2 font-Pretendard text-[0.75rem] leading-4.2 tracking-[0.3px] font-semibold text-[#23408F]"
+                    >
+                      {country.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
         </div>
       </div>
     </div>
