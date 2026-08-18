@@ -2,6 +2,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import Header from '@/components/layout/Header';
 import BottomButton from '@/components/button/BottomButton';
+import { getCountryFlag } from '@/constants/countryFlags';
 import { formatDDay, formatIsoDate } from '@/utils/dDay';
 import { useTripChecklog } from '@/pages/register/services/useTripDetail';
 import CheckNaion from './components/CheckNaion';
@@ -69,6 +70,7 @@ const TripRegister = () => {
             id={trip.tripId}
             dDay={formatDDay(trip.dday)}
             title={trip.title}
+            flagImage={getCountryFlag(trip.destination.countryNameKo)}
             departureCode={trip.origin.airportCode}
             departureCountry={trip.origin.countryNameKo}
             departureLocation={`${trip.origin.countryNameKo} / ${trip.origin.city}`}

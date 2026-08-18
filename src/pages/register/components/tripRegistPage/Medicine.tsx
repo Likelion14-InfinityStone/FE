@@ -6,6 +6,7 @@ import { formatDDay, formatIsoDate } from '@/utils/dDay';
 import backIcon from '@/assets/images/register/medicineDetail/backIcon.svg';
 import DeleteWarningIcon from '@/assets/images/documents/deleteWarningIcon.svg';
 import ConfirmModal from '@/components/modal/ConfirmModal';
+import { getCountryFlag } from '@/constants/countryFlags';
 import {
   useDeleteTrip,
   useTripDetail,
@@ -132,6 +133,7 @@ const Medicine = () => {
           id={trip.tripId}
           dDay={formatDDay(trip.dday)}
           title={trip.title}
+          flagImage={getCountryFlag(trip.destination.countryNameKo)}
           departureCode={trip.origin.airportCode}
           departureCountry={trip.origin.countryNameKo}
           departureLocation={`${trip.origin.countryNameKo} / ${trip.origin.city}`}
