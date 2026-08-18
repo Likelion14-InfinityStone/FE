@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import BottomButton from '@/components/button/BottomButton';
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
-import type { AirportSelection } from '@/types/register';
+import type { AirportSelection, SelectedMedication } from '@/types/register';
 import AirportSelectCard from './components/AirportSelectCard';
 import DateSelectCard from './components/DateSelectCard';
 import DateRangeModal from './components/DateRangeModal';
@@ -16,7 +16,7 @@ type AirportSelectionState = {
   departure?: AirportSelection;
   arrival?: AirportSelection;
   travelPeriod?: string;
-  medicineQuantities?: Record<string, number>;
+  selectedMedications?: SelectedMedication[];
 };
 
 const formatDate = (date: Date) => {
@@ -35,7 +35,7 @@ const SelectMedicinePage = () => {
   const [departure, setDeparture] = useState(navState?.departure);
   const [arrival, setArrival] = useState(navState?.arrival);
   const [travelPeriod, setTravelPeriod] = useState(navState?.travelPeriod);
-  const [medicineQuantities] = useState(navState?.medicineQuantities);
+  const [selectedMedications] = useState(navState?.selectedMedications);
   const [flipped, setflipped] = useState(false);
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
 
@@ -63,7 +63,7 @@ const SelectMedicinePage = () => {
         departure,
         arrival,
         travelPeriod,
-        medicineQuantities,
+        selectedMedications,
       },
     });
   };
@@ -75,13 +75,13 @@ const SelectMedicinePage = () => {
         departure,
         arrival,
         travelPeriod,
-        medicineQuantities,
+        selectedMedications,
       },
     });
   };
 
   return (
-    <div className="flex min-h-dvh w-full flex-col bg-[#FAFAF6] pb-10">
+    <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-10">
       <div className="relative flex items-center pt-16.5">
         <button
           type="button"
@@ -132,7 +132,7 @@ const SelectMedicinePage = () => {
         text="다음"
         onClick={() =>
           navigate('/choiceMedicine', {
-            state: { departure, arrival, travelPeriod, medicineQuantities },
+            state: { departure, arrival, travelPeriod, selectedMedications },
           })
         }
         disabled={!departure || !arrival || !travelPeriod}

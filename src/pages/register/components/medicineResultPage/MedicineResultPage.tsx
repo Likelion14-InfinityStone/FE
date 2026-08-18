@@ -4,18 +4,21 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import backButtonIcon from '@/assets/images/register/tripTicket/backButtonIcon.svg';
 import checkIcon from '@/assets/images/register/tripTicket/checkIcon.svg';
 import nonCheckIcon from '@/assets/images/register/tripTicket/nonCheckIcon.svg';
-import readyIcon from '@/assets/images/register/medicineDetail/readyStemp.svg';
 import downArrowIcon from '@/assets/images/register/medicineDetail/downArrowIcon.svg';
+import { PREPARATION_LEVEL_ICON } from '@/constants/preparationLevel';
 import ChecklistBox from '@/pages/register/components/medicineDetailPage/components/button/ChecklistBox';
 import SmallButton from '@/pages/register/components/selectMedicinePage/components/SmallButton';
-import type { AirportSelection } from '@/types/register';
+import type {
+  AirportSelection,
+  TripMedicationResultItem,
+} from '@/types/register';
 import MedicineExplanationModal from './components/MedicineExplanationModal';
 
 type MedicineResultState = {
   departure?: AirportSelection;
   arrival?: AirportSelection;
   travelPeriod?: string;
-  medicineQuantities?: Record<string, number>;
+  medications?: TripMedicationResultItem[];
 };
 
 const MedicineResultPage = () => {
@@ -23,23 +26,24 @@ const MedicineResultPage = () => {
   const location = useLocation();
   const navState = location.state as MedicineResultState | null;
 
-  // 약별 선택 여부: 처음에는 아무것도 선택되지 않은 상태로 시작
-  const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(
+  const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>(
     {}
   );
-  const [explanationTarget, setExplanationTarget] = useState<string | null>(
-    null
-  );
+  const [explanationTarget, setExplanationTarget] =
+    useState<TripMedicationResultItem | null>(null);
 
-  if (!navState || !navState.arrival || !navState.medicineQuantities) {
+  if (!navState || !navState.arrival || !navState.medications) {
     return <Navigate to="/register" replace />;
   }
 
-  const medicines = Object.entries(navState.medicineQuantities);
+  const medications = navState.medications;
   const hasSelection = Object.values(selectedItems).some(Boolean);
 
-  const toggleSelected = (name: string) => {
-    setSelectedItems((prev) => ({ ...prev, [name]: !prev[name] }));
+  const toggleSelected = (medicationId: number) => {
+    setSelectedItems((prev) => ({
+      ...prev,
+      [medicationId]: !prev[medicationId],
+    }));
   };
 
   const destinationLabel = navState.arrival
@@ -47,7 +51,7 @@ const MedicineResultPage = () => {
     : '';
 
   return (
-    <div className="flex min-h-dvh w-full flex-col bg-[#FAFAF6] pb-10">
+    <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-10">
       <div className="relative flex items-center pt-16.5">
         <button
           type="button"
@@ -68,30 +72,36 @@ const MedicineResultPage = () => {
       </p>
 
       <div className="mt-7 flex flex-col gap-4.5">
-        {medicines.map(([name, quantity]) => {
-          const isSelected = Boolean(selectedItems[name]);
+        {medications.map((medication) => {
+          const { medicationId, productKoName, preparationLevel } =
+            medication;
+          const isSelected = Boolean(selectedItems[medicationId]);
+          const levelIcon = PREPARATION_LEVEL_ICON[preparationLevel];
 
           return (
             <ChecklistBox
-              key={name}
+              key={medicationId}
               title={
                 <span className="flex items-center gap-2">
-                  {/* TODO: API 연동 후 실제 반입 가능 여부(readyIcon/stopIcon)로 교체 */}
-                  <img src={readyIcon} alt="" className="size-11.5 shrink-0" />
+                  <img
+                    src={levelIcon.src}
+                    alt={levelIcon.alt}
+                    className="size-11.5 shrink-0"
+                  />
                   <span className="flex flex-col gap-1">
                     <span className="font-Pretendard text-base font-medium tracking-[0.384px] text-[#191919]">
-                      {name}
+                      {productKoName}
                     </span>
                     <span className="font-Pretendard text-sm tracking-[0.336px] text-[#191919]">
-                      소지 {quantity}정
+                      {medication.quantityCondition ?? levelIcon.alt}
                     </span>
                   </span>
                 </span>
               }
               checked={isSelected}
-              isOpen={explanationTarget === name}
-              onToggle={() => toggleSelected(name)}
-              onChevronClick={() => setExplanationTarget(name)}
+              isOpen={explanationTarget?.medicationId === medicationId}
+              onToggle={() => toggleSelected(medicationId)}
+              onChevronClick={() => setExplanationTarget(medication)}
               checkIcon={
                 <img
                   src={isSelected ? checkIcon : nonCheckIcon}
@@ -123,8 +133,8 @@ const MedicineResultPage = () => {
             navigate('/saveMedicine', {
               state: {
                 ...navState,
-                selectedMedicines: Object.keys(selectedItems).filter(
-                  (name) => selectedItems[name]
+                selectedMedications: medications.filter(
+                  (medication) => selectedItems[medication.medicationId]
                 ),
               },
             })
@@ -134,7 +144,7 @@ const MedicineResultPage = () => {
 
       {explanationTarget && (
         <MedicineExplanationModal
-          medicineName={explanationTarget}
+          medication={explanationTarget}
           onClose={() => setExplanationTarget(null)}
         />
       )}

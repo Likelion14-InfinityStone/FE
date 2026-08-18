@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import ScreenContainer from './ScreenContainer';
 
 const SubLayout = () => (
-  <ScreenContainer>
+  <ScreenContainer hasBottomNav={false}>
     <Outlet />
   </ScreenContainer>
 );
