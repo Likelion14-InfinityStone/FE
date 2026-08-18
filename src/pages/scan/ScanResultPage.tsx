@@ -25,6 +25,7 @@ const ScanResultPage = () => {
     isSaving,
     isSaved,
     savedMedicineNames,
+    skippedMedicineNames,
     isDuplicate,
     saveError,
     updatePassport,
@@ -33,6 +34,7 @@ const ScanResultPage = () => {
     selectMedicineCandidate,
     updateMedicineDoseUnit,
     toggleMedicine,
+    removeMedicine,
     clearDuplicate,
     save,
   } = useScanResultForm(
@@ -85,7 +87,12 @@ const ScanResultPage = () => {
   }
 
   if (isSaved) {
-    return <SavePage medicineNames={savedMedicineNames} />;
+    return (
+      <SavePage
+        medicineNames={savedMedicineNames}
+        skippedMedicineNames={skippedMedicineNames}
+      />
+    );
   }
 
   return (
@@ -130,6 +137,9 @@ const ScanResultPage = () => {
               selectMedicineCandidate(index, candidate)
             }
             onChangeDoseUnit={(unit) => updateMedicineDoseUnit(index, unit)}
+            onRemove={
+              medicines.length > 1 ? () => removeMedicine(index) : undefined
+            }
           />
         ))}
       </div>
