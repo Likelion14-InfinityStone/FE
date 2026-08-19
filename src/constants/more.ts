@@ -171,6 +171,36 @@ export const contents = {
 
       'Pretendard (1.x) — SIL Open Font License 1.1',
       'Copyright (c) 2021 Kil Hyung-jin, with Reserved Font Name Pretendard.',
+
+      'Spring Boot (4.x) — Apache License 2.0',
+      'Copyright (c) 2012-2026 VMware, Inc.',
+
+      'Spring Framework (7.x) — Apache License 2.0',
+      'Copyright (c) 2002-2026 Pivotal, Inc.',
+
+      'Spring Security (7.x) — Apache License 2.0',
+      'Copyright (c) 2002-present the original author or authors.',
+
+      'Spring Data JPA (4.x) — Apache License 2.0',
+      'Copyright (c) 2011-2019 Pivotal Software, Inc.',
+
+      'Hibernate ORM (7.x) — Apache License 2.0',
+      'Copyright (c) Red Hat Inc. and Hibernate Authors.',
+
+      'Apache Tomcat (11.x) — Apache License 2.0',
+      'Copyright (c) 1999-2026 The Apache Software Foundation.',
+
+      'Jackson (2.x) — Apache License 2.0',
+      'Copyright (c) 2007-present Tatu Saloranta, FasterXML, LLC.',
+
+      'AWS SDK for Java v2 (2.x) — Apache License 2.0',
+      'Copyright (c) Amazon.com, Inc. or its affiliates.',
+
+      'JJWT (0.12.x) — Apache License 2.0',
+      'Copyright (c) 2014 jsonwebtoken.io.',
+
+      'MySQL Connector/J (9.x) — GPL 2.0 with Universal FOSS Exception 1.0',
+      'Copyright (c) 2017, 2026, Oracle and/or its affiliates.',
     ],
   } as NoticeContent,
   faq: [

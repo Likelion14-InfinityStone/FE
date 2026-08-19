@@ -66,7 +66,11 @@ const Ticket = ({
             {dDay}
           </span>
 
-          <img src={flagImage} alt="" className="h-[30px] w-[46px]" />
+          <img
+            src={flagImage}
+            alt=""
+            className="h-[30px] w-[46px] object-cover"
+          />
         </div>
 
         <div className="flex flex-1 flex-col items-center justify-center gap-[0.2px] bg-white px-4">
