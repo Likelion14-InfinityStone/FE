@@ -20,6 +20,9 @@ const formatFileSize = (fileSize: number) => {
   return `${(fileSize / (1024 * 1024)).toFixed(1)} MB`;
 };
 
+const getFittedPreviewUrl = (previewUrl: string) =>
+  `${previewUrl.split('#')[0]}#view=Fit`;
+
 const DocumentDetail = () => {
   const navigate = useNavigate();
   const { documentId: documentIdParam } = useParams();
@@ -113,7 +116,7 @@ const DocumentDetail = () => {
             {data && (
               <iframe
                 key={data.previewUrl}
-                src={data.previewUrl}
+                src={getFittedPreviewUrl(data.previewUrl)}
                 title={`${data.title} 미리보기`}
                 className="h-full w-full border-0"
               />
