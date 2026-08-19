@@ -35,10 +35,10 @@ const TripRegister = () => {
 
   if (!data || data.countries.length === 0) {
     return (
-      <div className="flex h-full w-full flex-col pb-44">
+      <div className="flex h-full w-full flex-col">
         <Header title="여행 체크로그함" />
         <TripRegistEmptyState />
-        <div className="fixed bottom-29 left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2">
+        <div className="pt-10">
           <BottomButton
             text="반입 여부 체크 시작"
             onClick={() => navigate('/selectMedicine')}
@@ -49,7 +49,7 @@ const TripRegister = () => {
   }
 
   return (
-    <div className="flex h-full w-full flex-col pb-44">
+    <div className="flex h-full w-full flex-col">
       <Header title="여행 체크로그함" />
 
       <div className="mt-12 flex flex-wrap items-center gap-2.5">
@@ -63,7 +63,7 @@ const TripRegister = () => {
         ))}
       </div>
 
-      <div className="mt-6 flex flex-col gap-6">
+      <div className="mt-6 flex flex-1 flex-col gap-6">
         {data.trips.map((trip) => (
           <Ticket
             key={trip.tripId}
@@ -82,7 +82,7 @@ const TripRegister = () => {
         ))}
       </div>
 
-      <div className="fixed bottom-29 left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2 ">
+      <div className="pt-10">
         <BottomButton
           text="반입 여부 체크 시작"
           onClick={() => navigate('/selectMedicine')}
