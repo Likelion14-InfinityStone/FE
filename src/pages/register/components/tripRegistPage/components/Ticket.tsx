@@ -61,7 +61,7 @@ const Ticket = ({
       }`}
     >
       <div className="flex h-full w-full overflow-hidden rounded-2xl drop-shadow-[0px_2px_1px_rgba(0,0,0,0.1)]">
-        <div className="flex w-[90px] shrink-0 flex-col items-center justify-center gap-[18px] bg-[#23408F]">
+        <div className="flex w-[90px] shrink-0 flex-col items-center justify-center gap-[18px] bg-[#425B9F]">
           <span className="font-Pretendard text-[1.25rem] leading-[1.4] font-semibold tracking-[0.48px] text-[#FAFAF6]">
             {dDay}
           </span>

@@ -5,7 +5,11 @@ const parseTripDate = (value: string) => {
   return new Date(2000 + year, month - 1, day);
 };
 
-export const formatDDay = (dday: number) => (dday > 0 ? `D-${dday}` : 'D-DAY');
+export const formatDDay = (dday: number) => {
+  if (dday > 0) return `D-${dday}`;
+  if (dday === 0) return 'D-DAY';
+  return `D+${Math.abs(dday)}`;
+};
 
 // ISO(YYYY-MM-DD) 날짜를 화면 표기용(YY.MM.DD)으로 변환
 export const formatIsoDate = (isoDate: string) => {
