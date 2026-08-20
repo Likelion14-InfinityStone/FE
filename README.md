@@ -144,3 +144,31 @@ FE/
    ├─ styles/                 # 전역 스타일
    └─ assets/                 # 이미지 및 폰트
 ```
+---
+
+## 👥 팀 구성 (Backend)
+
+<table>
+  <tr>
+    <td align="center" width="180">
+      <a href="https://github.com/a-neey">
+        <img src="https://github.com/a-neey.png" width="120" height="120" style="border-radius:50%" /><br/>
+        <b>김예나</b>
+      </a>
+    </td>
+    <td align="center" width="180">
+      <a href="https://github.com/atelier-hs">
+        <img src="https://github.com/atelier-hs.png" width="120" height="120" style="border-radius:50%" /><br/>
+        <b>장현서</b>
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">Frontend</td>
+    <td align="center">Frontend</td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/a-neey">@a-neey</a></td>
+    <td align="center"><a href="https://github.com/atelier-hs">@atelier-hs</a></td>
+  </tr>
+</table>
