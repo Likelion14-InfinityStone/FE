@@ -18,7 +18,7 @@ const PageHeader = ({ title, onBack }: PageHeaderProps) => {
       >
         <img src={BackArrowIcon} alt="뒤로 가기" />
       </button>
-      <p className="w-full truncate pl-10 text-left font-Pretendard text-[1.375rem] leading-7.5 font-semibold text-[#191919]">
+      <p className="w-full truncate px-10 text-center font-Pretendard text-[1.375rem] leading-7.5 font-semibold text-[#191919]">
         {title}
       </p>
     </div>
