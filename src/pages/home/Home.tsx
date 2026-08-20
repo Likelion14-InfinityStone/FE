@@ -304,7 +304,7 @@ const Home = () => {
           isError={isSidebarError}
           onRetry={() => void refetchSidebarMedications()}
           onClose={() => setIsCardDrawerOpen(false)}
-          onRegister={() => navigate('/register')}
+          onRegister={() => navigate('/scan')}
           onSelect={selectCard}
         />
       )}
