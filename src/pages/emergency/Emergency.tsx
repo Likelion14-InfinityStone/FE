@@ -11,6 +11,7 @@ import EmergencyForm from './components/EmergencyForm';
 import EmergencyResult from './components/EmergencyResult';
 import EmergencyTranslation from './components/EmergencyTranslation';
 import { useMedicationList } from '@/pages/home/services/useMedicationCards';
+import { useAllTrips } from '@/pages/register/services/useTripDetail';
 import {
   EMERGENCY_CONFIG,
   EMERGENCY_MOCK_OPTIONS,
@@ -36,6 +37,12 @@ const Emergency = () => {
   const [translatedScript, setTranslatedScript] =
     useState<SosScriptResult | null>(null);
   const { data: medications = [] } = useMedicationList(true);
+  const {
+    data: trips = [],
+    isPending: isTripsPending,
+    isError: isTripsError,
+    refetch: refetchTrips,
+  } = useAllTrips();
   const {
     mutate: fetchContacts,
     isPending: isContactsPending,
@@ -69,6 +76,10 @@ const Emergency = () => {
   });
   const emergencyOptions = {
     ...EMERGENCY_MOCK_OPTIONS,
+    trip: trips.map((trip) => ({
+      value: String(trip.tripId),
+      label: trip.title,
+    })),
     medication: medications.map((medication) => ({
       value: String(medication.medicationId),
       label: medication.productKoName,
@@ -132,6 +143,13 @@ const Emergency = () => {
               questions={config.questions}
               answers={answers}
               options={emergencyOptions}
+              optionStates={{
+                trip: {
+                  isLoading: isTripsPending,
+                  isError: isTripsError,
+                  onRetry: () => void refetchTrips(),
+                },
+              }}
               onLocationChange={setLocation}
               onAnswerChange={(field, answer) =>
                 setAnswers((current) => ({ ...current, [field]: answer }))

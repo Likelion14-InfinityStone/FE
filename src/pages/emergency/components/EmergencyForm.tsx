@@ -15,13 +15,46 @@ interface EmergencyFormProps {
   questions: EmergencyConfig['questions'];
   answers: EmergencyAnswers;
   options?: EmergencyOptionMap;
+  optionStates?: Partial<
+    Record<
+      EmergencyField,
+      {
+        isLoading?: boolean;
+        isError?: boolean;
+        onRetry?: () => void;
+      }
+    >
+  >;
   onAnswerChange: (field: EmergencyField, answer: EmergencyOption) => void;
   onLocationChange: (location: SosLocation | null) => void;
 }
 
 interface ReverseGeocodeResponse {
   countryName?: string;
+  principalSubdivision?: string;
+  city?: string;
+  locality?: string;
+  localityInfo?: {
+    administrative?: Array<{
+      name?: string;
+      adminLevel?: number;
+    }>;
+  };
 }
+
+const formatLocationName = (data: ReverseGeocodeResponse) => {
+  const administrativeCity = data.localityInfo?.administrative?.find(
+    ({ name, adminLevel }) => Boolean(name) && (adminLevel ?? 0) >= 6
+  )?.name;
+  const locationParts = [
+    data.countryName,
+    data.principalSubdivision,
+    data.city || administrativeCity,
+    data.locality,
+  ].filter((part): part is string => Boolean(part?.trim()));
+
+  return [...new Set(locationParts)].join(' ');
+};
 
 const getCurrentPosition = () =>
   new Promise<GeolocationPosition>((resolve, reject) => {
@@ -36,6 +69,7 @@ const EmergencyForm = ({
   questions,
   answers,
   options = EMERGENCY_MOCK_OPTIONS,
+  optionStates = {},
   onAnswerChange,
   onLocationChange,
 }: EmergencyFormProps) => {
@@ -73,14 +107,15 @@ const EmergencyForm = ({
       }
 
       const data = (await response.json()) as ReverseGeocodeResponse;
+      const locationName = formatLocationName(data);
 
-      if (!data.countryName) {
+      if (!locationName) {
         throw new Error('국가 정보를 확인하지 못했습니다.');
       }
 
       onAnswerChange(field, {
-        value: data.countryName,
-        label: data.countryName,
+        value: locationName,
+        label: locationName,
       });
     } catch {
       onLocationChange(null);
@@ -101,7 +136,11 @@ const EmergencyForm = ({
           type={type}
           isOpen={openQuestion === field}
           selectedValue={answers[field]?.label}
+          selectedOptionValue={answers[field]?.value}
           options={options[field] ?? []}
+          isOptionsLoading={optionStates[field]?.isLoading}
+          isOptionsError={optionStates[field]?.isError}
+          onRetryOptions={optionStates[field]?.onRetry}
           onToggle={() =>
             setOpenQuestion((current) => (current === field ? null : field))
           }

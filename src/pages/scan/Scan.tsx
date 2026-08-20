@@ -16,7 +16,7 @@ const Scan = () => {
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
 
   return (
-    <div className="flex h-full w-[350px] flex-col pt-[66px]">
+    <div className="flex w-full flex-1 flex-col pt-[66px]">
       <div className="flex w-[330px] h-[78px] flex-col gap-[4px] ">
         <h1 className="text-[24px] font-semibold leading-[140%] tracking-[0.024em] text-left text-[#191919]">
           스캔할 약 봉투를 준비해 주세요
@@ -34,7 +34,7 @@ const Scan = () => {
         />
       </div>
 
-      <div className="flex flex-col w-[350px] gap-[10px]">
+      <div className="flex w-full flex-col gap-[10px]">
         <BottomButton
           text="촬영하기"
           onClick={() => navigate('/scanCapture')}

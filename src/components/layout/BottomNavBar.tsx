@@ -68,7 +68,7 @@ const BottomNavBar = () => {
   const activeTab = getActiveTab(pathname);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex w-full max-w-100.5 items-end gap-[12.5px] bg-[#FCFCFC] px-10.5 pt-4.5 pb-4 shadow-[0_-4px_4px_0_rgba(0,0,0,0.04)] rounded-t-[20px] overflow-visible">
+    <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex w-full max-w-100.5 items-end gap-[12.5px] overflow-visible rounded-t-[20px] bg-[#FCFCFC] px-10.5 pt-4.5 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-4px_4px_0_rgba(0,0,0,0.04)]">
       {tabs.map(({ path, label, defaultIcon, activeIcon }) => {
         const isActive = activeTab === path;
 

@@ -55,6 +55,7 @@ const toHomeMedicineCard = (
     frequency: `1일 ${card.back.intakesPerDay}회`,
     duration: `${card.back.totalDays}일`,
     dosePerTime: `${card.back.dosePerIntake}${DOSE_UNIT_LABEL[card.back.doseUnit]}`,
+    connectedCountries: card.back.connectedCountries,
   },
 });
 
@@ -226,7 +227,7 @@ const Home = () => {
   ]);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full pb-10">
       <Header
         title="복약 카드"
         actionIcon={MoreCardIcon}
@@ -303,7 +304,7 @@ const Home = () => {
           isError={isSidebarError}
           onRetry={() => void refetchSidebarMedications()}
           onClose={() => setIsCardDrawerOpen(false)}
-          onRegister={() => navigate('/register')}
+          onRegister={() => navigate('/scan')}
           onSelect={selectCard}
         />
       )}

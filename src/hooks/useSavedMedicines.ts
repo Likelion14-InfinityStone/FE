@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import type { ConnectedCountry } from '@/types/home/medicationCard.type';
 
 export type SavedMedicine = {
   id: number;
@@ -9,6 +10,7 @@ export type SavedMedicine = {
   frequency: string;
   duration: string;
   dosePerTime: string;
+  connectedCountries?: ConnectedCountry[];
 };
 
 const SAVED_KEY = 'savedMedicines';

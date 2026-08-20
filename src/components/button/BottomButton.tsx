@@ -18,7 +18,7 @@ const BottomButton = ({
       type="button"
       className={`rounded-[20px] bg-[#23408F] py-5 disabled:cursor-not-allowed disabled:bg-[#23408F]/40 ${
         fixed
-          ? 'fixed bottom-5 left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2'
+          ? 'fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2'
           : 'w-full'
       }`}
       onClick={onClick}
