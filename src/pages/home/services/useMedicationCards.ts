@@ -7,7 +7,7 @@ import {
 } from '@/apis/home/medicationCard.api';
 import type { MedicationCardLanguage } from '@/types/home/medicationCard.type';
 
-const HOME_MEDICATION_CARD_PARAMS = { page: 0, size: 3 } as const;
+const HOME_MEDICATION_CARD_PARAMS = { page: 0, size: 20 } as const;
 
 export const medicationCardKeys = {
   all: ['medicationCards'] as const,
