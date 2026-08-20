@@ -51,7 +51,7 @@ const MedicineResultPage = () => {
     : '';
 
   return (
-    <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-10">
+    <div className="flex min-h-full w-full flex-col bg-[#FAFAF6] pb-28">
       <div className="relative flex items-center pt-16.5">
         <button
           type="button"
@@ -119,7 +119,7 @@ const MedicineResultPage = () => {
 
       <div className="flex-1" />
 
-      <div className="mt-6 flex gap-2.5">
+      <div className="fixed bottom-[max(20px,env(safe-area-inset-bottom))] left-1/2 z-20 flex w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2 gap-2.5">
         <SmallButton
           text="나가기"
           variant="primary"

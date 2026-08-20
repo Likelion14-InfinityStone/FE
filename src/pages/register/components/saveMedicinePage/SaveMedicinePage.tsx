@@ -145,7 +145,7 @@ const SaveMedicinePage = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-10">
+    <div className="flex min-h-full w-full flex-col bg-[#FAFAF6] pb-28">
       <div className="relative flex items-center pt-16.5">
         <button
           type="button"
@@ -192,7 +192,11 @@ const SaveMedicinePage = () => {
 
       <div className="flex-1" />
 
-      <BottomButton text="나가기" onClick={() => navigate('/register')} />
+      <BottomButton
+        text="나가기"
+        onClick={() => navigate('/register')}
+        fixed
+      />
     </div>
   );
 };

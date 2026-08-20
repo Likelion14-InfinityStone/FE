@@ -16,10 +16,10 @@ const MedicineDocuments = () => {
   );
 
   return (
-    <div className="flex w-full flex-1 flex-col">
+    <div className="flex h-full w-full flex-col">
       <PageHeader title="약품별 서류 목록" />
 
-      <div className="flex flex-1 flex-col gap-6 pt-3">
+      <div className="flex flex-1 flex-col gap-6 pt-3 pb-24">
         <h1 className="font-Pretendard text-[1.375rem] leading-7.5 font-semibold text-[#191919]">
           {data?.productKoName ?? '약품 정보를 불러오는 중...'}
         </h1>
@@ -67,7 +67,7 @@ const MedicineDocuments = () => {
           ))}
         </div>
 
-        <div className="mt-auto pt-6">
+        <div className="fixed bottom-[calc(7.25rem+env(safe-area-inset-bottom))] left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2">
           <BottomButton
             text="복약 카드 보기"
             onClick={() => {

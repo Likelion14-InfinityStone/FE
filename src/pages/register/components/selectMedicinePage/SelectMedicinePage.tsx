@@ -82,7 +82,7 @@ const SelectMedicinePage = () => {
 
   return (
     <div className="flex min-h-full w-full flex-col bg-[#FAFAF6] pb-28">
-      <div className="relative flex items-center pt-16.5">
+      <div className="relative flex items-center pt-9.5">
         <button
           type="button"
           aria-label="뒤로가기"

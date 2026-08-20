@@ -22,7 +22,7 @@ const TripRegister = () => {
 
   if (isPending) {
     return (
-      <div className="flex h-full w-full flex-col">
+      <div className="flex w-full flex-1 flex-col">
         <Header title="여행 체크로그함" />
         <div className="flex flex-1 items-center justify-center">
           <p className="font-Pretendard text-base text-[#848B9C]">
@@ -35,10 +35,10 @@ const TripRegister = () => {
 
   if (!data || data.countries.length === 0) {
     return (
-      <div className="flex min-h-full w-full flex-col">
+      <div className="flex w-full flex-1 flex-col pb-24">
         <Header title="여행 체크로그함" />
         <TripRegistEmptyState />
-        <div className="mt-auto pt-6">
+        <div className="fixed bottom-[calc(7.25rem+env(safe-area-inset-bottom))] left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2">
           <BottomButton
             text="반입 여부 체크 시작"
             onClick={() => navigate('/selectMedicine')}
@@ -49,7 +49,7 @@ const TripRegister = () => {
   }
 
   return (
-    <div className="flex min-h-full w-full flex-col">
+    <div className="flex w-full flex-1 flex-col pb-24">
       <Header title="여행 체크로그함" />
 
       <div className="mt-5 flex flex-wrap items-center gap-2.5">
@@ -82,7 +82,7 @@ const TripRegister = () => {
         ))}
       </div>
 
-      <div className="mt-auto pt-6">
+      <div className="fixed bottom-[calc(7.25rem+env(safe-area-inset-bottom))] left-1/2 z-20 w-[calc(100%-52px)] max-w-87.5 -translate-x-1/2">
         <BottomButton
           text="반입 여부 체크 시작"
           onClick={() => navigate('/selectMedicine')}
