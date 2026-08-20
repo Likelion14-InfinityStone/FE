@@ -45,7 +45,7 @@ const Onboard = () => {
   };
 
   return (
-    <div className="flex min-h-full w-full flex-col pb-24">
+    <div className="flex w-full flex-1 flex-col pb-24">
       <div className="flex justify-center gap-4.5 mt-13">
         {ONBOARDING_STEPS.map((_, index) => (
           <span
