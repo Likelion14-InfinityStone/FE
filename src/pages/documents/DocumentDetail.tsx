@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '@/components/layout/PageHeader';
 import DocumentsDeleteIcon from '@/assets/images/documents/documentsDeleteIcon.svg';
 import DocumentsDownloadIcon from '@/assets/images/documents/documentsDownloadIcon.svg';
@@ -23,9 +23,15 @@ const formatFileSize = (fileSize: number) => {
 const getFittedPreviewUrl = (previewUrl: string) =>
   `${previewUrl.split('#')[0]}#view=Fit`;
 
+type DocumentDetailLocationState = {
+  documentTitle?: string;
+};
+
 const DocumentDetail = () => {
   const navigate = useNavigate();
+  const { state } = useLocation();
   const { documentId: documentIdParam } = useParams();
+  const locationState = state as DocumentDetailLocationState | null;
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const documentId = Number(documentIdParam);
   const isValidDocumentId = Number.isSafeInteger(documentId) && documentId > 0;
@@ -43,6 +49,8 @@ const DocumentDetail = () => {
     isPending: isDeletePending,
     isError: isDeleteError,
   } = useDocumentDelete();
+  const isDocumentUnavailable =
+    !isValidDocumentId || isLoading || isError || !data;
 
   const handleDownload = () => {
     if (!isValidDocumentId) return;
@@ -71,7 +79,7 @@ const DocumentDetail = () => {
 
   return (
     <div className="flex min-h-full w-full flex-col">
-      <PageHeader title={data?.title ?? '서류 상세'} />
+      <PageHeader title={data?.title ?? locationState?.documentTitle ?? '서류'} />
 
       <div className="flex flex-1 flex-col gap-2.5">
         <div className="flex flex-col">
@@ -88,8 +96,8 @@ const DocumentDetail = () => {
           )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-6">
-          <div className="flex h-[min(70dvh,calc((100vw-52px)*1.414))] min-h-95 max-h-[495px] w-full shrink-0 items-center justify-center self-center overflow-hidden rounded-lg bg-[#E1E1E1]">
+        <div className="flex flex-col gap-6">
+          <div className="flex h-95 w-full shrink-0 items-center justify-center self-center overflow-hidden rounded-lg bg-[#E1E1E1]">
             {isLoading && (
               <p className="font-Pretendard text-[1rem] font-semibold text-[#191919]">
                 서류를 불러오는 중...
@@ -119,7 +127,7 @@ const DocumentDetail = () => {
                 src={getFittedPreviewUrl(data.previewUrl)}
                 title={`${data.title} 미리보기`}
                 scrolling="yes"
-                className="block h-full w-full touch-pan-y border-0"
+                className="pointer-events-none block h-full w-full border-0 sm:pointer-events-auto"
               />
             )}
 
@@ -130,34 +138,34 @@ const DocumentDetail = () => {
             )}
           </div>
 
-          {data && (
-            <div className="mt-auto flex flex-col gap-2.5 pb-4">
-              <DocumentActionButton
-                label={
-                  isDownloadPending
-                    ? '다운로드 준비 중'
-                    : isDownloadError
-                      ? '다운로드 재시도'
-                      : '다운로드'
-                }
-                icon={DocumentsDownloadIcon}
-                tone="primary"
-                onClick={handleDownload}
-                disabled={isDownloadPending}
-              />
-              <DocumentActionButton
-                label="공유"
-                icon={DocumentsShareIcon}
-                tone="secondary"
-              />
-              <DocumentActionButton
-                label="서류 삭제"
-                icon={DocumentsDeleteIcon}
-                tone="danger"
-                onClick={() => setIsDeleteModalOpen(true)}
-              />
-            </div>
-          )}
+          <div className="flex shrink-0 flex-col gap-2.5 pb-4">
+            <DocumentActionButton
+              label={
+                isDownloadPending
+                  ? '다운로드 준비 중'
+                  : isDownloadError
+                    ? '다운로드 재시도'
+                    : '다운로드'
+              }
+              icon={DocumentsDownloadIcon}
+              tone="primary"
+              onClick={handleDownload}
+              disabled={isDocumentUnavailable || isDownloadPending}
+            />
+            <DocumentActionButton
+              label="공유"
+              icon={DocumentsShareIcon}
+              tone="secondary"
+              disabled={isDocumentUnavailable}
+            />
+            <DocumentActionButton
+              label="서류 삭제"
+              icon={DocumentsDeleteIcon}
+              tone="danger"
+              onClick={() => setIsDeleteModalOpen(true)}
+              disabled={isDocumentUnavailable}
+            />
+          </div>
         </div>
       </div>
 

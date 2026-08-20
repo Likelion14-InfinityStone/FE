@@ -59,7 +59,8 @@ const MedicineDocuments = () => {
                   ? undefined
                   : () =>
                       navigate(
-                        `/documents/${medicationId}/${document.documentId}`
+                        `/documents/${medicationId}/${document.documentId}`,
+                        { state: { documentTitle: document.title } }
                       )
               }
             />
