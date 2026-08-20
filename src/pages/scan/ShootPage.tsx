@@ -6,7 +6,7 @@ import RecognitionHelpModal from './components/RecognitionHelpModal';
 import { useMedicationScan } from './services/useMedicationScan';
 
 const HINT_DELAY_MS = 5000;
-const HELP_MODAL_DELAY_MS = 15000;
+const HELP_MODAL_DELAY_MS = 10000;
 
 const ShootPage = () => {
   const navigate = useNavigate();
