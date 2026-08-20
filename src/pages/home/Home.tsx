@@ -227,7 +227,7 @@ const Home = () => {
   ]);
 
   return (
-    <div className="w-full h-full">
+    <div className="mb-10 h-full w-full">
       <Header
         title="복약 카드"
         actionIcon={MoreCardIcon}
