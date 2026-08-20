@@ -81,7 +81,7 @@ const SelectMedicinePage = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col bg-[#FAFAF6] pb-10">
+    <div className="flex min-h-full w-full flex-col bg-[#FAFAF6] pb-28">
       <div className="relative flex items-center pt-16.5">
         <button
           type="button"
@@ -130,6 +130,7 @@ const SelectMedicinePage = () => {
 
       <BottomButton
         text="다음"
+        fixed
         onClick={() =>
           navigate('/choiceMedicine', {
             state: { departure, arrival, travelPeriod, selectedMedications },
