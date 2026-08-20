@@ -52,7 +52,7 @@ const TripRegister = () => {
     <div className="flex h-full w-full flex-col pb-16">
       <Header title="여행 체크로그함" />
 
-      <div className="mt-12 flex flex-wrap items-center gap-2.5">
+      <div className="mt-5 flex flex-wrap items-center gap-2.5">
         {data.countries.map((country) => (
           <CheckNaion
             key={country.countryCode}
