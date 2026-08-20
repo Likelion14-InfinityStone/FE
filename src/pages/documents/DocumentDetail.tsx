@@ -89,7 +89,7 @@ const DocumentDetail = () => {
         </div>
 
         <div className="flex flex-1 flex-col gap-6">
-          <div className="flex h-95 w-full shrink-0 items-center justify-center self-center overflow-hidden rounded-lg bg-[#E1E1E1]">
+          <div className="flex h-[min(70dvh,calc((100vw-52px)*1.414))] min-h-95 max-h-[495px] w-full shrink-0 items-center justify-center self-center overflow-hidden rounded-lg bg-[#E1E1E1]">
             {isLoading && (
               <p className="font-Pretendard text-[1rem] font-semibold text-[#191919]">
                 서류를 불러오는 중...
@@ -118,7 +118,8 @@ const DocumentDetail = () => {
                 key={data.previewUrl}
                 src={getFittedPreviewUrl(data.previewUrl)}
                 title={`${data.title} 미리보기`}
-                className="h-full w-full border-0"
+                scrolling="yes"
+                className="block h-full w-full touch-pan-y border-0"
               />
             )}
 
