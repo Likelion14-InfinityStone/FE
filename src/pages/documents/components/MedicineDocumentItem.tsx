@@ -47,7 +47,7 @@ const MedicineDocumentItem = ({
         </span>
       </p>
 
-      <img src={DocumentsDetailArrowIcon} alt="" className="h-6 w-6 shrink-0" />
+      {onClick && <img src={DocumentsDetailArrowIcon} alt="" />}
     </button>
   );
 };
